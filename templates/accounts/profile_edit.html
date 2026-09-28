@@ -1,0 +1,435 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile | Church Media Management{% endblock %}
+
+{% block page_title %}Edit Profile{% endblock %}
+
+{% block page_subtitle %}
+Update your personal account information
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .profile-edit-page {
+        animation: profilePageIn .35s ease both;
+    }
+
+    .profile-section {
+        border: 1px solid var(--bs-border-color, #dee2e6);
+        border-radius: 18px;
+        background: var(--bs-body-bg, #fff);
+        box-shadow: 0 8px 28px rgba(15, 23, 42, .05);
+        overflow: hidden;
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .profile-section:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 34px rgba(15, 23, 42, .08);
+    }
+
+    .profile-section-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1.25rem 1.35rem;
+        border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+    }
+
+    .profile-section-header h5 {
+        margin: 0;
+        font-weight: 700;
+    }
+
+    .profile-section-header p {
+        margin: .35rem 0 0;
+        color: var(--bs-secondary-color, #6c757d);
+        font-size: .88rem;
+    }
+
+    .profile-section-header > i {
+        width: 42px;
+        height: 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        background: rgba(25, 135, 84, .10);
+        color: #198754;
+        font-size: 1.15rem;
+        flex-shrink: 0;
+    }
+
+    .profile-section > .row,
+    .profile-section > .account-readonly-grid,
+    .profile-section > .profile-security-note,
+    .profile-section > h5,
+    .profile-section > p,
+    .profile-section > button,
+    .profile-section > a {
+        margin-left: 1.35rem;
+        margin-right: 1.35rem;
+    }
+
+    .profile-section > .row {
+        margin-top: 1.35rem;
+        margin-bottom: 1.35rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        font-size: .88rem;
+        margin-bottom: .45rem;
+    }
+
+    .form-control,
+    .form-select {
+        min-height: 44px;
+        border-radius: 11px;
+        border-color: var(--bs-border-color, #dee2e6);
+        transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        transform: translateY(-1px);
+        border-color: #198754;
+        box-shadow: 0 0 0 .2rem rgba(25, 135, 84, .12);
+    }
+
+    input[type="file"].form-control {
+        padding-top: .55rem;
+        padding-bottom: .55rem;
+    }
+
+    .form-text {
+        font-size: .78rem;
+    }
+
+    .account-readonly-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+        padding-top: 1.35rem;
+        padding-bottom: 1.35rem;
+    }
+
+    .readonly-item {
+        padding: 1rem;
+        border: 1px solid var(--bs-border-color, #dee2e6);
+        border-radius: 13px;
+        background: var(--bs-tertiary-bg, #f8f9fa);
+        transition: border-color .2s ease, transform .2s ease;
+    }
+
+    .readonly-item:hover {
+        transform: translateY(-1px);
+        border-color: rgba(25, 135, 84, .35);
+    }
+
+    .readonly-item span {
+        display: block;
+        color: var(--bs-secondary-color, #6c757d);
+        font-size: .75rem;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        font-weight: 700;
+        margin-bottom: .3rem;
+    }
+
+    .readonly-item strong {
+        display: block;
+        font-size: .92rem;
+        word-break: break-word;
+    }
+
+    .profile-security-note {
+        display: flex;
+        align-items: flex-start;
+        gap: .7rem;
+        margin-bottom: 1.35rem;
+        padding: .9rem 1rem;
+        border-radius: 12px;
+        background: rgba(13, 110, 253, .07);
+        color: var(--bs-secondary-color, #495057);
+        font-size: .82rem;
+        line-height: 1.55;
+    }
+
+    .profile-security-note i {
+        color: #0d6efd;
+        font-size: 1rem;
+        margin-top: .08rem;
+    }
+
+    .save-card {
+        position: sticky;
+        top: 1.25rem;
+    }
+
+    .save-card .save-icon {
+        width: 50px;
+        height: 50px;
+        display: grid;
+        place-items: center;
+        border-radius: 14px;
+        background: rgba(25, 135, 84, .10);
+        color: #198754;
+        font-size: 1.35rem;
+        margin-bottom: 1rem;
+    }
+
+    .save-card .btn {
+        min-height: 44px;
+        border-radius: 11px;
+        font-weight: 600;
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .save-card .btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .profile-page-alert {
+        margin: 1.35rem;
+        border-radius: 12px;
+    }
+
+    @keyframes profilePageIn {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 991.98px) {
+        .save-card {
+            position: static;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .account-readonly-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-section-header {
+            padding: 1rem;
+        }
+
+        .profile-section > .row,
+        .profile-section > .account-readonly-grid,
+        .profile-section > .profile-security-note,
+        .profile-section > h5,
+        .profile-section > p,
+        .profile-section > button,
+        .profile-section > a {
+            margin-left: 1rem;
+            margin-right: 1rem;
+        }
+    }
+</style>
+
+<div class="profile-edit-page">
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="row g-4">
+
+            <div class="col-lg-8">
+
+                <div class="profile-section">
+
+                    <div class="profile-section-header">
+                        <div>
+                            <h5>Personal Information</h5>
+                            <p>Update the information associated with your account.</p>
+                        </div>
+
+                        <i class="bi bi-person"></i>
+                    </div>
+
+                    {% if form.errors %}
+                        <div class="alert alert-danger profile-page-alert">
+                            <div class="fw-semibold mb-1">
+                                Please review the form
+                            </div>
+                            <div class="small">
+                                Correct the highlighted fields before saving your profile.
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.first_name.id_for_label }}">
+                                First Name
+                            </label>
+                            {{ form.first_name }}
+
+                            {% for error in form.first_name.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.last_name.id_for_label }}">
+                                Last Name
+                            </label>
+                            {{ form.last_name }}
+
+                            {% for error in form.last_name.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="col-md-8">
+                            <label class="form-label" for="{{ form.email.id_for_label }}">
+                                Email Address
+                            </label>
+                            {{ form.email }}
+
+                            {% for error in form.email.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label" for="{{ form.phone.id_for_label }}">
+                                Phone Number
+                            </label>
+                            {{ form.phone }}
+
+                            {% for error in form.phone.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label" for="{{ form.profile_photo.id_for_label }}">
+                                Profile Photo
+                            </label>
+                            {{ form.profile_photo }}
+
+                            {% for error in form.profile_photo.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+
+                            <div class="form-text mt-2">
+                                <i class="bi bi-image me-1"></i>
+                                Use a clear profile photo. JPG, PNG and other supported image formats are accepted.
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="profile-section mt-4">
+
+                    <div class="profile-section-header">
+                        <div>
+                            <h5>Account Details</h5>
+                            <p>Some account information is managed by an administrator.</p>
+                        </div>
+
+                        <i class="bi bi-lock"></i>
+                    </div>
+
+                    <div class="account-readonly-grid">
+
+                        <div class="readonly-item">
+                            <span>Username</span>
+                            <strong>{{ request.user.username }}</strong>
+                        </div>
+
+                        <div class="readonly-item">
+                            <span>Role</span>
+                            <strong>
+                                {% if request.user.is_superuser %}
+                                    Administrator
+                                {% else %}
+                                    {{ profile.get_role_display }}
+                                {% endif %}
+                            </strong>
+                        </div>
+
+                        {% if member %}
+
+                            <div class="readonly-item">
+                                <span>Media Team Position</span>
+                                <strong>{{ member.role }}</strong>
+                            </div>
+
+                            <div class="readonly-item">
+                                <span>Joined Date</span>
+                                <strong>
+                                    {{ member.joined_date|date:"d M Y"|default:"Not provided" }}
+                                </strong>
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                    <div class="profile-security-note">
+                        <i class="bi bi-info-circle"></i>
+                        <span>
+                            Username, role, permissions, team position and account status can only be changed by an authorized administrator.
+                        </span>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-4">
+
+                <div class="profile-section save-card">
+
+                    <div class="p-4">
+                        <div class="save-icon">
+                            <i class="bi bi-person-check"></i>
+                        </div>
+
+                        <h5 class="mb-2 fw-bold">Save Changes</h5>
+
+                        <p class="text-muted small mb-0">
+                            Your updated information will be used throughout the system.
+                        </p>
+
+                        <button
+                            type="submit"
+                            class="btn btn-success w-100 mt-4"
+                        >
+                            <i class="bi bi-check2-circle me-1"></i>
+                            Save Changes
+                        </button>
+
+                        <a
+                            href="{% url 'profile' %}"
+                            class="btn btn-outline-secondary w-100 mt-2"
+                        >
+                            <i class="bi bi-arrow-left me-1"></i>
+                            Cancel
+                        </a>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

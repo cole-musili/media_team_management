@@ -1,0 +1,409 @@
+{% extends "base.html" %}
+
+{% block title %}{{ media.title|default:"Media" }} | Church Media{% endblock %}
+
+{% block page_title %}
+Media Details
+{% endblock %}
+
+{% block page_subtitle %}
+{{ media.album.title }}
+{% endblock %}
+
+{% block content %}
+
+{% with user_role=request.user.profile.role|default:"" %}
+
+<div class="media-detail-header mb-4">
+
+    <div>
+        <a
+            href="{% url 'album_detail' media.album.pk %}"
+            class="small text-secondary text-decoration-none"
+        >
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Album
+        </a>
+
+        <div class="media-kicker mt-3">
+            <i class="bi bi-file-earmark-richtext"></i>
+            Media Details
+        </div>
+
+        <h2 class="h4 fw-bold mt-2 mb-1">
+            {{ media.title|default:"Untitled Media" }}
+        </h2>
+
+        <div class="text-secondary small">
+            <i class="bi bi-folder2-open me-1"></i>
+            {{ media.album.title }}
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+
+        <a
+            href="{{ media.file.url }}"
+            target="_blank"
+            class="btn btn-primary btn-sm"
+        >
+            <i class="bi bi-box-arrow-up-right me-1"></i>
+            Open File
+        </a>
+
+        {% if user_role == "admin" or user_role == "coordinator" %}
+        <a
+            href="{% url 'media_delete' media.pk %}"
+            class="btn btn-outline-danger btn-sm"
+        >
+            <i class="bi bi-trash me-1"></i>
+            Delete
+        </a>
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<div class="row g-4">
+
+    <div class="col-lg-8">
+
+        <div class="app-card media-preview-card">
+
+            <div class="media-detail-preview">
+
+                {% if media.media_type == "photo" %}
+
+                    <img
+                        src="{{ media.file.url }}"
+                        alt="{{ media.title|default:'Media image' }}"
+                    >
+
+                {% elif media.media_type == "video" %}
+
+                    <video
+                        controls
+                        class="w-100"
+                    >
+                        <source src="{{ media.file.url }}">
+                        Your browser does not support video playback.
+                    </video>
+
+                {% else %}
+
+                    <div class="document-preview">
+
+                        <div class="document-icon">
+                            <i class="bi bi-file-earmark-text"></i>
+                        </div>
+
+                        <h5>
+                            {{ media.title|default:media.file.name }}
+                        </h5>
+
+                        <p class="text-white-50 small mb-4">
+                            This file is stored as a document in the media library.
+                        </p>
+
+                        <a
+                            href="{{ media.file.url }}"
+                            target="_blank"
+                            class="btn btn-primary"
+                        >
+                            <i class="bi bi-box-arrow-up-right me-1"></i>
+                            Open Document
+                        </a>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-lg-4">
+
+        <div class="app-card media-info-card">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-info-circle text-success"></i>
+                    <div class="fw-semibold">
+                        Media Information
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="app-card-body">
+
+                <span class="media-type-badge mb-3">
+                    {{ media.get_media_type_display }}
+                </span>
+
+                <h4 class="h5 fw-bold">
+                    {{ media.title|default:"Untitled Media" }}
+                </h4>
+
+
+                {% if media.description %}
+
+                    <p class="text-secondary small mt-3">
+                        {{ media.description }}
+                    </p>
+
+                {% endif %}
+
+
+                <hr>
+
+
+                <div class="media-info-row">
+                    <div class="media-info-label">
+                        <i class="bi bi-folder2-open"></i>
+                        Album
+                    </div>
+
+                    <a
+                        href="{% url 'album_detail' media.album.pk %}"
+                        class="fw-semibold text-decoration-none"
+                    >
+                        {{ media.album.title }}
+                    </a>
+                </div>
+
+
+                <div class="media-info-row">
+                    <div class="media-info-label">
+                        <i class="bi bi-calendar-event"></i>
+                        Event
+                    </div>
+
+                    <div>
+                        {{ media.album.event.name }}
+                    </div>
+                </div>
+
+
+                <div class="media-info-row">
+                    <div class="media-info-label">
+                        <i class="bi bi-clock"></i>
+                        Uploaded
+                    </div>
+
+                    <div>
+                        {{ media.uploaded_at|date:"d M Y H:i" }}
+                    </div>
+                </div>
+
+
+                {% if media.uploaded_by %}
+
+                    <div class="media-info-row">
+                        <div class="media-info-label">
+                            <i class="bi bi-person"></i>
+                            Uploaded by
+                        </div>
+
+                        <div>
+                            {{ media.uploaded_by.name }}
+                        </div>
+                    </div>
+
+                {% endif %}
+
+
+                <div class="media-file-action mt-4">
+
+                    <div class="d-flex align-items-center gap-3">
+
+                        <div class="file-action-icon">
+                            <i class="bi bi-file-earmark-arrow-up"></i>
+                        </div>
+
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold small">
+                                File access
+                            </div>
+                            <div class="text-secondary small">
+                                Open the original uploaded file.
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <a
+                        href="{{ media.file.url }}"
+                        target="_blank"
+                        class="btn btn-primary btn-sm w-100 mt-3"
+                    >
+                        <i class="bi bi-box-arrow-up-right me-1"></i>
+                        Open File
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+    .media-detail-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 18px;
+        flex-wrap: wrap;
+    }
+
+    .media-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 9px;
+        border-radius: 7px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+    }
+
+    .media-preview-card {
+        overflow: hidden;
+    }
+
+    .media-detail-preview {
+        min-height: 500px;
+        background: #101614;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .media-detail-preview img {
+        max-width: 100%;
+        max-height: 700px;
+        object-fit: contain;
+        display: block;
+        transition: transform .3s ease;
+    }
+
+    .media-preview-card:hover .media-detail-preview img {
+        transform: scale(1.01);
+    }
+
+    .media-detail-preview video {
+        max-height: 700px;
+        display: block;
+    }
+
+    .document-preview {
+        width: 100%;
+        text-align: center;
+        color: white;
+        padding: 70px 20px;
+    }
+
+    .document-icon {
+        width: 76px;
+        height: 76px;
+        margin: 0 auto 20px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255,255,255,.09);
+        color: white;
+        font-size: 38px;
+    }
+
+    .media-info-card {
+        height: 100%;
+    }
+
+    .media-type-badge {
+        display: inline-block;
+        padding: 5px 9px;
+        border-radius: 7px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .media-info-row {
+        padding: 13px 0;
+        border-bottom: 1px solid #edf0ef;
+    }
+
+    .media-info-row:last-of-type {
+        border-bottom: 0;
+    }
+
+    .media-info-label {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: #687570;
+        font-size: 12px;
+        margin-bottom: 5px;
+    }
+
+    .media-info-label i {
+        color: #176b52;
+    }
+
+    .media-file-action {
+        padding: 15px;
+        border: 1px solid #e8eeeb;
+        border-radius: 10px;
+        background: #f8faf9;
+    }
+
+    .file-action-icon {
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 17px;
+    }
+
+    @media (max-width: 767.98px) {
+
+        .media-detail-preview {
+            min-height: 340px;
+        }
+
+        .media-detail-header .btn {
+            flex: 1;
+        }
+
+    }
+
+</style>
+
+{% endwith %}
+
+{% endblock %}

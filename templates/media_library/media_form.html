@@ -1,0 +1,393 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Media | Church Media{% endblock %}
+
+{% block page_title %}
+Upload Media
+{% endblock %}
+
+{% block page_subtitle %}
+Add media to {{ album.title }}.
+{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-xl-8 col-lg-9">
+
+        <div class="form-page-header mb-4">
+
+            <div>
+                <div class="form-kicker">
+                    <i class="bi bi-cloud-arrow-up"></i>
+                    Media Library
+                </div>
+
+                <h2 class="h4 fw-bold mt-2 mb-1">
+                    Upload Media
+                </h2>
+
+                <p class="text-secondary mb-0">
+                    Add a photo, video, or document to
+                    <strong>{{ album.title }}</strong>.
+                </p>
+            </div>
+
+            <a
+                href="{% url 'album_detail' album.pk %}"
+                class="btn btn-outline-secondary btn-sm"
+            >
+                <i class="bi bi-arrow-left me-1"></i>
+                Back to Album
+            </a>
+
+        </div>
+
+
+        <div class="app-card upload-card">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-2">
+                    <span class="section-icon">
+                        <i class="bi bi-file-earmark-arrow-up"></i>
+                    </span>
+
+                    <div>
+                        <div class="fw-semibold">
+                            Media Information
+                        </div>
+
+                        <div class="small text-secondary">
+                            Provide the file details before uploading.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="app-card-body">
+
+                <form
+                    method="post"
+                    enctype="multipart/form-data"
+                    novalidate
+                >
+
+                    {% csrf_token %}
+
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger validation-alert">
+                            <div class="fw-semibold mb-1">
+                                <i class="bi bi-exclamation-circle me-1"></i>
+                                Please review the form
+                            </div>
+
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+
+                    <div class="form-section">
+
+                        <div class="form-section-title">
+                            <i class="bi bi-file-earmark-play"></i>
+                            File Details
+                        </div>
+
+
+                        <div class="row g-3">
+
+                            <div class="col-md-5">
+
+                                <label class="form-label" for="{{ form.media_type.id_for_label }}">
+                                    Media Type
+                                </label>
+
+                                {{ form.media_type }}
+
+                                {% if form.media_type.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.media_type.errors }}
+                                    </div>
+                                {% endif %}
+
+                                <div class="form-hint">
+                                    Choose whether this upload is a photo, video, or document.
+                                </div>
+
+                            </div>
+
+
+                            <div class="col-md-7">
+
+                                <label class="form-label" for="{{ form.file.id_for_label }}">
+                                    File
+                                </label>
+
+                                {{ form.file }}
+
+                                {% if form.file.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.file.errors }}
+                                    </div>
+                                {% endif %}
+
+                                <div class="form-hint">
+                                    Select the file you want to add to this album.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-section">
+
+                        <div class="form-section-title">
+                            <i class="bi bi-card-text"></i>
+                            Information
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <label class="form-label" for="{{ form.title.id_for_label }}">
+                                Title
+                            </label>
+
+                            {{ form.title }}
+
+                            {% if form.title.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.title.errors }}
+                                </div>
+                            {% endif %}
+
+                            <div class="form-hint">
+                                Give the media a clear name so it can be found easily later.
+                            </div>
+
+                        </div>
+
+
+                        <div>
+
+                            <label class="form-label" for="{{ form.description.id_for_label }}">
+                                Description
+                            </label>
+
+                            {{ form.description }}
+
+                            {% if form.description.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.description.errors }}
+                                </div>
+                            {% endif %}
+
+                            <div class="form-hint">
+                                Add any useful context about this media file.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="upload-guidance">
+
+                        <div class="guidance-icon">
+                            <i class="bi bi-info-circle"></i>
+                        </div>
+
+                        <div>
+                            <div class="fw-semibold small">
+                                Before you upload
+                            </div>
+
+                            <div class="small text-secondary">
+                                Make sure the selected media belongs to this album
+                                and that the media type matches the file you selected.
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-actions mt-4">
+
+                        <a
+                            href="{% url 'album_detail' album.pk %}"
+                            class="btn btn-outline-secondary"
+                        >
+                            Cancel
+                        </a>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            <i class="bi bi-cloud-arrow-up me-1"></i>
+                            Upload Media
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+    .form-page-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 18px;
+        flex-wrap: wrap;
+    }
+
+    .form-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 9px;
+        border-radius: 7px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+    }
+
+    .upload-card {
+        overflow: hidden;
+    }
+
+    .section-icon {
+        width: 36px;
+        height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        background: #e8f3ef;
+        color: #176b52;
+    }
+
+    .form-section {
+        padding-bottom: 24px;
+        margin-bottom: 24px;
+        border-bottom: 1px solid #edf0ef;
+    }
+
+    .form-section-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #25312d;
+    }
+
+    .form-section-title i {
+        color: #176b52;
+    }
+
+    .form-label {
+        font-weight: 600;
+        font-size: 13px;
+        color: #34413c;
+    }
+
+    .form-hint {
+        margin-top: 5px;
+        color: #78837f;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .upload-card input,
+    .upload-card select,
+    .upload-card textarea {
+        transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+    }
+
+    .upload-card input:focus,
+    .upload-card select:focus,
+    .upload-card textarea:focus {
+        border-color: #3b8f72;
+        box-shadow: 0 0 0 .2rem rgba(23,107,82,.10);
+    }
+
+    .upload-card input[type="file"] {
+        padding: .65rem .75rem;
+        background: #f8faf9;
+    }
+
+    .upload-card input[type="file"]:hover {
+        border-color: #8bb9aa;
+    }
+
+    .upload-guidance {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px 15px;
+        border: 1px solid #dcebe5;
+        border-radius: 10px;
+        background: #f6faf8;
+    }
+
+    .guidance-icon {
+        width: 34px;
+        height: 34px;
+        flex: 0 0 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: #e8f3ef;
+        color: #176b52;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding-top: 2px;
+    }
+
+    @media (max-width: 767.98px) {
+
+        .form-page-header .btn {
+            width: 100%;
+        }
+
+        .form-actions {
+            flex-direction: column-reverse;
+        }
+
+        .form-actions .btn {
+            width: 100%;
+        }
+
+    }
+
+</style>
+
+{% endblock %}

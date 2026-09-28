@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if editing %}Edit Skill{% else %}Add Skill{% endif %} | Church Media
+{% endblock %}
+
+{% block page_title %}
+    {% if editing %}Edit Skill{% else %}Add Skill{% endif %}
+{% endblock %}
+
+{% block page_subtitle %}
+    {% if editing %}
+        Update this media skill
+    {% else %}
+        Create a skill that can be assigned to members
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .form-hero {
+        border: 1px solid rgba(25, 135, 84, .12);
+        background: linear-gradient(
+            135deg,
+            rgba(25, 135, 84, .08),
+            transparent 65%
+        );
+    }
+
+    .form-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(25, 135, 84, .10);
+        color: #198754;
+        font-size: 1.15rem;
+    }
+
+    .field-label {
+        font-weight: 600;
+    }
+
+    .field-hint {
+        font-size: .82rem;
+        color: var(--bs-secondary-color);
+    }
+
+    .form-control {
+        transition: border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .form-control:focus {
+        box-shadow: 0 0 0 .2rem rgba(25, 135, 84, .12);
+    }
+
+    .form-actions {
+        border-top: 1px solid var(--bs-border-color);
+        padding-top: 1.25rem;
+    }
+</style>
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-7 col-xl-6">
+
+        <div class="app-card">
+
+            <div class="app-card-header form-hero">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="form-icon">
+                        <i class="bi bi-stars"></i>
+                    </span>
+
+                    <div>
+                        <h2 class="h6 fw-bold mb-1">
+                            Skill Information
+                        </h2>
+
+                        <p class="text-secondary small mb-0">
+                            Keep skill names clear and consistent.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="app-card-body">
+
+                <form method="post">
+
+                    {% csrf_token %}
+
+                    <div class="mb-4">
+                        <label for="skill-name" class="form-label field-label">
+                            Skill Name
+                        </label>
+
+                        <input
+                            id="skill-name"
+                            type="text"
+                            name="name"
+                            class="form-control form-control-lg"
+                            required
+                            maxlength="100"
+                            autocomplete="off"
+                            placeholder="e.g. Camera Operation"
+                            value="{% if editing %}{{ skill.name }}{% else %}{{ form_data.name|default:'' }}{% endif %}"
+                        >
+
+                        <div class="field-hint mt-2">
+                            Use a short name that can easily be recognized when assigning members.
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="skill-description" class="form-label field-label">
+                            Description
+                        </label>
+
+                        <textarea
+                            id="skill-description"
+                            name="description"
+                            class="form-control"
+                            rows="5"
+                            placeholder="Describe what this skill covers..."
+                        >{% if editing %}{{ skill.description }}{% else %}{{ form_data.description|default:'' }}{% endif %}</textarea>
+
+                        <div class="field-hint mt-2">
+                            Optional. Add details that help coordinators understand the skill.
+                        </div>
+                    </div>
+
+                    <div class="form-actions d-flex flex-wrap justify-content-between align-items-center gap-2">
+
+                        <a href="{% url 'skill_list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>
+                            Cancel
+                        </a>
+
+                        <button type="submit" class="btn btn-primary">
+                            {% if editing %}
+                                <i class="bi bi-check2-circle me-1"></i>
+                                Save Changes
+                            {% else %}
+                                <i class="bi bi-plus-lg me-1"></i>
+                                Create Skill
+                            {% endif %}
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+        <div class="text-center mt-3">
+            <small class="text-secondary">
+                Skills created here become available when assigning skills to media team members.
+            </small>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,352 @@
+{% extends "base.html" %}
+
+{% block title %}Duty Positions | Church Media{% endblock %}
+
+{% block page_title %}Duty Positions{% endblock %}
+
+{% block page_subtitle %}
+Define the responsibilities available to the media team
+{% endblock %}
+
+{% block content %}
+
+<div class="position-page">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <div class="section-kicker">Roster Configuration</div>
+            <h2 class="h5 fw-bold mb-1">Duty Positions</h2>
+            <p class="text-secondary mb-0">
+                Define positions and the skills required for them.
+            </p>
+        </div>
+
+        {% if request.user.profile.role == "admin" or request.user.profile.role == "coordinator" %}
+            <a href="{% url 'position_create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-1"></i>
+                Add Position
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="position-summary mb-4">
+        <div class="summary-icon">
+            <i class="bi bi-person-workspace"></i>
+        </div>
+        <div>
+            <div class="small text-secondary">Available duty positions</div>
+            <div class="h5 fw-bold mb-0">{{ positions|length }} position{{ positions|length|pluralize }}</div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        {% for position in positions %}
+
+            <div class="col-md-6 col-xl-4">
+
+                <div class="app-card position-card h-100">
+
+                    <div class="app-card-body d-flex flex-column">
+
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="position-icon">
+                                <i class="bi bi-person-workspace"></i>
+                            </div>
+
+                            {% if position.is_active %}
+                                <span class="status-badge status-active">
+                                    <span class="status-dot"></span>
+                                    Active
+                                </span>
+                            {% else %}
+                                <span class="status-badge status-inactive">
+                                    <span class="status-dot"></span>
+                                    Inactive
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <h3 class="h6 fw-bold mb-1">
+                            {{ position.name }}
+                        </h3>
+
+                        <p class="text-secondary small position-description mb-3">
+                            {% if position.description %}
+                                {{ position.description }}
+                            {% else %}
+                                No description provided.
+                            {% endif %}
+                        </p>
+
+                        <div class="skill-heading">
+                            <i class="bi bi-stars me-1"></i>
+                            Required Skills
+                        </div>
+
+                        <div class="skills-area mb-4">
+                            {% for skill in position.required_skills.all %}
+                                <span class="skill-chip">
+                                    {{ skill.name }}
+                                </span>
+                            {% empty %}
+                                <span class="text-secondary small">
+                                    No specific skills required
+                                </span>
+                            {% endfor %}
+                        </div>
+
+                        {% if request.user.profile.role == "admin" or request.user.profile.role == "coordinator" %}
+                            <div class="position-actions mt-auto">
+                                <a
+                                    href="{% url 'position_edit' position.pk %}"
+                                    class="btn btn-sm btn-outline-secondary flex-grow-1"
+                                >
+                                    <i class="bi bi-pencil me-1"></i>
+                                    Edit
+                                </a>
+
+                                <form method="post" action="{% url 'position_toggle' position.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                        {% if position.is_active %}
+                                            <i class="bi bi-pause-circle me-1"></i>
+                                            Deactivate
+                                        {% else %}
+                                            <i class="bi bi-play-circle me-1"></i>
+                                            Activate
+                                        {% endif %}
+                                    </button>
+                                </form>
+                            </div>
+                        {% else %}
+                            <div class="view-only-note mt-auto">
+                                <i class="bi bi-eye me-1"></i>
+                                View only
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        {% empty %}
+
+            <div class="col-12">
+                <div class="app-card">
+                    <div class="position-empty">
+                        <div class="empty-icon">
+                            <i class="bi bi-person-workspace"></i>
+                        </div>
+
+                        <h5>No duty positions yet</h5>
+
+                        <p>
+                            Create positions such as Camera Operator,
+                            Sound Engineer, Streaming or Photography.
+                        </p>
+
+                        {% if request.user.profile.role == "admin" or request.user.profile.role == "coordinator" %}
+                            <a href="{% url 'position_create' %}" class="btn btn-primary">
+                                <i class="bi bi-plus-lg me-1"></i>
+                                Add Position
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+<style>
+    .section-kicker {
+        color: #176b52;
+        font-size: .72rem;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+
+    .position-summary {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 1rem 1.15rem;
+        border: 1px solid #dfe9e5;
+        border-radius: 14px;
+        background: #f8fbfa;
+    }
+
+    .summary-icon {
+        width: 42px;
+        height: 42px;
+        flex: 0 0 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 18px;
+    }
+
+    .position-card {
+        border: 1px solid rgba(16, 42, 35, .08);
+        transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+
+    .position-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 14px 32px rgba(16, 42, 35, .10);
+        border-color: rgba(23, 107, 82, .18);
+    }
+
+    .position-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 19px;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: .35rem .6rem;
+        border-radius: 999px;
+        font-size: .72rem;
+        font-weight: 700;
+    }
+
+    .status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+    }
+
+    .status-active {
+        background: #e9f7ef;
+        color: #187044;
+    }
+
+    .status-active .status-dot {
+        background: #29945a;
+    }
+
+    .status-inactive {
+        background: #f1f3f2;
+        color: #687570;
+    }
+
+    .status-inactive .status-dot {
+        background: #87938f;
+    }
+
+    .position-description {
+        min-height: 42px;
+        line-height: 1.55;
+    }
+
+    .skill-heading {
+        font-size: .78rem;
+        font-weight: 700;
+        color: #46534f;
+        margin-bottom: .6rem;
+    }
+
+    .skills-area {
+        min-height: 34px;
+    }
+
+    .skill-chip {
+        display: inline-block;
+        padding: .35rem .55rem;
+        margin: 0 .3rem .35rem 0;
+        border: 1px solid #dce7e3;
+        border-radius: 8px;
+        background: #f8fbfa;
+        color: #46534f;
+        font-size: .72rem;
+        font-weight: 600;
+    }
+
+    .position-actions {
+        display: flex;
+        gap: .5rem;
+    }
+
+    .position-actions .btn {
+        transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .position-actions .btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .view-only-note {
+        padding: .55rem .7rem;
+        border-radius: 9px;
+        background: #f6f8f7;
+        color: #687570;
+        font-size: .75rem;
+        text-align: center;
+    }
+
+    .position-empty {
+        text-align: center;
+        padding: 70px 20px;
+    }
+
+    .empty-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 18px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 26px;
+    }
+
+    .position-empty h5 {
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+    .position-empty p {
+        color: #687570;
+        max-width: 440px;
+        margin: 0 auto 20px;
+    }
+
+    @media (max-width: 575.98px) {
+        .position-summary {
+            align-items: flex-start;
+        }
+
+        .position-actions {
+            flex-direction: column;
+        }
+
+        .position-actions form,
+        .position-actions form .btn {
+            width: 100%;
+        }
+    }
+</style>
+
+{% endblock %}

@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Attendance | Church Media{% endblock %}
+
+{% block page_title %}Edit Attendance{% endblock %}
+
+{% block page_subtitle %}
+Update attendance details for {{ attendance.member.name }}
+{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-xl-8 col-lg-9">
+
+        <div class="app-card attendance-form-card">
+
+            <div class="app-card-header form-header">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="form-header-icon">
+                        <i class="bi bi-person-check"></i>
+                    </div>
+
+                    <div>
+                        <div class="section-kicker">Attendance Management</div>
+                        <div class="fw-semibold">Attendance Record</div>
+                        <div class="text-secondary small mt-1">
+                            {{ attendance.event.name }}
+                            <span class="mx-1">·</span>
+                            {{ attendance.event.date|date:"d M Y" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="app-card-body">
+
+                <div class="member-summary mb-4">
+                    <div class="member-avatar">
+                        {{ attendance.member.name|slice:":1"|upper }}
+                    </div>
+
+                    <div>
+                        <div class="fw-semibold">{{ attendance.member.name }}</div>
+                        <div class="text-secondary small">
+                            {{ attendance.member.role|default:"Media Team" }}
+                        </div>
+                    </div>
+
+                    <div class="summary-event ms-auto">
+                        <i class="bi bi-calendar-event me-1"></i>
+                        {{ attendance.event.name }}
+                    </div>
+                </div>
+
+                <form method="post">
+
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger mb-4">
+                            {% for error in form.non_field_errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="form-section mb-4">
+                        <div class="form-section-title">
+                            <i class="bi bi-flag me-2"></i>
+                            Attendance Status
+                        </div>
+
+                        <div class="mt-3">
+                            {{ form.status }}
+
+                            {% if form.status.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.status.errors|striptags }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-section mb-4">
+                        <div class="form-section-title">
+                            <i class="bi bi-clock me-2"></i>
+                            Attendance Times
+                        </div>
+
+                        <div class="row g-3 mt-1">
+
+                            <div class="col-md-6">
+                                <label class="form-label" for="{{ form.check_in.id_for_label }}">
+                                    Check In
+                                </label>
+
+                                {{ form.check_in }}
+
+                                {% if form.check_in.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.check_in.errors|striptags }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label" for="{{ form.check_out.id_for_label }}">
+                                    Check Out
+                                </label>
+
+                                {{ form.check_out }}
+
+                                {% if form.check_out.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.check_out.errors|striptags }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="form-section mb-4">
+                        <div class="form-section-title">
+                            <i class="bi bi-sticky me-2"></i>
+                            Notes
+                        </div>
+
+                        <div class="mt-3">
+                            {{ form.notes }}
+
+                            {% if form.notes.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.notes.errors|striptags }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <a
+                            href="{% url 'event_attendance' attendance.event.pk %}"
+                            class="btn btn-light border"
+                        >
+                            <i class="bi bi-arrow-left me-1"></i>
+                            Cancel
+                        </a>
+
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check2 me-1"></i>
+                            Save Changes
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+    .attendance-form-card {
+        overflow: hidden;
+    }
+
+    .form-header {
+        padding: 1.25rem 1.5rem;
+    }
+
+    .section-kicker {
+        color: #176b52;
+        font-size: .72rem;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+
+    .form-header-icon {
+        width: 46px;
+        height: 46px;
+        flex: 0 0 46px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 13px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 20px;
+    }
+
+    .member-summary {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 1rem 1.1rem;
+        border: 1px solid #dfe9e5;
+        border-radius: 13px;
+        background: #f8fbfa;
+    }
+
+    .member-avatar {
+        width: 42px;
+        height: 42px;
+        flex: 0 0 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .summary-event {
+        color: #687570;
+        font-size: .75rem;
+        font-weight: 600;
+    }
+
+    .form-section {
+        padding-bottom: 1.25rem;
+        border-bottom: 1px solid #edf1ef;
+    }
+
+    .form-section:last-of-type {
+        border-bottom: 0;
+    }
+
+    .form-section-title {
+        color: #24322e;
+        font-size: .86rem;
+        font-weight: 700;
+    }
+
+    .form-section-title i {
+        color: #176b52;
+    }
+
+    .attendance-form-card input,
+    .attendance-form-card select,
+    .attendance-form-card textarea {
+        border-radius: 10px;
+        transition: border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .attendance-form-card input:focus,
+    .attendance-form-card select:focus,
+    .attendance-form-card textarea:focus {
+        border-color: #176b52;
+        box-shadow: 0 0 0 .2rem rgba(23, 107, 82, .11);
+    }
+
+    .attendance-form-card textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .form-label {
+        font-weight: 600;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: .6rem;
+        padding-top: .25rem;
+    }
+
+    .form-actions .btn {
+        transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .form-actions .btn:hover {
+        transform: translateY(-1px);
+    }
+
+    @media (max-width: 575.98px) {
+        .form-header {
+            padding: 1.1rem;
+        }
+
+        .attendance-form-card .app-card-body {
+            padding: 1.1rem;
+        }
+
+        .member-summary {
+            align-items: flex-start;
+        }
+
+        .summary-event {
+            display: none;
+        }
+
+        .form-actions {
+            flex-direction: column-reverse;
+        }
+
+        .form-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+
+{% endblock %}

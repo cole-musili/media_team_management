@@ -1,0 +1,812 @@
+{% extends "base.html" %}
+
+{% block title %}
+Reports | Church Media
+{% endblock %}
+
+{% block page_title %}
+Reports
+{% endblock %}
+
+{% block page_subtitle %}
+Review activity and performance across the media team.
+{% endblock %}
+
+{% block content %}
+
+<div class="reports-intro mb-4">
+
+    <div>
+        <div class="reports-kicker">
+            <i class="bi bi-bar-chart-line"></i>
+            Reporting & Analytics
+        </div>
+
+        <h2 class="h4 fw-bold mt-2 mb-1">
+            Media Operations Reports
+        </h2>
+
+        <p class="text-secondary mb-0">
+            Review team activity, attendance, duty assignments, equipment,
+            media, and recent events from one place.
+        </p>
+    </div>
+
+</div>
+
+
+<!-- Summary -->
+
+<div class="row g-3 g-xl-4 mb-4">
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="report-stat h-100">
+
+            <div class="report-stat-icon">
+                <i class="bi bi-people"></i>
+            </div>
+
+            <div class="report-stat-content">
+                <span>Active Members</span>
+                <strong>{{ member_count }}</strong>
+
+                <a href="{% url 'member_report' %}">
+                    Member report
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="report-stat h-100">
+
+            <div class="report-stat-icon">
+                <i class="bi bi-calendar-event"></i>
+            </div>
+
+            <div class="report-stat-content">
+                <span>Total Events</span>
+                <strong>{{ event_count }}</strong>
+
+                <a href="{% url 'event_report' %}">
+                    Event report
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="report-stat h-100">
+
+            <div class="report-stat-icon">
+                <i class="bi bi-camera-video"></i>
+            </div>
+
+            <div class="report-stat-content">
+                <span>Equipment</span>
+                <strong>{{ equipment_count }}</strong>
+
+                <a href="{% url 'equipment_report' %}">
+                    Equipment report
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="report-stat h-100">
+
+            <div class="report-stat-icon">
+                <i class="bi bi-images"></i>
+            </div>
+
+            <div class="report-stat-content">
+                <span>Media Files</span>
+                <strong>{{ media_count }}</strong>
+
+                <a href="{% url 'media_report' %}">
+                    Media report
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+<div class="row g-4">
+
+    <!-- Attendance -->
+
+    <div class="col-xl-6">
+
+        <div class="dashboard-card report-card h-100">
+
+            <div class="card-header-custom">
+
+                <div class="report-heading">
+                    <span class="report-heading-icon">
+                        <i class="bi bi-person-check"></i>
+                    </span>
+
+                    <div>
+                        <h5>Attendance</h5>
+                        <p>Recorded attendance across events.</p>
+                    </div>
+                </div>
+
+                <a
+                    href="{% url 'attendance_report' %}"
+                    class="btn btn-sm btn-outline-primary"
+                >
+                    View report
+                    <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+
+            </div>
+
+
+            <div class="p-3">
+
+                <div class="row g-3">
+
+                    <div class="col-6">
+                        <div class="report-mini-card">
+                            <span>Present</span>
+                            <strong>{{ present_count }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <div class="report-mini-card">
+                            <span>Late</span>
+                            <strong>{{ late_count }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <div class="report-mini-card">
+                            <span>Absent</span>
+                            <strong>{{ absent_count }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <div class="report-mini-card">
+                            <span>Records</span>
+                            <strong>{{ attendance_count }}</strong>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Roster -->
+
+    <div class="col-xl-6">
+
+        <div class="dashboard-card report-card h-100">
+
+            <div class="card-header-custom">
+
+                <div class="report-heading">
+                    <span class="report-heading-icon">
+                        <i class="bi bi-calendar2-week"></i>
+                    </span>
+
+                    <div>
+                        <h5>Duty Roster</h5>
+                        <p>Assignment status across the team.</p>
+                    </div>
+                </div>
+
+                <a
+                    href="{% url 'roster_list' %}"
+                    class="btn btn-sm btn-outline-primary"
+                >
+                    View roster
+                    <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+
+            </div>
+
+
+            <div class="p-3">
+
+                <div class="row g-3">
+
+                    <div class="col-4">
+                        <div class="report-mini-card">
+                            <span>Total</span>
+                            <strong>{{ assignment_count }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="col-4">
+                        <div class="report-mini-card">
+                            <span>Confirmed</span>
+                            <strong>{{ confirmed_assignments }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="col-4">
+                        <div class="report-mini-card">
+                            <span>Pending</span>
+                            <strong>{{ pending_assignments }}</strong>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Equipment -->
+
+    <div class="col-xl-6">
+
+        <div class="dashboard-card report-card h-100">
+
+            <div class="card-header-custom">
+
+                <div class="report-heading">
+                    <span class="report-heading-icon">
+                        <i class="bi bi-camera-video"></i>
+                    </span>
+
+                    <div>
+                        <h5>Equipment</h5>
+                        <p>Current inventory condition.</p>
+                    </div>
+                </div>
+
+                <a
+                    href="{% url 'equipment_report' %}"
+                    class="btn btn-sm btn-outline-primary"
+                >
+                    Full report
+                    <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+
+            </div>
+
+
+            <div class="p-3">
+
+                <div class="report-list">
+
+                    <div>
+                        <span>
+                            <i class="bi bi-check-circle me-2"></i>
+                            Available
+                        </span>
+                        <strong>{{ equipment_available }}</strong>
+                    </div>
+
+                    <div>
+                        <span>
+                            <i class="bi bi-arrow-left-right me-2"></i>
+                            In Use
+                        </span>
+                        <strong>{{ equipment_in_use }}</strong>
+                    </div>
+
+                    <div>
+                        <span>
+                            <i class="bi bi-tools me-2"></i>
+                            Maintenance
+                        </span>
+                        <strong>{{ equipment_maintenance }}</strong>
+                    </div>
+
+                    <div>
+                        <span>
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            Damaged
+                        </span>
+                        <strong>{{ equipment_damaged }}</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Media -->
+
+    <div class="col-xl-6">
+
+        <div class="dashboard-card report-card h-100">
+
+            <div class="card-header-custom">
+
+                <div class="report-heading">
+                    <span class="report-heading-icon">
+                        <i class="bi bi-images"></i>
+                    </span>
+
+                    <div>
+                        <h5>Media Library</h5>
+                        <p>Media stored in the system.</p>
+                    </div>
+                </div>
+
+                <a
+                    href="{% url 'media_report' %}"
+                    class="btn btn-sm btn-outline-primary"
+                >
+                    Full report
+                    <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+
+            </div>
+
+
+            <div class="p-3">
+
+                <div class="report-list">
+
+                    <div>
+                        <span>
+                            <i class="bi bi-folder2-open me-2"></i>
+                            Albums
+                        </span>
+                        <strong>{{ album_count }}</strong>
+                    </div>
+
+                    <div>
+                        <span>
+                            <i class="bi bi-images me-2"></i>
+                            Total Media
+                        </span>
+                        <strong>{{ media_count }}</strong>
+                    </div>
+
+                    <div>
+                        <span>
+                            <i class="bi bi-image me-2"></i>
+                            Photos
+                        </span>
+                        <strong>{{ photo_count }}</strong>
+                    </div>
+
+                    <div>
+                        <span>
+                            <i class="bi bi-camera-reels me-2"></i>
+                            Videos
+                        </span>
+                        <strong>{{ video_count }}</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Recent Events -->
+
+<div class="dashboard-card report-card mt-4">
+
+    <div class="card-header-custom">
+
+        <div class="report-heading">
+            <span class="report-heading-icon">
+                <i class="bi bi-clock-history"></i>
+            </span>
+
+            <div>
+                <h5>Recent Events</h5>
+                <p>Events recorded in the system.</p>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        <table class="table dashboard-table align-middle mb-0">
+
+            <thead>
+                <tr>
+                    <th>Event</th>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th class="text-end">Details</th>
+                </tr>
+            </thead>
+
+
+            <tbody>
+
+                {% for event in recent_events %}
+
+                    <tr>
+
+                        <td>
+                            <a
+                                href="{% url 'event_detail' event.pk %}"
+                                class="event-link fw-semibold"
+                            >
+                                {{ event.name }}
+                            </a>
+                        </td>
+
+                        <td class="text-secondary">
+                            {{ event.date|date:"d M Y" }}
+                        </td>
+
+                        <td>
+                            <span class="event-type">
+                                {{ event.get_event_type_display }}
+                            </span>
+                        </td>
+
+                        <td class="text-end">
+                            <a
+                                href="{% url 'event_detail' event.pk %}"
+                                class="btn btn-sm btn-outline-secondary"
+                            >
+                                View
+                                <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+                        <td colspan="4">
+                            <div class="report-empty-state">
+                                <div class="empty-icon">
+                                    <i class="bi bi-calendar-x"></i>
+                                </div>
+
+                                <div class="fw-semibold">
+                                    No events have been recorded yet.
+                                </div>
+
+                                <div class="small text-secondary mt-1">
+                                    Event activity will appear here once records are available.
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+
+    .reports-intro {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .reports-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 5px 9px;
+        border-radius: 7px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+    }
+
+    .report-stat {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 20px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--card-bg, #fff);
+        box-shadow: 0 3px 12px rgba(20, 45, 35, .04);
+        transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+
+    .report-stat:hover {
+        transform: translateY(-3px);
+        border-color: rgba(23, 107, 82, .25);
+        box-shadow: 0 10px 24px rgba(20, 45, 35, .08);
+    }
+
+    .report-stat-icon,
+    .report-heading-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        background: #e8f3ef;
+        color: #176b52;
+    }
+
+    .report-stat-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        font-size: 19px;
+    }
+
+    .report-stat-content {
+        min-width: 0;
+    }
+
+    .report-stat-content > span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        margin-bottom: 3px;
+    }
+
+    .report-stat-content strong {
+        display: block;
+        font-size: 27px;
+        line-height: 1.1;
+        margin-bottom: 7px;
+    }
+
+    .report-stat-content a {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        color: var(--primary, #176b52);
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .report-stat-content a i {
+        transition: transform .2s ease;
+    }
+
+    .report-stat-content a:hover i {
+        transform: translateX(3px);
+    }
+
+    .report-card {
+        overflow: hidden;
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .report-card:hover {
+        box-shadow: 0 10px 26px rgba(20, 45, 35, .07);
+    }
+
+    .report-heading {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+    }
+
+    .report-heading-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 9px;
+    }
+
+    .report-heading h5 {
+        margin-bottom: 2px;
+    }
+
+    .report-heading p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+    }
+
+    .report-mini-card {
+        height: 100%;
+        padding: 15px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: #fafcfb;
+        transition: transform .2s ease, border-color .2s ease, background .2s ease;
+    }
+
+    .report-mini-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(23, 107, 82, .22);
+        background: #f7faf8;
+    }
+
+    .report-mini-card span {
+        display: block;
+        color: var(--muted);
+        font-size: 11px;
+        margin-bottom: 5px;
+    }
+
+    .report-mini-card strong {
+        display: block;
+        font-size: 22px;
+        line-height: 1.1;
+    }
+
+    .report-list {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .report-list > div {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 13px 5px;
+        border-bottom: 1px solid var(--border);
+        transition: padding-left .2s ease, background .2s ease;
+    }
+
+    .report-list > div:hover {
+        padding-left: 9px;
+        background: #fafcfb;
+    }
+
+    .report-list > div:last-child {
+        border-bottom: 0;
+    }
+
+    .report-list span {
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+    .report-list span i {
+        color: var(--primary, #176b52);
+    }
+
+    .report-list strong {
+        font-size: 16px;
+    }
+
+    .event-link {
+        color: var(--text, #25312d);
+        text-decoration: none;
+    }
+
+    .event-link:hover {
+        color: var(--primary, #176b52);
+    }
+
+    .event-type {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 8px;
+        border-radius: 6px;
+        background: #f1f5f3;
+        color: #56635e;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .dashboard-table tbody tr {
+        transition: background .2s ease;
+    }
+
+    .dashboard-table tbody tr:hover {
+        background: #fafcfb;
+    }
+
+    .report-empty-state {
+        padding: 42px 20px;
+        text-align: center;
+        color: var(--muted);
+    }
+
+    .empty-icon {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: #f1f5f3;
+        color: #6c7974;
+        font-size: 20px;
+    }
+
+    @media (max-width: 767.98px) {
+
+        .reports-intro {
+            align-items: flex-start;
+        }
+
+        .report-stat {
+            padding: 16px;
+        }
+
+        .card-header-custom {
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .card-header-custom .btn {
+            white-space: nowrap;
+        }
+
+        .report-heading p {
+            display: none;
+        }
+
+    }
+
+    @media (max-width: 575.98px) {
+
+        .report-stat {
+            gap: 12px;
+        }
+
+        .report-stat-icon {
+            width: 40px;
+            height: 40px;
+        }
+
+        .report-stat-content strong {
+            font-size: 24px;
+        }
+
+        .card-header-custom {
+            flex-direction: column;
+        }
+
+        .card-header-custom .btn {
+            align-self: flex-start;
+        }
+
+    }
+
+</style>
+
+{% endblock %}

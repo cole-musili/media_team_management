@@ -1,0 +1,832 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ item.name }} | Church Media
+{% endblock %}
+
+{% block page_title %}
+    Equipment Details
+{% endblock %}
+
+{% block page_subtitle %}
+    Asset information, accountability and maintenance history
+{% endblock %}
+
+{% block content %}
+
+{% with user_role=request.user.profile.role|default:"" %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+
+    <div>
+
+        <a
+            href="{% url 'equipment_list' %}"
+            class="text-secondary small"
+        >
+            Back to Equipment
+        </a>
+
+        <h2 class="h4 fw-bold mt-2 mb-1">
+            {{ item.name }}
+        </h2>
+
+        <div class="equipment-id">
+            {{ item.equipment_id }}
+        </div>
+
+    </div>
+
+
+    <div class="d-flex gap-2">
+
+        {% if user_role == "admin" or user_role == "coordinator" %}
+        <a
+            href="{% url 'equipment_edit' item.pk %}"
+            class="btn btn-light border"
+        >
+            <i class="bi bi-pencil me-1"></i>
+            Edit
+        </a>
+        {% endif %}
+
+        {% if item.status == "available" %}
+            {% if user_role == "admin" or user_role == "coordinator" or user_role == "team_member" %}
+            <a
+                href="{% url 'equipment_checkout' item.pk %}"
+                class="btn btn-primary"
+            >
+                <i class="bi bi-box-arrow-up-right me-1"></i>
+                Checkout
+            </a>
+            {% endif %}
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<div class="row g-4">
+
+
+    <!-- Main equipment information -->
+
+    <div class="col-xl-5">
+
+        <div class="app-card mb-4">
+
+            {% if item.photo %}
+
+                <div class="equipment-detail-image">
+
+                    <img
+                        src="{{ item.photo.url }}"
+                        alt="{{ item.name }}"
+                    >
+
+                </div>
+
+            {% else %}
+
+                <div class="equipment-detail-placeholder">
+
+                    <i class="bi bi-camera-video"></i>
+
+                </div>
+
+            {% endif %}
+
+
+            <div class="app-card-body">
+
+                <div class="d-flex justify-content-between align-items-start mb-4">
+
+                    <div>
+
+                        <div class="text-secondary small">
+                            Current Status
+                        </div>
+
+                        <div class="fs-5 fw-bold mt-1">
+                            {{ item.get_status_display }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="equipment-detail-status">
+
+                        {% if item.status == "available" %}
+
+                            <span class="equipment-status available">
+                                Available
+                            </span>
+
+                        {% elif item.status == "in_use" %}
+
+                            <span class="equipment-status in-use">
+                                In Use
+                            </span>
+
+                        {% elif item.status == "maintenance" %}
+
+                            <span class="equipment-status maintenance">
+                                Maintenance
+                            </span>
+
+                        {% elif item.status == "damaged" %}
+
+                            <span class="equipment-status damaged">
+                                Damaged
+                            </span>
+
+                        {% elif item.status == "missing" %}
+
+                            <span class="equipment-status missing">
+                                Missing
+                            </span>
+
+                        {% else %}
+
+                            <span class="equipment-status reserved">
+                                Reserved
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="equipment-detail-grid">
+
+                    <div>
+                        <span>Category</span>
+                        <strong>{{ item.category.name }}</strong>
+                    </div>
+
+                    <div>
+                        <span>Condition</span>
+                        <strong>{{ item.get_condition_display }}</strong>
+                    </div>
+
+                    <div>
+                        <span>Brand</span>
+                        <strong>{{ item.brand|default:"—" }}</strong>
+                    </div>
+
+                    <div>
+                        <span>Model</span>
+                        <strong>{{ item.model|default:"—" }}</strong>
+                    </div>
+
+                    <div>
+                        <span>Serial Number</span>
+                        <strong>{{ item.serial_number|default:"—" }}</strong>
+                    </div>
+
+                    <div>
+                        <span>Location</span>
+                        <strong>{{ item.location|default:"—" }}</strong>
+                    </div>
+
+                </div>
+
+
+                {% if item.description %}
+
+                    <hr>
+
+                    <div>
+
+                        <div class="text-secondary small mb-1">
+                            Description
+                        </div>
+
+                        <div style="white-space:pre-line;">
+                            {{ item.description }}
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <!-- Active checkout -->
+
+        {% if active_checkout %}
+
+            <div class="app-card active-checkout-card mb-4">
+
+                <div class="app-card-body">
+
+                    <div class="d-flex gap-3">
+
+                        <div class="active-checkout-icon">
+                            <i class="bi bi-person-check"></i>
+                        </div>
+
+                        <div class="flex-grow-1">
+
+                            <div class="fw-bold">
+                                Currently Checked Out
+                            </div>
+
+                            <div class="text-secondary small mt-1">
+
+                                {{ active_checkout.member.name }}
+
+                                {% if active_checkout.event %}
+                                    | {{ active_checkout.event.name }}
+                                {% endif %}
+
+                            </div>
+
+                            <div class="small mt-2">
+                                {{ active_checkout.purpose }}
+                            </div>
+
+                            {% if user_role == "admin" or user_role == "coordinator" %}
+                            <a
+                                href="{% url 'equipment_return' active_checkout.pk %}"
+                                class="btn btn-sm btn-primary mt-3"
+                            >
+                                <i class="bi bi-box-arrow-down-left me-1"></i>
+                                Record Return
+                            </a>
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        {% endif %}
+
+
+        <div class="app-card">
+
+            <div class="app-card-header d-flex justify-content-between">
+
+                <div>
+                    <div class="fw-semibold">
+                        Maintenance
+                    </div>
+
+                    <div class="text-secondary small">
+                        Service and repair history
+                    </div>
+                </div>
+
+                {% if user_role == "admin" or user_role == "coordinator" %}
+                <a
+                    href="{% url 'maintenance_create' item.pk %}"
+                    class="btn btn-sm btn-outline-secondary"
+                >
+                    <i class="bi bi-wrench-adjustable me-1"></i>
+                    Add Record
+                </a>
+                {% endif %}
+
+            </div>
+
+
+            <div class="app-card-body">
+
+                {% for record in maintenance_records %}
+
+                    <div class="history-item">
+
+                        <div class="history-icon maintenance">
+                            <i class="bi bi-wrench"></i>
+                        </div>
+
+                        <div class="flex-grow-1">
+
+                            <div class="d-flex justify-content-between">
+
+                                <strong>
+                                    {{ record.reported_date|date:"d M Y" }}
+                                </strong>
+
+                                <span class="text-secondary small">
+                                    {{ record.get_status_display }}
+                                </span>
+
+                            </div>
+
+                            <div class="small mt-1">
+                                {{ record.problem }}
+                            </div>
+
+                            {% if record.cost %}
+
+                                <div class="text-secondary small mt-1">
+                                    Cost: {{ record.cost }}
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                {% empty %}
+
+                    <div class="text-center text-secondary py-4">
+
+                        <i class="bi bi-tools fs-3 d-block mb-2"></i>
+
+                        <div class="small">
+                            No maintenance records.
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Right side -->
+
+    <div class="col-xl-7">
+
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-4">
+
+                <div class="app-card p-3 detail-stat-card">
+
+                    <div class="text-secondary small">
+                        Photos
+                    </div>
+
+                    <div class="fs-3 fw-bold">
+                        {{ photo_count }}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <div class="app-card p-3 detail-stat-card">
+
+                    <div class="text-secondary small">
+                        Checkouts
+                    </div>
+
+                    <div class="fs-3 fw-bold">
+                        {{ checkout_count }}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <div class="app-card p-3 detail-stat-card">
+
+                    <div class="text-secondary small">
+                        Maintenance
+                    </div>
+
+                    <div class="fs-3 fw-bold">
+                        {{ maintenance_count }}
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Checkout history -->
+
+        <div class="app-card mb-4">
+
+            <div class="app-card-header">
+
+                <div class="fw-semibold">
+                    Checkout History
+                </div>
+
+                <div class="text-secondary small">
+                    Equipment accountability
+                </div>
+
+            </div>
+
+
+            <div class="app-card-body">
+
+                {% for checkout in checkout_history %}
+
+                    <div class="history-item">
+
+                        <div class="history-icon checkout">
+                            <i class="bi bi-arrow-up-right"></i>
+                        </div>
+
+
+                        <div class="flex-grow-1">
+
+                            <div class="d-flex justify-content-between gap-3">
+
+                                <div>
+
+                                    <strong>
+                                        {{ checkout.member.name }}
+                                    </strong>
+
+                                    {% if checkout.event %}
+
+                                        <div class="text-secondary small">
+                                            {{ checkout.event.name }}
+                                        </div>
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <div class="text-end">
+
+                                    {% if checkout.status == "returned" %}
+
+                                        <span class="equipment-status available">
+                                            Returned
+                                        </span>
+
+                                    {% elif checkout.status == "overdue" %}
+
+                                        <span class="equipment-status missing">
+                                            Overdue
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="equipment-status in-use">
+                                            Checked Out
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="small mt-2">
+                                {{ checkout.purpose }}
+                            </div>
+
+
+                            <div class="text-secondary small mt-2">
+
+                                Out:
+                                {{ checkout.checkout_time|date:"d M Y H:i" }}
+
+                                {% if checkout.return_time %}
+                                    | Returned:
+                                    {{ checkout.return_time|date:"d M Y H:i" }}
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                {% empty %}
+
+                    <div class="text-center text-secondary py-5">
+
+                        <i class="bi bi-clock-history fs-3 d-block mb-2"></i>
+
+                        <div>
+                            No checkout history.
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+
+        <!-- Photos -->
+
+        <div class="app-card">
+
+            <div class="app-card-header">
+
+                <div class="fw-semibold">
+                    Equipment Photos
+                </div>
+
+                <div class="text-secondary small">
+                    {{ photo_count }} photo{{ photo_count|pluralize }}
+                </div>
+
+            </div>
+
+
+            <div class="app-card-body">
+
+                {% if item.photos.all %}
+
+                    <div class="row g-3">
+
+                        {% for photo in item.photos.all %}
+
+                            <div class="col-6 col-md-4">
+
+                                <div class="equipment-photo">
+
+                                    <img
+                                        src="{{ photo.image.url }}"
+                                        alt="{{ photo.caption|default:item.name }}"
+                                    >
+
+                                    {% if photo.caption %}
+
+                                        <div class="photo-caption">
+                                            {{ photo.caption }}
+                                        </div>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <div class="text-center text-secondary py-4">
+
+                        <i class="bi bi-images fs-3 d-block mb-2"></i>
+
+                        No additional photos.
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<style>
+    .equipment-detail-hero {
+        border: 1px solid rgba(23,107,82,.08);
+        background: linear-gradient(135deg, rgba(232,243,239,.72), rgba(255,255,255,.96));
+    }
+
+    .equipment-detail-image,
+    .equipment-detail-placeholder {
+        border-radius: 14px 14px 0 0;
+    }
+
+    .equipment-detail-image img {
+        transition: transform .35s ease;
+    }
+
+    .app-card:hover .equipment-detail-image img {
+        transform: scale(1.015);
+    }
+
+    .equipment-detail-grid > div {
+        padding: 12px 13px;
+        border: 1px solid #edf0ef;
+        border-radius: 10px;
+        background: rgba(248,250,249,.72);
+        transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .equipment-detail-grid > div:hover {
+        transform: translateY(-2px);
+        border-color: rgba(23,107,82,.16);
+        box-shadow: 0 8px 20px rgba(16,42,35,.06);
+    }
+
+    .history-item {
+        transition: background .18s ease, padding-left .18s ease;
+        border-radius: 9px;
+    }
+
+    .history-item:hover {
+        background: #f8faf9;
+        padding-left: 7px;
+    }
+
+    .equipment-photo {
+        border: 1px solid #edf0ef;
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .equipment-photo:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(16,42,35,.09);
+    }
+
+    .detail-stat-card {
+        transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .detail-stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 24px rgba(16,42,35,.07);
+    }
+
+    @media (max-width: 767.98px) {
+        .equipment-detail-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .equipment-detail-image,
+        .equipment-detail-placeholder {
+            height: 240px;
+        }
+
+        .history-item .d-flex.justify-content-between {
+            flex-direction: column;
+            align-items: flex-start !important;
+        }
+    }
+</style>
+
+<style>
+
+    .equipment-detail-image {
+        height: 310px;
+        overflow: hidden;
+    }
+
+    .equipment-detail-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .equipment-detail-placeholder {
+        height: 310px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background: #edf3f0;
+        color: #7a8984;
+
+        font-size: 56px;
+    }
+
+
+    .equipment-detail-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+    }
+
+    .equipment-detail-grid span {
+        display: block;
+        color: #687570;
+        font-size: 12px;
+        margin-bottom: 3px;
+    }
+
+    .equipment-detail-grid strong {
+        font-size: 14px;
+    }
+
+
+    .active-checkout-card {
+        border-left: 4px solid #176b52;
+    }
+
+    .active-checkout-icon {
+        width: 42px;
+        height: 42px;
+
+        border-radius: 10px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 19px;
+    }
+
+
+    .history-item {
+        display: flex;
+        gap: 13px;
+
+        padding: 15px 0;
+
+        border-bottom: 1px solid #edf0ef;
+    }
+
+    .history-item:last-child {
+        border-bottom: 0;
+    }
+
+    .history-icon {
+        width: 34px;
+        height: 34px;
+
+        border-radius: 8px;
+
+        flex-shrink: 0;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .history-icon.checkout {
+        background: #eaf1fb;
+        color: #315f95;
+    }
+
+    .history-icon.maintenance {
+        background: #fff4d6;
+        color: #8a6514;
+    }
+
+
+    .equipment-photo {
+        position: relative;
+        overflow: hidden;
+        border-radius: 9px;
+        background: #edf3f0;
+    }
+
+    .equipment-photo img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+
+        display: block;
+
+        transition: transform .25s ease;
+    }
+
+    .equipment-photo:hover img {
+        transform: scale(1.04);
+    }
+
+    .photo-caption {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        padding: 8px;
+
+        color: white;
+        background: rgba(0,0,0,.58);
+
+        font-size: 11px;
+    }
+
+</style>
+
+{% endwith %}
+
+{% endblock %}

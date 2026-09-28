@@ -1,0 +1,497 @@
+{% extends "base.html" %}
+
+{% block title %}{{ album.title }} | Media Library{% endblock %}
+
+{% block page_title %}
+{{ album.title }}
+{% endblock %}
+
+{% block page_subtitle %}
+{{ album.event.name }}
+{% endblock %}
+
+{% block content %}
+
+{% with user_role=request.user.profile.role|default:"" %}
+
+<div class="album-detail-header mb-4">
+
+    <div>
+        <a
+            href="{% url 'media_library' %}"
+            class="small text-secondary text-decoration-none"
+        >
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Media Library
+        </a>
+
+        <div class="album-kicker mt-3">
+            <i class="bi bi-folder2-open"></i>
+            Media Album
+        </div>
+
+        <h2 class="h4 fw-bold mt-2 mb-1">
+            {{ album.title }}
+        </h2>
+
+        <div class="text-secondary small">
+            <i class="bi bi-calendar-event me-1"></i>
+            {{ album.event.name }}
+        </div>
+    </div>
+
+
+    <div class="d-flex flex-wrap gap-2">
+
+        {% if user_role == "admin" or user_role == "coordinator" or user_role == "team_member" %}
+        <a
+            href="{% url 'media_upload' album.pk %}"
+            class="btn btn-primary btn-sm"
+        >
+            <i class="bi bi-cloud-arrow-up me-1"></i>
+            Upload Media
+        </a>
+        {% endif %}
+
+        {% if user_role == "admin" or user_role == "coordinator" %}
+        <a
+            href="{% url 'album_edit' album.pk %}"
+            class="btn btn-light border btn-sm"
+        >
+            <i class="bi bi-pencil me-1"></i>
+            Edit
+        </a>
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<div class="app-card mb-4 album-info-card">
+
+    <div class="app-card-body">
+
+        <div class="d-flex align-items-start gap-3">
+
+            <div class="album-info-icon">
+                <i class="bi bi-images"></i>
+            </div>
+
+            <div class="flex-grow-1">
+
+                <div class="fw-semibold mb-1">
+                    About this album
+                </div>
+
+                <p class="text-secondary mb-0" style="white-space: pre-line;">
+                    {% if album.description %}
+                        {{ album.description }}
+                    {% else %}
+                        Media from {{ album.event.name }}.
+                    {% endif %}
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="app-card media-browser-card">
+
+    <div class="app-card-header">
+
+        <div class="media-browser-heading">
+            <div>
+                <div class="fw-semibold">
+                    Album Media
+                </div>
+
+                <div class="text-secondary small">
+                    Browse the files stored in this album.
+                </div>
+            </div>
+
+            <div class="media-count">
+                {{ items|length }} item{{ items|length|pluralize }}
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="p-3 border-bottom">
+
+        <div class="d-flex flex-wrap gap-2">
+
+            <a
+                href="{% url 'album_detail' album.pk %}"
+                class="btn btn-sm {% if not media_type %}btn-primary{% else %}btn-outline-primary{% endif %}"
+            >
+                <i class="bi bi-grid me-1"></i>
+                All
+            </a>
+
+            <a
+                href="?type=photo"
+                class="btn btn-sm {% if media_type == 'photo' %}btn-primary{% else %}btn-outline-primary{% endif %}"
+            >
+                <i class="bi bi-image me-1"></i>
+                Photos
+            </a>
+
+            <a
+                href="?type=video"
+                class="btn btn-sm {% if media_type == 'video' %}btn-primary{% else %}btn-outline-primary{% endif %}"
+            >
+                <i class="bi bi-camera-reels me-1"></i>
+                Videos
+            </a>
+
+            <a
+                href="?type=document"
+                class="btn btn-sm {% if media_type == 'document' %}btn-primary{% else %}btn-outline-primary{% endif %}"
+            >
+                <i class="bi bi-file-earmark-text me-1"></i>
+                Documents
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="p-3">
+
+        <div class="row g-4">
+
+            {% for item in items %}
+
+                <div class="col-sm-6 col-lg-4 col-xl-3">
+
+                    <div class="media-item-card">
+
+                        <a
+                            href="{% url 'media_detail' item.pk %}"
+                            class="text-decoration-none"
+                        >
+
+                            <div class="media-item-preview">
+
+                                {% if item.media_type == "photo" %}
+
+                                    <img
+                                        src="{{ item.file.url }}"
+                                        alt="{{ item.title|default:'Photo' }}"
+                                    >
+
+                                {% elif item.media_type == "video" %}
+
+                                    <div class="media-file-placeholder">
+                                        <i class="bi bi-camera-reels"></i>
+                                    </div>
+
+                                {% else %}
+
+                                    <div class="media-file-placeholder">
+                                        <i class="bi bi-file-earmark-text"></i>
+                                    </div>
+
+                                {% endif %}
+
+                                <div class="media-item-overlay">
+                                    <i class="bi bi-eye"></i>
+                                    View details
+                                </div>
+
+                            </div>
+
+
+                            <div class="p-3">
+
+                                <div class="d-flex justify-content-between align-items-start gap-2">
+
+                                    <h6 class="mb-1 text-dark fw-bold">
+
+                                        {% if item.title %}
+                                            {{ item.title }}
+                                        {% else %}
+                                            {{ item.file.name|truncatechars:35 }}
+                                        {% endif %}
+
+                                    </h6>
+
+                                    <span class="media-type-dot"></span>
+
+                                </div>
+
+                                <span class="media-type-badge">
+                                    {{ item.get_media_type_display }}
+                                </span>
+
+                            </div>
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            {% empty %}
+
+                <div class="col-12">
+
+                    <div class="media-empty">
+
+                        <div class="media-empty-icon">
+                            <i class="bi bi-images"></i>
+                        </div>
+
+                        <h5 class="fw-bold">
+                            No media in this album
+                        </h5>
+
+                        <p class="text-secondary mb-4">
+                            {% if media_type %}
+                                There are no
+                                {% if media_type == "photo" %}photo{% elif media_type == "video" %}video{% else %}document{% endif %}
+                                files in this album.
+                            {% else %}
+                                Upload photos, videos or documents to this album.
+                            {% endif %}
+                        </p>
+
+                        {% if media_type %}
+
+                            <a
+                                href="{% url 'album_detail' album.pk %}"
+                                class="btn btn-light border"
+                            >
+                                <i class="bi bi-arrow-counterclockwise me-1"></i>
+                                Clear Filter
+                            </a>
+
+                        {% elif user_role == "admin" or user_role == "coordinator" or user_role == "team_member" %}
+
+                            <a
+                                href="{% url 'media_upload' album.pk %}"
+                                class="btn btn-primary"
+                            >
+                                <i class="bi bi-cloud-arrow-up me-1"></i>
+                                Upload Media
+                            </a>
+
+                        {% else %}
+
+                            <div class="small text-secondary">
+                                Media files will appear here once they have been uploaded.
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+    .album-detail-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 18px;
+        flex-wrap: wrap;
+    }
+
+    .album-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 9px;
+        border-radius: 7px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+    }
+
+    .album-info-card {
+        border: 1px solid rgba(23,107,82,.08);
+        transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .album-info-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(16,42,35,.06);
+    }
+
+    .album-info-icon {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 19px;
+    }
+
+    .media-browser-card {
+        overflow: hidden;
+    }
+
+    .media-browser-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+    }
+
+    .media-count {
+        padding: 5px 9px;
+        border-radius: 7px;
+        background: #f1f5f3;
+        color: #176b52;
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .media-item-card {
+        overflow: hidden;
+        background: var(--bs-body-bg, #fff);
+        border: 1px solid #edf0ef;
+        border-radius: 11px;
+        transition:
+            transform .2s ease,
+            box-shadow .2s ease,
+            border-color .2s ease;
+    }
+
+    .media-item-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(23,107,82,.13);
+        box-shadow: 0 14px 32px rgba(16,42,35,.10);
+    }
+
+    .media-item-preview {
+        height: 190px;
+        position: relative;
+        overflow: hidden;
+        background: #edf3f0;
+    }
+
+    .media-item-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform .3s ease;
+    }
+
+    .media-item-card:hover .media-item-preview img {
+        transform: scale(1.045);
+    }
+
+    .media-file-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #176b52;
+        font-size: 46px;
+    }
+
+    .media-item-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        background: rgba(16,42,35,.72);
+        color: white;
+        font-size: 13px;
+        font-weight: 600;
+        opacity: 0;
+        transition: opacity .2s ease;
+    }
+
+    .media-item-card:hover .media-item-overlay {
+        opacity: 1;
+    }
+
+    .media-type-badge {
+        display: inline-block;
+        margin-top: 5px;
+        padding: 4px 7px;
+        border-radius: 6px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .media-type-dot {
+        width: 7px;
+        height: 7px;
+        flex: 0 0 7px;
+        margin-top: 5px;
+        border-radius: 50%;
+        background: #176b52;
+    }
+
+    .media-empty {
+        text-align: center;
+        padding: 70px 20px;
+    }
+
+    .media-empty-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 18px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 27px;
+    }
+
+    @media (max-width: 575.98px) {
+
+        .album-detail-header .btn {
+            flex: 1;
+        }
+
+        .media-browser-heading {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+    }
+
+</style>
+
+{% endwith %}
+
+{% endblock %}

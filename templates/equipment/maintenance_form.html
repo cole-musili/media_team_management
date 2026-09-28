@@ -1,0 +1,354 @@
+{% extends "base.html" %}
+
+{% block title %}Maintenance | Church Media{% endblock %}
+
+{% block page_title %}Equipment Maintenance{% endblock %}
+
+{% block page_subtitle %}
+Record a repair, fault or maintenance activity
+{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-xl-8">
+
+        <div class="equipment-maintenance-intro mb-4">
+            <div class="d-flex align-items-start gap-3">
+
+                <div class="maintenance-intro-icon">
+                    <i class="bi bi-wrench-adjustable"></i>
+                </div>
+
+                <div class="flex-grow-1">
+                    <div class="equipment-id mb-1">
+                        {{ item.equipment_id }}
+                    </div>
+
+                    <h2 class="h5 fw-bold mb-1">
+                        {{ item.name }}
+                    </h2>
+
+                    <div class="text-secondary small">
+                        <i class="bi bi-tag me-1"></i>
+                        {{ item.category.name }}
+                        <span class="mx-1">|</span>
+                        <i class="bi bi-shield-check me-1"></i>
+                        {{ item.get_condition_display }}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+        <form method="post">
+
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger border-0 shadow-sm mb-4">
+                    <div class="d-flex gap-2">
+                        <i class="bi bi-exclamation-circle-fill mt-1"></i>
+                        <div>
+                            <div class="fw-semibold mb-1">Please review the maintenance record</div>
+                            {{ form.non_field_errors }}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+
+            <div class="app-card mb-4 maintenance-form-card">
+
+                <div class="app-card-header">
+                    <div class="d-flex align-items-center gap-3">
+
+                        <div class="section-icon">
+                            <i class="bi bi-clipboard2-pulse"></i>
+                        </div>
+
+                        <div>
+                            <div class="fw-semibold">
+                                Maintenance Record
+                            </div>
+
+                            <div class="text-secondary small">
+                                Document the issue, service provider and repair process.
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <div class="app-card-body">
+
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.reported_by.id_for_label }}">
+                                Reported By
+                            </label>
+                            {{ form.reported_by }}
+                            {% if form.reported_by.errors %}
+                                <div class="invalid-feedback d-block">{{ form.reported_by.errors }}</div>
+                            {% endif %}
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.reported_date.id_for_label }}">
+                                Reported Date
+                            </label>
+                            {{ form.reported_date }}
+                            {% if form.reported_date.errors %}
+                                <div class="invalid-feedback d-block">{{ form.reported_date.errors }}</div>
+                            {% endif %}
+                        </div>
+
+
+                        <div class="col-12">
+                            <label class="form-label" for="{{ form.problem.id_for_label }}">
+                                Problem
+                            </label>
+                            {{ form.problem }}
+                            {% if form.problem.errors %}
+                                <div class="invalid-feedback d-block">{{ form.problem.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">
+                                Describe the fault or issue clearly enough for future reference.
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.provider.id_for_label }}">
+                                Repair Provider
+                            </label>
+                            {{ form.provider }}
+                            {% if form.provider.errors %}
+                                <div class="invalid-feedback d-block">{{ form.provider.errors }}</div>
+                            {% endif %}
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.cost.id_for_label }}">
+                                Cost
+                            </label>
+                            {{ form.cost }}
+                            {% if form.cost.errors %}
+                                <div class="invalid-feedback d-block">{{ form.cost.errors }}</div>
+                            {% endif %}
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.status.id_for_label }}">
+                                Status
+                            </label>
+                            {{ form.status }}
+                            {% if form.status.errors %}
+                                <div class="invalid-feedback d-block">{{ form.status.errors }}</div>
+                            {% endif %}
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.completed_date.id_for_label }}">
+                                Completed Date
+                            </label>
+                            {{ form.completed_date }}
+                            {% if form.completed_date.errors %}
+                                <div class="invalid-feedback d-block">{{ form.completed_date.errors }}</div>
+                            {% endif %}
+                        </div>
+
+
+                        <div class="col-12">
+                            <label class="form-label" for="{{ form.notes.id_for_label }}">
+                                Notes
+                            </label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                                <div class="invalid-feedback d-block">{{ form.notes.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="maintenance-guidance mb-4">
+                <div class="d-flex gap-3">
+
+                    <div class="guidance-icon">
+                        <i class="bi bi-info-circle"></i>
+                    </div>
+
+                    <div>
+                        <div class="fw-semibold small mb-1">
+                            Maintenance documentation
+                        </div>
+
+                        <div class="text-secondary small">
+                            Keep the problem, service status and cost information accurate
+                            so the equipment history can support future maintenance decisions.
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div class="form-actions app-card mb-4">
+
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+
+                    <div class="text-secondary small">
+                        <i class="bi bi-shield-check me-1"></i>
+                        Review the maintenance details before saving.
+                    </div>
+
+                    <div class="d-flex gap-2">
+
+                        <a
+                            href="{% url 'equipment_detail' item.pk %}"
+                            class="btn btn-light border"
+                        >
+                            <i class="bi bi-x-lg me-1"></i>
+                            Cancel
+                        </a>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            <i class="bi bi-wrench-adjustable me-1"></i>
+                            Save Maintenance Record
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<style>
+    .equipment-maintenance-intro {
+        padding: 20px;
+        border: 1px solid rgba(23,107,82,.10);
+        border-radius: 14px;
+        background: linear-gradient(135deg, rgba(232,243,239,.72), rgba(255,255,255,.98));
+        transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .equipment-maintenance-intro:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(16,42,35,.06);
+    }
+
+    .maintenance-intro-icon,
+    .section-icon,
+    .guidance-icon {
+        width: 42px;
+        height: 42px;
+        flex: 0 0 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 18px;
+    }
+
+    .section-icon {
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
+        border-radius: 9px;
+        font-size: 16px;
+    }
+
+    .maintenance-form-card {
+        transition: box-shadow .18s ease;
+    }
+
+    .maintenance-form-card:hover {
+        box-shadow: 0 10px 28px rgba(16,42,35,.07);
+    }
+
+    .maintenance-form-card .app-card-header {
+        border-bottom: 1px solid #edf0ef;
+    }
+
+    .maintenance-form-card input,
+    .maintenance-form-card select,
+    .maintenance-form-card textarea {
+        transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    .maintenance-form-card input:focus,
+    .maintenance-form-card select:focus,
+    .maintenance-form-card textarea:focus {
+        border-color: #176b52;
+        box-shadow: 0 0 0 .2rem rgba(23,107,82,.10);
+    }
+
+    .maintenance-guidance {
+        padding: 15px 17px;
+        border: 1px solid #e8eeeB;
+        border-radius: 11px;
+        background: #f8faf9;
+    }
+
+    .guidance-icon {
+        width: 34px;
+        height: 34px;
+        flex-basis: 34px;
+        border-radius: 8px;
+        font-size: 15px;
+    }
+
+    .form-actions {
+        padding: 16px 18px;
+        border: 1px solid #edf0ef;
+    }
+
+    .form-actions .btn {
+        min-width: 112px;
+    }
+
+    @media (max-width: 575.98px) {
+        .equipment-maintenance-intro {
+            padding: 16px;
+        }
+
+        .form-actions {
+            padding: 14px;
+        }
+
+        .form-actions .d-flex.gap-2 {
+            width: 100%;
+        }
+
+        .form-actions .btn {
+            flex: 1;
+        }
+    }
+</style>
+
+{% endblock %}

@@ -1,0 +1,570 @@
+{% extends "base.html" %}
+
+{% block title %}Media Library | Church Media{% endblock %}
+
+{% block page_title %}Media Library{% endblock %}
+
+{% block page_subtitle %}
+Manage photos, videos and documents from church events.
+{% endblock %}
+
+{% block content %}
+
+{% with user_role=request.user.profile.role|default:"" %}
+
+<div class="media-library-header mb-4">
+
+    <div>
+        <div class="media-kicker">
+            <i class="bi bi-collection-play"></i>
+            Media Management
+        </div>
+
+        <h2 class="h5 fw-bold mt-2 mb-1">
+            Church Media Library
+        </h2>
+
+        <p class="text-secondary mb-0">
+            Browse and organize photos, videos and documents from church events.
+        </p>
+    </div>
+
+    {% if user_role == "admin" or user_role == "coordinator" or user_role == "team_member" %}
+    <a
+        href="{% url 'album_create' %}"
+        class="btn btn-primary"
+    >
+        <i class="bi bi-plus-lg me-1"></i>
+        Create Album
+    </a>
+    {% endif %}
+
+</div>
+
+
+<div class="row g-3 mb-4">
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="media-stat">
+            <div class="media-stat-icon">
+                <i class="bi bi-folder2-open"></i>
+            </div>
+            <div>
+                <span class="media-stat-label">Albums</span>
+                <h2>{{ total_albums }}</h2>
+                <span class="text-secondary small">Media collections</span>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="media-stat">
+            <div class="media-stat-icon">
+                <i class="bi bi-images"></i>
+            </div>
+            <div>
+                <span class="media-stat-label">Total Media</span>
+                <h2>{{ total_media }}</h2>
+                <span class="text-secondary small">All uploaded files</span>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="media-stat">
+            <div class="media-stat-icon">
+                <i class="bi bi-image"></i>
+            </div>
+            <div>
+                <span class="media-stat-label">Photos</span>
+                <h2>{{ total_photos }}</h2>
+                <span class="text-secondary small">Image files</span>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="media-stat">
+            <div class="media-stat-icon">
+                <i class="bi bi-camera-reels"></i>
+            </div>
+            <div>
+                <span class="media-stat-label">Videos</span>
+                <h2>{{ total_videos }}</h2>
+                <span class="text-secondary small">Video files</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="app-card media-library-card">
+
+    <div class="app-card-header media-library-card-header">
+
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-folder2-open text-success"></i>
+                <h5 class="mb-0 fw-bold">Media Albums</h5>
+            </div>
+
+            <p class="text-secondary small mb-0 mt-1">
+                Organized media from church events.
+            </p>
+        </div>
+
+        {% if user_role == "admin" or user_role == "coordinator" or user_role == "team_member" %}
+        <a
+            href="{% url 'album_create' %}"
+            class="btn btn-primary btn-sm"
+        >
+            <i class="bi bi-plus-lg me-1"></i>
+            Create Album
+        </a>
+        {% endif %}
+
+    </div>
+
+
+    <div class="p-3 border-bottom">
+
+        <form method="get" class="row g-2 align-items-end">
+
+            <div class="col-md-7">
+                <label class="form-label small fw-semibold">
+                    Search
+                </label>
+
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="bi bi-search"></i>
+                    </span>
+
+                    <input
+                        type="search"
+                        name="q"
+                        value="{{ query }}"
+                        class="form-control"
+                        placeholder="Search albums or events..."
+                    >
+                </div>
+            </div>
+
+
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold">
+                    Media Type
+                </label>
+
+                <select name="type" class="form-select">
+
+                    <option value="">
+                        All media
+                    </option>
+
+                    <option
+                        value="photo"
+                        {% if media_type == "photo" %}selected{% endif %}
+                    >
+                        Photos
+                    </option>
+
+                    <option
+                        value="video"
+                        {% if media_type == "video" %}selected{% endif %}
+                    >
+                        Videos
+                    </option>
+
+                    <option
+                        value="document"
+                        {% if media_type == "document" %}selected{% endif %}
+                    >
+                        Documents
+                    </option>
+
+                </select>
+            </div>
+
+
+            <div class="col-md-2">
+                <button
+                    type="submit"
+                    class="btn btn-primary w-100"
+                >
+                    <i class="bi bi-search me-1"></i>
+                    Search
+                </button>
+            </div>
+
+        </form>
+
+        {% if query or media_type %}
+        <div class="mt-2">
+            <a
+                href="{% url 'media_library' %}"
+                class="small text-decoration-none"
+            >
+                <i class="bi bi-arrow-counterclockwise me-1"></i>
+                Clear filters
+            </a>
+        </div>
+        {% endif %}
+
+    </div>
+
+
+    <div class="p-3">
+
+        <div class="row g-4">
+
+            {% for album in albums %}
+
+                <div class="col-md-6 col-xl-4">
+
+                    <a
+                        href="{% url 'album_detail' album.pk %}"
+                        class="text-decoration-none"
+                    >
+
+                        <div class="media-album-card">
+
+                            <div class="media-album-cover">
+
+                                {% if album.cover %}
+
+                                    <img
+                                        src="{{ album.cover.url }}"
+                                        alt="{{ album.title }}"
+                                    >
+
+                                {% else %}
+
+                                    <div class="media-placeholder">
+                                        <i class="bi bi-images"></i>
+                                    </div>
+
+                                {% endif %}
+
+                                <div class="album-overlay">
+                                    <i class="bi bi-folder2-open"></i>
+                                    Open album
+                                </div>
+
+                            </div>
+
+
+                            <div class="p-3">
+
+                                <div class="d-flex justify-content-between align-items-start gap-2">
+
+                                    <h6 class="mb-1 fw-bold">
+                                        {{ album.title }}
+                                    </h6>
+
+                                    <span class="album-count">
+                                        {{ album.items.count }}
+                                    </span>
+
+                                </div>
+
+                                <div class="small text-secondary mt-2">
+                                    <i class="bi bi-calendar-event me-1"></i>
+                                    {{ album.event.name }}
+                                </div>
+
+                                <div class="small text-secondary mt-1">
+                                    <i class="bi bi-files me-1"></i>
+                                    {{ album.items.count }}
+                                    media file{{ album.items.count|pluralize }}
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </a>
+
+                </div>
+
+            {% empty %}
+
+                <div class="col-12">
+
+                    <div class="media-empty">
+
+                        <div class="media-empty-icon">
+                            <i class="bi bi-images"></i>
+                        </div>
+
+                        <h5 class="fw-bold">
+                            {% if query or media_type %}
+                                No matching albums
+                            {% else %}
+                                No albums yet
+                            {% endif %}
+                        </h5>
+
+                        <p class="text-secondary mb-4">
+
+                            {% if query or media_type %}
+                                Try changing your search or media type filter.
+                            {% else %}
+                                Create your first album to start organizing church media.
+                            {% endif %}
+
+                        </p>
+
+                        {% if query or media_type %}
+
+                            <a
+                                href="{% url 'media_library' %}"
+                                class="btn btn-light border"
+                            >
+                                <i class="bi bi-arrow-counterclockwise me-1"></i>
+                                Clear Filters
+                            </a>
+
+                        {% elif user_role == "admin" or user_role == "coordinator" or user_role == "team_member" %}
+
+                            <a
+                                href="{% url 'album_create' %}"
+                                class="btn btn-primary"
+                            >
+                                <i class="bi bi-plus-lg me-1"></i>
+                                Create Album
+                            </a>
+
+                        {% else %}
+
+                            <div class="small text-secondary">
+                                Albums will appear here once they have been created.
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+    .media-library-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        flex-wrap: wrap;
+    }
+
+    .media-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 9px;
+        border-radius: 7px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+    }
+
+    .media-stat {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 18px;
+        border: 1px solid #edf0ef;
+        border-radius: 12px;
+        background: var(--bs-body-bg, #fff);
+        transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .media-stat:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 26px rgba(16,42,35,.08);
+    }
+
+    .media-stat-icon {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 19px;
+    }
+
+    .media-stat-label {
+        display: block;
+        color: #687570;
+        font-size: 12px;
+        margin-bottom: 2px;
+    }
+
+    .media-stat h2 {
+        font-size: 25px;
+        line-height: 1.1;
+        margin: 0 0 3px;
+        font-weight: 700;
+    }
+
+    .media-library-card {
+        overflow: hidden;
+    }
+
+    .media-library-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
+    .media-album-card {
+        overflow: hidden;
+        background: var(--bs-body-bg, #fff);
+        border: 1px solid #edf0ef;
+        border-radius: 11px;
+        transition:
+            transform .2s ease,
+            box-shadow .2s ease,
+            border-color .2s ease;
+    }
+
+    .media-album-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(23,107,82,.13);
+        box-shadow: 0 14px 32px rgba(16,42,35,.10);
+    }
+
+    .media-album-cover {
+        height: 190px;
+        position: relative;
+        overflow: hidden;
+        background: #edf3f0;
+    }
+
+    .media-album-cover img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform .3s ease;
+    }
+
+    .media-album-card:hover .media-album-cover img {
+        transform: scale(1.045);
+    }
+
+    .media-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #176b52;
+        font-size: 42px;
+    }
+
+    .album-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(16,42,35,.72);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        font-size: 13px;
+        font-weight: 600;
+        opacity: 0;
+        transition: opacity .2s ease;
+    }
+
+    .media-album-card:hover .album-overlay {
+        opacity: 1;
+    }
+
+    .album-count {
+        min-width: 28px;
+        height: 28px;
+        padding: 0 7px;
+        border-radius: 7px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .media-empty {
+        text-align: center;
+        padding: 70px 20px;
+    }
+
+    .media-empty-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 18px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 27px;
+    }
+
+    .media-empty p {
+        max-width: 430px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    @media (max-width: 575.98px) {
+
+        .media-library-header .btn {
+            width: 100%;
+        }
+
+        .media-library-card-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .media-library-card-header .btn {
+            width: 100%;
+        }
+
+        .media-stat {
+            padding: 15px;
+        }
+
+    }
+
+</style>
+
+{% endwith %}
+
+{% endblock %}

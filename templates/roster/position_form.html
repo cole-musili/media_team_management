@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if editing %}Edit Position{% else %}Add Position{% endif %} | Church Media
+{% endblock %}
+
+{% block page_title %}
+    {% if editing %}Edit Duty Position{% else %}Add Duty Position{% endif %}
+{% endblock %}
+
+{% block page_subtitle %}
+    Define a responsibility and its required skills
+{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-xl-8">
+
+        <form method="post">
+
+            {% csrf_token %}
+
+            {{ form.non_field_errors }}
+
+
+            <div class="app-card mb-4">
+
+                <div class="app-card-header">
+
+                    <h2 class="h6 fw-bold mb-1">
+                        Position Information
+                    </h2>
+
+                    <p class="text-secondary small mb-0">
+                        Define what this position is responsible for.
+                    </p>
+
+                </div>
+
+
+                <div class="app-card-body">
+
+                    <div class="mb-4">
+
+                        <label class="form-label">
+                            Position Name
+                        </label>
+
+                        {{ form.name }}
+
+                        {% if form.name.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.name.errors|striptags }}
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="mb-4">
+
+                        <label class="form-label">
+                            Description
+                        </label>
+
+                        {{ form.description }}
+
+                    </div>
+
+
+                    <div class="mb-4">
+
+                        <label class="form-label">
+                            Required Skills
+                        </label>
+
+                        <div class="border rounded p-3">
+
+                            {% if form.required_skills.field.queryset %}
+
+                                <div class="row g-2">
+
+                                    {% for checkbox in form.required_skills %}
+
+                                        <div class="col-md-6">
+
+                                            <label class="skill-check">
+
+                                                {{ checkbox.tag }}
+
+                                                <span>
+                                                    {{ checkbox.choice_label }}
+                                                </span>
+
+                                            </label>
+
+                                        </div>
+
+                                    {% endfor %}
+
+                                </div>
+
+                            {% else %}
+
+                                <div class="text-secondary small">
+                                    No skills have been created yet.
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                        <div class="form-text">
+                            Members assigned to this position must have
+                            these skills.
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-check">
+
+                        {{ form.is_active }}
+
+                        <label class="form-check-label">
+                            Position is active
+                        </label>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="d-flex justify-content-end gap-2">
+
+                <a
+                    href="{% url 'position_list' %}"
+                    class="btn btn-light border"
+                >
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    <i class="bi bi-check2 me-1"></i>
+
+                    {% if editing %}
+                        Save Changes
+                    {% else %}
+                        Create Position
+                    {% endif %}
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<style>
+
+    .skill-check {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+
+        border: 1px solid #e4e9e7;
+        border-radius: 7px;
+
+        padding: 10px 12px;
+
+        cursor: pointer;
+
+        transition:
+            background-color .15s ease,
+            border-color .15s ease;
+    }
+
+    .skill-check:hover {
+        background: #f7faf9;
+        border-color: #b9d4cb;
+    }
+
+</style>
+
+{% endblock %}

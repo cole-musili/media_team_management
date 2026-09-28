@@ -1,0 +1,722 @@
+{% extends "base.html" %}
+
+{% block title %}Members | Church Media{% endblock %}
+
+{% block page_title %}Members{% endblock %}
+
+{% block page_subtitle %}
+Manage the church media team and member availability
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .members-hero {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+
+    .members-kicker {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: var(--primary);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .65px;
+        margin-bottom: 6px;
+    }
+
+    .members-hero h2 {
+        margin: 0 0 5px;
+        font-size: 26px;
+        font-weight: 750;
+        letter-spacing: -.4px;
+    }
+
+    .members-hero p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+    .member-stat {
+        position: relative;
+        overflow: hidden;
+        padding: 19px;
+        border: 1px solid var(--border);
+        border-radius: 11px;
+        background: var(--surface);
+        box-shadow: 0 2px 8px rgba(16, 42, 35, .035);
+        transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .member-stat:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 22px rgba(16, 42, 35, .08);
+    }
+
+    .member-stat::after {
+        content: "";
+        position: absolute;
+        right: -22px;
+        top: -22px;
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: var(--primary-light);
+        opacity: .75;
+    }
+
+    .member-stat-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .member-stat-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: var(--primary-light);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 17px;
+    }
+
+    .member-stat-label {
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .45px;
+    }
+
+    .member-stat-value {
+        margin: 0;
+        font-size: 25px;
+        font-weight: 750;
+    }
+
+    .member-stat-meta {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 11px;
+    }
+
+    .members-filter-card {
+        margin-bottom: 24px;
+    }
+
+    .filter-heading {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin-bottom: 18px;
+    }
+
+    .filter-heading-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        background: var(--primary-light);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .filter-heading strong {
+        display: block;
+        font-size: 14px;
+    }
+
+    .filter-heading span {
+        display: block;
+        color: var(--muted);
+        font-size: 11px;
+        margin-top: 2px;
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .member-table-card {
+        overflow: hidden;
+    }
+
+    .member-table-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 18px 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .member-table-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .member-table-title-icon {
+        width: 35px;
+        height: 35px;
+        border-radius: 9px;
+        background: var(--primary-light);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .member-table-title strong {
+        display: block;
+        font-size: 14px;
+    }
+
+    .member-table-title span {
+        display: block;
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 11px;
+    }
+
+    .member-row:hover {
+        background: #fafcfb;
+    }
+
+    .member-identity {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 220px;
+    }
+
+    .member-photo,
+    .member-initial {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        border-radius: 11px;
+        object-fit: cover;
+    }
+
+    .member-initial {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--primary-light);
+        color: var(--primary-dark);
+        font-weight: 750;
+        font-size: 14px;
+    }
+
+    .member-name {
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .member-email {
+        max-width: 220px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 11px;
+    }
+
+    .role-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 9px;
+        border-radius: 7px;
+        background: #f1f5f3;
+        color: #46544f;
+        border: 1px solid var(--border);
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .skill-list-inline {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        max-width: 270px;
+    }
+
+    .skill-chip-small {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 7px;
+        border-radius: 6px;
+        background: var(--primary-light);
+        color: var(--primary-dark);
+        font-size: 10px;
+        font-weight: 600;
+    }
+
+    .member-contact {
+        color: var(--text);
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .member-contact-muted {
+        color: var(--muted);
+    }
+
+    .member-actions {
+        white-space: nowrap;
+        text-align: right;
+    }
+
+    .member-actions .btn {
+        border-radius: 7px;
+    }
+
+    .empty-members {
+        padding: 55px 20px;
+        text-align: center;
+    }
+
+    .empty-members-icon {
+        width: 52px;
+        height: 52px;
+        margin: 0 auto 13px;
+        border-radius: 14px;
+        background: var(--primary-light);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+
+    .empty-members strong {
+        display: block;
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+
+    .empty-members p {
+        max-width: 420px;
+        margin: 0 auto 16px;
+        color: var(--muted);
+        font-size: 12px;
+    }
+
+    .results-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 9px;
+        border-radius: 7px;
+        background: #f7f9f8;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    @media (max-width: 767.98px) {
+        .members-hero {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .members-hero .btn {
+            width: 100%;
+        }
+
+        .filter-actions {
+            flex-direction: column;
+        }
+
+        .filter-actions .btn {
+            width: 100%;
+        }
+
+        .member-table-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="members-hero">
+    <div>
+        <div class="members-kicker">
+            <i class="bi bi-people"></i>
+            Team directory
+        </div>
+
+        <h2>Media Team</h2>
+
+        <p>
+            View the church media team, their roles, skills and current availability.
+        </p>
+    </div>
+
+    {% if user_role == "admin" or user_role == "coordinator" %}
+        <a href="{% url 'member_create' %}" class="btn btn-primary">
+            <i class="bi bi-person-plus me-1"></i>
+            Add Member
+        </a>
+    {% endif %}
+</div>
+
+
+<!-- Statistics -->
+<div class="row g-3 mb-4">
+
+    <div class="col-md-4">
+        <div class="member-stat h-100">
+            <div class="member-stat-top">
+                <span class="member-stat-label">Total Members</span>
+                <div class="member-stat-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+            </div>
+
+            <h3 class="member-stat-value">{{ total_members }}</h3>
+            <div class="member-stat-meta">Registered media team members</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="member-stat h-100">
+            <div class="member-stat-top">
+                <span class="member-stat-label">Active Members</span>
+                <div class="member-stat-icon">
+                    <i class="bi bi-person-check"></i>
+                </div>
+            </div>
+
+            <h3 class="member-stat-value">{{ active_members }}</h3>
+            <div class="member-stat-meta">Currently active in the team</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="member-stat h-100">
+            <div class="member-stat-top">
+                <span class="member-stat-label">Inactive Members</span>
+                <div class="member-stat-icon">
+                    <i class="bi bi-person-dash"></i>
+                </div>
+            </div>
+
+            <h3 class="member-stat-value">{{ inactive_members }}</h3>
+            <div class="member-stat-meta">Currently unavailable or inactive</div>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- Filters -->
+<div class="app-card members-filter-card">
+    <div class="app-card-body">
+
+        <div class="filter-heading">
+            <div class="filter-heading-icon">
+                <i class="bi bi-funnel"></i>
+            </div>
+
+            <div>
+                <strong>Find a team member</strong>
+                <span>Search and filter the team directory.</span>
+            </div>
+        </div>
+
+        <form method="get">
+            <div class="row g-3 align-items-end">
+
+                <div class="col-lg-5">
+                    <label class="form-label">Search</label>
+
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search text-secondary"></i>
+                        </span>
+
+                        <input
+                            type="text"
+                            name="search"
+                            class="form-control border-start-0"
+                            placeholder="Name, phone, email or role"
+                            value="{{ search }}"
+                        >
+                    </div>
+                </div>
+
+
+                <div class="col-lg-3">
+                    <label class="form-label">Role</label>
+
+                    <select name="role" class="form-select">
+                        <option value="">All roles</option>
+
+                        {% for item in roles %}
+                            <option
+                                value="{{ item }}"
+                                {% if selected_role == item %}selected{% endif %}
+                            >
+                                {{ item }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+
+                <div class="col-lg-2">
+                    <label class="form-label">Status</label>
+
+                    <select name="status" class="form-select">
+                        <option
+                            value="active"
+                            {% if selected_status == "active" %}selected{% endif %}
+                        >
+                            Active
+                        </option>
+
+                        <option
+                            value="inactive"
+                            {% if selected_status == "inactive" %}selected{% endif %}
+                        >
+                            Inactive
+                        </option>
+
+                        <option
+                            value="all"
+                            {% if selected_status == "all" %}selected{% endif %}
+                        >
+                            All
+                        </option>
+                    </select>
+                </div>
+
+
+                <div class="col-lg-2">
+                    <div class="filter-actions">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="bi bi-search me-1"></i>
+                            Filter
+                        </button>
+
+                        {% if search or selected_role or selected_status != "active" %}
+                            <a href="{% url 'member_list' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+        </form>
+
+    </div>
+</div>
+
+
+<!-- Members -->
+<div class="app-card member-table-card">
+
+    <div class="member-table-header">
+
+        <div class="member-table-title">
+            <div class="member-table-title-icon">
+                <i class="bi bi-person-lines-fill"></i>
+            </div>
+
+            <div>
+                <strong>Team Members</strong>
+                <span>
+                    {{ members|length }} member{{ members|length|pluralize }} in this view
+                </span>
+            </div>
+        </div>
+
+        <span class="results-count">
+            <i class="bi bi-list-check"></i>
+            {{ members|length }} result{{ members|length|pluralize }}
+        </span>
+
+    </div>
+
+
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+
+            <thead>
+                <tr>
+                    <th>Member</th>
+                    <th>Media Role</th>
+                    <th>Contact</th>
+                    <th>Skills</th>
+                    <th>Status</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for m in members %}
+
+                <tr class="member-row">
+
+                    <td>
+                        <div class="member-identity">
+
+                            {% if m.profile_photo %}
+                                <img
+                                    src="{{ m.profile_photo.url }}"
+                                    alt="{{ m.name }}"
+                                    class="member-photo"
+                                >
+                            {% else %}
+                                <div class="member-initial">
+                                    {{ m.name|slice:":1"|upper }}
+                                </div>
+                            {% endif %}
+
+                            <div>
+                                <div class="member-name">
+                                    {{ m.name }}
+                                </div>
+
+                                {% if m.email %}
+                                    <div class="member-email">
+                                        {{ m.email }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                        </div>
+                    </td>
+
+
+                    <td>
+                        <span class="role-chip">
+                            {{ m.role|default:"Not specified" }}
+                        </span>
+                    </td>
+
+
+                    <td>
+                        {% if m.phone %}
+                            <span class="member-contact">
+                                <i class="bi bi-telephone me-1 text-secondary"></i>
+                                {{ m.phone }}
+                            </span>
+                        {% else %}
+                            <span class="member-contact member-contact-muted">
+                                No phone
+                            </span>
+                        {% endif %}
+                    </td>
+
+
+                    <td>
+                        <div class="skill-list-inline">
+
+                            {% for s in m.skills.all %}
+                                <span class="skill-chip-small">
+                                    {{ s.name }}
+                                </span>
+                            {% empty %}
+                                <span class="member-contact member-contact-muted">
+                                    No skills assigned
+                                </span>
+                            {% endfor %}
+
+                        </div>
+                    </td>
+
+
+                    <td>
+                        {% if m.is_active %}
+                            <span class="status-badge status-active">
+                                <i class="bi bi-check-circle me-1"></i>
+                                Active
+                            </span>
+                        {% else %}
+                            <span class="status-badge status-inactive">
+                                <i class="bi bi-dash-circle me-1"></i>
+                                Inactive
+                            </span>
+                        {% endif %}
+                    </td>
+
+
+                    <td class="member-actions">
+
+                        <a
+                            href="{% url 'member_detail' m.pk %}"
+                            class="btn btn-sm btn-outline-secondary"
+                            title="View member"
+                        >
+                            <i class="bi bi-eye me-1"></i>
+                            View
+                        </a>
+
+                    </td>
+
+                </tr>
+
+            {% empty %}
+
+                <tr>
+                    <td colspan="6">
+
+                        <div class="empty-members">
+
+                            <div class="empty-members-icon">
+                                <i class="bi bi-person-x"></i>
+                            </div>
+
+                            <strong>No members found</strong>
+
+                            <p>
+                                No team members match the current search and filters.
+                            </p>
+
+                            {% if user_role == "admin" or user_role == "coordinator" %}
+                                <a
+                                    href="{% url 'member_create' %}"
+                                    class="btn btn-primary btn-sm"
+                                >
+                                    <i class="bi bi-person-plus me-1"></i>
+                                    Add Member
+                                </a>
+                            {% endif %}
+
+                        </div>
+
+                    </td>
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

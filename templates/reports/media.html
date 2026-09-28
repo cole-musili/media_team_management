@@ -1,0 +1,510 @@
+{% extends "base.html" %}
+
+{% block title %}Media Report | Church Media{% endblock %}
+
+{% block page_title %}
+Media Report
+{% endblock %}
+
+{% block page_subtitle %}
+Media library activity and storage overview.
+{% endblock %}
+
+{% block content %}
+
+<div class="report-page-intro mb-4">
+
+    <div>
+        <div class="report-kicker">
+            <i class="bi bi-images"></i>
+            Media Analytics
+        </div>
+
+        <h2 class="h4 fw-bold mt-2 mb-1">
+            Media Report
+        </h2>
+
+        <p class="text-secondary mb-0">
+            Review albums, media files, photos, videos, and media grouped by event.
+        </p>
+    </div>
+
+</div>
+
+
+<!-- Summary -->
+
+<div class="row g-3 g-xl-4 mb-4">
+
+    <div class="col-sm-6 col-xl-3">
+
+        <div class="report-stat h-100">
+
+            <div class="report-stat-icon">
+                <i class="bi bi-folder2-open"></i>
+            </div>
+
+            <div>
+                <span class="stat-label">
+                    Albums
+                </span>
+
+                <strong>
+                    {{ album_count }}
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-sm-6 col-xl-3">
+
+        <div class="report-stat h-100">
+
+            <div class="report-stat-icon">
+                <i class="bi bi-images"></i>
+            </div>
+
+            <div>
+                <span class="stat-label">
+                    Total Media
+                </span>
+
+                <strong>
+                    {{ media_count }}
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-sm-6 col-xl-3">
+
+        <div class="report-stat h-100">
+
+            <div class="report-stat-icon">
+                <i class="bi bi-image"></i>
+            </div>
+
+            <div>
+                <span class="stat-label">
+                    Photos
+                </span>
+
+                <strong>
+                    {{ photo_count }}
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-sm-6 col-xl-3">
+
+        <div class="report-stat h-100">
+
+            <div class="report-stat-icon">
+                <i class="bi bi-camera-reels"></i>
+            </div>
+
+            <div>
+                <span class="stat-label">
+                    Videos
+                </span>
+
+                <strong>
+                    {{ video_count }}
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Album Breakdown -->
+
+<div class="dashboard-card report-card">
+
+    <div class="card-header-custom">
+
+        <div class="report-heading">
+
+            <span class="report-heading-icon">
+                <i class="bi bi-folder2-open"></i>
+            </span>
+
+            <div>
+                <h5>
+                    Album Breakdown
+                </h5>
+
+                <p>
+                    Media grouped by album.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        <table class="table dashboard-table align-middle mb-0">
+
+            <thead>
+
+                <tr>
+                    <th>Album</th>
+                    <th>Event</th>
+                    <th>Total Media</th>
+                    <th>Photos</th>
+                    <th>Videos</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for album in albums %}
+
+                    <tr>
+
+                        <td>
+
+                            <a
+                                href="{% url 'album_detail' album.pk %}"
+                                class="album-link"
+                            >
+
+                                <span class="album-icon">
+                                    <i class="bi bi-images"></i>
+                                </span>
+
+                                <span class="fw-semibold">
+                                    {{ album.title }}
+                                </span>
+
+                            </a>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="event-value">
+                                <i class="bi bi-calendar-event"></i>
+                                {{ album.event.name }}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="metric-badge">
+                                <i class="bi bi-collection"></i>
+                                {{ album.media_count }}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="metric-badge photo-metric">
+                                <i class="bi bi-image"></i>
+                                {{ album.photo_count }}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="metric-badge video-metric">
+                                <i class="bi bi-camera-reels"></i>
+                                {{ album.video_count }}
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+
+                        <td colspan="5">
+
+                            <div class="report-empty-state">
+
+                                <div class="empty-icon">
+                                    <i class="bi bi-images"></i>
+                                </div>
+
+                                <div class="fw-semibold">
+                                    No media has been uploaded yet.
+                                </div>
+
+                                <div class="small text-secondary mt-1">
+                                    Album media information will appear here once uploads are available.
+                                </div>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+
+    .report-page-intro {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .report-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 5px 9px;
+        border-radius: 7px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+    }
+
+    .report-stat {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 19px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--card-bg, #fff);
+        box-shadow: 0 3px 12px rgba(20, 45, 35, .04);
+        transition:
+            transform .2s ease,
+            box-shadow .2s ease,
+            border-color .2s ease;
+    }
+
+    .report-stat:hover {
+        transform: translateY(-3px);
+        border-color: rgba(23, 107, 82, .25);
+        box-shadow: 0 10px 24px rgba(20, 45, 35, .08);
+    }
+
+    .report-stat-icon {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 19px;
+    }
+
+    .report-stat .stat-label {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        margin-bottom: 3px;
+    }
+
+    .report-stat strong {
+        display: block;
+        font-size: 27px;
+        line-height: 1.1;
+    }
+
+    .report-card {
+        overflow: hidden;
+        transition: box-shadow .2s ease;
+    }
+
+    .report-card:hover {
+        box-shadow: 0 10px 26px rgba(20, 45, 35, .07);
+    }
+
+    .report-heading {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+    }
+
+    .report-heading-icon {
+        width: 36px;
+        height: 36px;
+        flex: 0 0 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        background: #e8f3ef;
+        color: #176b52;
+    }
+
+    .report-heading h5 {
+        margin-bottom: 2px;
+    }
+
+    .report-heading p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+    }
+
+    .dashboard-table tbody tr {
+        transition: background .2s ease;
+    }
+
+    .dashboard-table tbody tr:hover {
+        background: #fafcfb;
+    }
+
+    .album-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        color: var(--text, #25312d);
+        text-decoration: none;
+        min-width: 180px;
+    }
+
+    .album-link:hover {
+        color: var(--primary, #176b52);
+    }
+
+    .album-icon {
+        width: 34px;
+        height: 34px;
+        flex: 0 0 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: #e8f3ef;
+        color: #176b52;
+        transition: transform .2s ease;
+    }
+
+    .album-link:hover .album-icon {
+        transform: translateY(-2px);
+    }
+
+    .event-value {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #59655f;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .event-value i {
+        color: #176b52;
+    }
+
+    .metric-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-width: 45px;
+        padding: 5px 8px;
+        border-radius: 7px;
+        background: #f1f5f3;
+        color: #4e5b56;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .metric-badge i {
+        color: #176b52;
+    }
+
+    .photo-metric {
+        background: #f2f6fb;
+    }
+
+    .photo-metric i {
+        color: #4c7198;
+    }
+
+    .video-metric {
+        background: #f5f1fa;
+    }
+
+    .video-metric i {
+        color: #76568e;
+    }
+
+    .report-empty-state {
+        padding: 48px 20px;
+        text-align: center;
+        color: var(--muted);
+    }
+
+    .empty-icon {
+        width: 50px;
+        height: 50px;
+        margin: 0 auto 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: #f1f5f3;
+        color: #6c7974;
+        font-size: 20px;
+    }
+
+    @media (max-width: 767.98px) {
+
+        .report-page-intro {
+            align-items: flex-start;
+        }
+
+        .report-heading p {
+            display: none;
+        }
+
+    }
+
+</style>
+
+{% endblock %}

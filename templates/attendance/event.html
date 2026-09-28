@@ -1,0 +1,694 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ event.name }} Attendance | Church Media
+{% endblock %}
+
+{% block page_title %}Event Attendance{% endblock %}
+
+{% block page_subtitle %}
+Record attendance for the media team
+{% endblock %}
+
+{% block content %}
+
+<div class="event-attendance-page">
+
+    <div class="event-attendance-hero mb-4">
+        <div>
+            <a href="{% url 'attendance_list' %}" class="back-link">
+                <i class="bi bi-arrow-left me-1"></i>
+                Back to Attendance
+            </a>
+
+            <div class="section-kicker mt-3">Attendance Sheet</div>
+
+            <h2 class="h4 fw-bold mb-2">{{ event.name }}</h2>
+
+            <div class="event-meta">
+                <span>
+                    <i class="bi bi-calendar3 me-1"></i>
+                    {{ event.date|date:"l, d F Y" }}
+                </span>
+                <span>
+                    <i class="bi bi-clock me-1"></i>
+                    {{ event.start_time|time:"H:i" }}
+                </span>
+                {% if event.location %}
+                    <span>
+                        <i class="bi bi-geo-alt me-1"></i>
+                        {{ event.location }}
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <a href="{% url 'event_detail' event.pk %}" class="btn btn-outline-secondary">
+            <i class="bi bi-calendar-event me-1"></i>
+            Event Details
+        </a>
+    </div>
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="app-card attendance-stat h-100">
+                <div class="app-card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="text-secondary small">Team Members</div>
+                            <div class="fs-3 fw-bold mt-1">{{ total_count }}</div>
+                        </div>
+                        <div class="stat-icon members">
+                            <i class="bi bi-people"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="app-card attendance-stat h-100">
+                <div class="app-card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="text-secondary small">Present</div>
+                            <div class="fs-3 fw-bold text-success mt-1">{{ present_count }}</div>
+                        </div>
+                        <div class="stat-icon present">
+                            <i class="bi bi-check2-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="app-card attendance-stat h-100">
+                <div class="app-card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="text-secondary small">Late</div>
+                            <div class="fs-3 fw-bold text-warning mt-1">{{ late_count }}</div>
+                        </div>
+                        <div class="stat-icon late">
+                            <i class="bi bi-clock"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="app-card attendance-stat h-100">
+                <div class="app-card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="text-secondary small">Absent</div>
+                            <div class="fs-3 fw-bold text-danger mt-1">{{ absent_count }}</div>
+                        </div>
+                        <div class="stat-icon absent">
+                            <i class="bi bi-person-x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="app-card mb-4 filter-card">
+        <div class="app-card-body">
+            <form method="get">
+                <div class="filter-heading">
+                    <div>
+                        <div class="fw-semibold">Find a team member</div>
+                        <div class="text-secondary small">
+                            Search the attendance sheet by member name.
+                        </div>
+                    </div>
+
+                    <i class="bi bi-search text-secondary"></i>
+                </div>
+
+                <div class="input-group mt-3">
+                    <span class="input-group-text">
+                        <i class="bi bi-search"></i>
+                    </span>
+
+                    <input
+                        type="text"
+                        name="search"
+                        class="form-control"
+                        placeholder="Search team member..."
+                        value="{{ search }}"
+                    >
+
+                    <button type="submit" class="btn btn-primary">
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="app-card attendance-sheet-card">
+
+        <div class="app-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div>
+                <div class="fw-semibold">Attendance Sheet</div>
+                <div class="text-secondary small">
+                    {% if request.user.profile.role == "admin" or request.user.profile.role == "coordinator" %}
+                        Mark each member as they arrive.
+                    {% else %}
+                        View attendance and check-in activity for this event.
+                    {% endif %}
+                </div>
+            </div>
+
+            <span class="record-count">
+                <i class="bi bi-person-check me-1"></i>
+                {{ total_count }} member{{ total_count|pluralize }}
+            </span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle attendance-table">
+                <thead>
+                    <tr>
+                        <th>Member</th>
+                        <th>Duty</th>
+                        <th>Status</th>
+                        <th>Check In</th>
+                        <th>Check Out</th>
+                        {% if request.user.profile.role == "admin" or request.user.profile.role == "coordinator" %}
+                            <th></th>
+                        {% endif %}
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for row in rows %}
+
+                        <tr class="attendance-row">
+
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="member-mini-avatar">
+                                        {{ row.member.name|slice:":1"|upper }}
+                                    </div>
+
+                                    <div>
+                                        <div class="fw-semibold">{{ row.member.name }}</div>
+                                        <div class="text-secondary small">
+                                            {{ row.member.role|default:"Media Team" }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                {% for assignment in assignments %}
+                                    {% if assignment.member_id == row.member_id %}
+                                        <div class="fw-semibold">{{ assignment.position.name }}</div>
+                                        <div class="text-secondary small">{{ assignment.slot }}</div>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+
+                            <td>
+                                {% if request.user.profile.role == "admin" or request.user.profile.role == "coordinator" %}
+
+                                    <div class="dropdown">
+                                        <button
+                                            class="btn btn-sm attendance-control
+                                                {% if row.status == 'present' %}
+                                                    attendance-present
+                                                {% elif row.status == 'late' %}
+                                                    attendance-late
+                                                {% elif row.status == 'absent' %}
+                                                    attendance-absent
+                                                {% else %}
+                                                    attendance-excused
+                                                {% endif %}
+                                                dropdown-toggle"
+                                            data-bs-toggle="dropdown"
+                                        >
+                                            {% if row.status == "present" %}
+                                                <i class="bi bi-check-circle me-1"></i> Present
+                                            {% elif row.status == "late" %}
+                                                <i class="bi bi-clock me-1"></i> Late
+                                            {% elif row.status == "absent" %}
+                                                <i class="bi bi-x-circle me-1"></i> Absent
+                                            {% else %}
+                                                <i class="bi bi-info-circle me-1"></i> Excused
+                                            {% endif %}
+                                        </button>
+
+                                        <ul class="dropdown-menu">
+
+                                            <li>
+                                                <form method="post" action="{% url 'mark_attendance' row.pk %}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="status" value="present">
+                                                    <button class="dropdown-item">
+                                                        <i class="bi bi-check-circle me-2 text-success"></i>
+                                                        Present
+                                                    </button>
+                                                </form>
+                                            </li>
+
+                                            <li>
+                                                <form method="post" action="{% url 'mark_attendance' row.pk %}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="status" value="late">
+                                                    <button class="dropdown-item">
+                                                        <i class="bi bi-clock me-2 text-warning"></i>
+                                                        Late
+                                                    </button>
+                                                </form>
+                                            </li>
+
+                                            <li>
+                                                <form method="post" action="{% url 'mark_attendance' row.pk %}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="status" value="absent">
+                                                    <button class="dropdown-item">
+                                                        <i class="bi bi-x-circle me-2 text-danger"></i>
+                                                        Absent
+                                                    </button>
+                                                </form>
+                                            </li>
+
+                                            <li>
+                                                <form method="post" action="{% url 'mark_attendance' row.pk %}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="status" value="excused">
+                                                    <button class="dropdown-item">
+                                                        <i class="bi bi-info-circle me-2"></i>
+                                                        Excused
+                                                    </button>
+                                                </form>
+                                            </li>
+
+                                        </ul>
+                                    </div>
+
+                                {% else %}
+
+                                    {% if row.status == "present" %}
+                                        <span class="attendance-status present">
+                                            <span></span> Present
+                                        </span>
+                                    {% elif row.status == "late" %}
+                                        <span class="attendance-status late">
+                                            <span></span> Late
+                                        </span>
+                                    {% elif row.status == "absent" %}
+                                        <span class="attendance-status absent">
+                                            <span></span> Absent
+                                        </span>
+                                    {% else %}
+                                        <span class="attendance-status excused">
+                                            <span></span> Excused
+                                        </span>
+                                    {% endif %}
+
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if row.check_in %}
+                                    <span class="time-value">
+                                        <i class="bi bi-box-arrow-in-right me-1"></i>
+                                        {{ row.check_in|date:"H:i" }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-secondary">—</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if row.check_out %}
+                                    <span class="time-value">
+                                        <i class="bi bi-box-arrow-right me-1"></i>
+                                        {{ row.check_out|date:"H:i" }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-secondary">—</span>
+                                {% endif %}
+                            </td>
+
+                            {% if request.user.profile.role == "admin" or request.user.profile.role == "coordinator" %}
+                                <td class="text-end">
+                                    <div class="dropdown">
+                                        <button
+                                            class="btn btn-sm btn-light border"
+                                            data-bs-toggle="dropdown"
+                                        >
+                                            <i class="bi bi-three-dots"></i>
+                                        </button>
+
+                                        <ul class="dropdown-menu dropdown-menu-end">
+
+                                            <li>
+                                                <a
+                                                    class="dropdown-item"
+                                                    href="{% url 'attendance_update' row.pk %}"
+                                                >
+                                                    <i class="bi bi-pencil me-2"></i>
+                                                    Edit Record
+                                                </a>
+                                            </li>
+
+                                            {% if row.status == "present" or row.status == "late" %}
+                                                <li>
+                                                    <form
+                                                        method="post"
+                                                        action="{% url 'attendance_check_out' row.pk %}"
+                                                    >
+                                                        {% csrf_token %}
+                                                        <button class="dropdown-item">
+                                                            <i class="bi bi-box-arrow-right me-2"></i>
+                                                            Check Out
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            {% endif %}
+
+                                        </ul>
+                                    </div>
+                                </td>
+                            {% endif %}
+
+                        </tr>
+
+                    {% empty %}
+
+                        <tr>
+                            <td colspan="6">
+                                <div class="attendance-empty">
+                                    <div class="empty-icon">
+                                        <i class="bi bi-person-check"></i>
+                                    </div>
+
+                                    <h5>No attendance records</h5>
+
+                                    <p>
+                                        Assign members to this event through
+                                        the duty roster first.
+                                    </p>
+
+                                    {% if request.user.profile.role == "admin" or request.user.profile.role == "coordinator" %}
+                                        <a href="{% url 'roster_list' %}" class="btn btn-primary mt-3">
+                                            <i class="bi bi-calendar2-check me-1"></i>
+                                            Open Duty Roster
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+    .event-attendance-hero {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 1.5rem;
+        padding: 1.25rem 1.4rem;
+        border: 1px solid #dfe9e5;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #f8fbfa, #ffffff);
+    }
+
+    .section-kicker {
+        color: #176b52;
+        font-size: .72rem;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+
+    .back-link {
+        color: #687570;
+        text-decoration: none;
+        font-size: .85rem;
+        font-weight: 600;
+        transition: color .15s ease;
+    }
+
+    .back-link:hover {
+        color: #176b52;
+    }
+
+    .event-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .45rem 1rem;
+        color: #687570;
+        font-size: .86rem;
+    }
+
+    .attendance-stat {
+        transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .attendance-stat:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 28px rgba(16, 42, 35, .08);
+    }
+
+    .stat-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+
+    .stat-icon.members {
+        background: #e8f3ef;
+        color: #176b52;
+    }
+
+    .stat-icon.present {
+        background: #e8f5ee;
+        color: #187044;
+    }
+
+    .stat-icon.late {
+        background: #fff4d6;
+        color: #8a6514;
+    }
+
+    .stat-icon.absent {
+        background: #fcebea;
+        color: #b83227;
+    }
+
+    .filter-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .filter-card .input-group-text {
+        background: #fff;
+        border-right: 0;
+        color: #687570;
+    }
+
+    .filter-card .form-control {
+        border-left: 0;
+        border-radius: 0;
+    }
+
+    .filter-card .form-control:focus {
+        border-color: #176b52;
+        box-shadow: 0 0 0 .2rem rgba(23, 107, 82, .11);
+    }
+
+    .record-count {
+        color: #687570;
+        font-size: .75rem;
+        font-weight: 600;
+    }
+
+    .attendance-row {
+        transition: background-color .15s ease;
+    }
+
+    .attendance-row:hover {
+        background: #f8fbfa;
+    }
+
+    .attendance-table th {
+        white-space: nowrap;
+        color: #687570;
+        font-size: .75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .035em;
+    }
+
+    .attendance-table td {
+        white-space: nowrap;
+    }
+
+    .member-mini-avatar {
+        width: 36px;
+        height: 36px;
+        flex: 0 0 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .attendance-control {
+        min-width: 108px;
+        border: 1px solid transparent;
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: 8px;
+    }
+
+    .attendance-present {
+        background: #e8f5ee;
+        color: #187044;
+    }
+
+    .attendance-late {
+        background: #fff4d6;
+        color: #8a6514;
+    }
+
+    .attendance-absent {
+        background: #fcebea;
+        color: #b83227;
+    }
+
+    .attendance-excused {
+        background: #edf1f0;
+        color: #687570;
+    }
+
+    .attendance-control:hover {
+        filter: brightness(.97);
+    }
+
+    .attendance-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .attendance-status span {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+    }
+
+    .attendance-status.present {
+        color: #187044;
+    }
+
+    .attendance-status.present span {
+        background: #29945a;
+    }
+
+    .attendance-status.late {
+        color: #8a6514;
+    }
+
+    .attendance-status.late span {
+        background: #d69e2e;
+    }
+
+    .attendance-status.absent {
+        color: #b83227;
+    }
+
+    .attendance-status.absent span {
+        background: #c0392b;
+    }
+
+    .attendance-status.excused {
+        color: #687570;
+    }
+
+    .attendance-status.excused span {
+        background: #87938f;
+    }
+
+    .time-value {
+        color: #46534f;
+        font-size: .875rem;
+    }
+
+    .attendance-empty {
+        text-align: center;
+        padding: 70px 20px;
+    }
+
+    .empty-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 18px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 26px;
+    }
+
+    .attendance-empty h5 {
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+    .attendance-empty p {
+        max-width: 430px;
+        margin: 0 auto;
+        color: #687570;
+    }
+
+    @media (max-width: 767.98px) {
+        .event-attendance-hero {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .event-attendance-hero .btn {
+            align-self: flex-start;
+        }
+
+        .attendance-table {
+            min-width: 820px;
+        }
+    }
+</style>
+
+{% endblock %}

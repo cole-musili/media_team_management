@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+
+{% block title %}Member Report | Church Media{% endblock %}
+
+{% block page_title %}
+Member Report
+{% endblock %}
+
+{% block page_subtitle %}
+Team participation and activity overview.
+{% endblock %}
+
+{% block content %}
+
+<div class="report-page-intro mb-4">
+
+    <div>
+        <div class="report-kicker">
+            <i class="bi bi-people"></i>
+            Team Analytics
+        </div>
+
+        <h2 class="h4 fw-bold mt-2 mb-1">
+            Member Report
+        </h2>
+
+        <p class="text-secondary mb-0">
+            Review duties, attendance, equipment activity, and media uploads
+            across the media team.
+        </p>
+    </div>
+
+</div>
+
+
+<div class="dashboard-card report-card">
+
+    <div class="card-header-custom">
+
+        <div class="report-heading">
+
+            <span class="report-heading-icon">
+                <i class="bi bi-people"></i>
+            </span>
+
+            <div>
+                <h5>
+                    Team Activity
+                </h5>
+
+                <p>
+                    Activities recorded for each member.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        <table class="table dashboard-table align-middle mb-0">
+
+            <thead>
+
+                <tr>
+                    <th>Member</th>
+                    <th>Role</th>
+                    <th>Duties</th>
+                    <th>Attendance</th>
+                    <th>Equipment Checkouts</th>
+                    <th>Media Uploads</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for member in members %}
+
+                    <tr>
+
+                        <td>
+
+                            <div class="member-cell">
+
+                                <span class="member-avatar">
+                                    <i class="bi bi-person"></i>
+                                </span>
+
+                                <span class="fw-semibold">
+                                    {{ member.name }}
+                                </span>
+
+                            </div>
+
+                        </td>
+
+
+                        <td>
+                            <span class="role-badge">
+                                {{ member.role }}
+                            </span>
+                        </td>
+
+
+                        <td>
+                            <span class="activity-count">
+                                <i class="bi bi-calendar2-week"></i>
+                                {{ member.duty_count }}
+                            </span>
+                        </td>
+
+
+                        <td>
+                            <span class="activity-count">
+                                <i class="bi bi-person-check"></i>
+                                {{ member.attendance_count }}
+                            </span>
+                        </td>
+
+
+                        <td>
+                            <span class="activity-count">
+                                <i class="bi bi-box-arrow-up"></i>
+                                {{ member.equipment_checkout_count }}
+                            </span>
+                        </td>
+
+
+                        <td>
+                            <span class="activity-count">
+                                <i class="bi bi-cloud-arrow-up"></i>
+                                {{ member.media_upload_count }}
+                            </span>
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+
+                        <td colspan="6">
+
+                            <div class="report-empty-state">
+
+                                <div class="empty-icon">
+                                    <i class="bi bi-people"></i>
+                                </div>
+
+                                <div class="fw-semibold">
+                                    No member data available.
+                                </div>
+
+                                <div class="small text-secondary mt-1">
+                                    Member activity will appear here once records are available.
+                                </div>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+
+    .report-page-intro {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .report-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 5px 9px;
+        border-radius: 7px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+    }
+
+    .report-card {
+        overflow: hidden;
+        transition: box-shadow .2s ease;
+    }
+
+    .report-card:hover {
+        box-shadow: 0 10px 26px rgba(20, 45, 35, .07);
+    }
+
+    .report-heading {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+    }
+
+    .report-heading-icon {
+        width: 36px;
+        height: 36px;
+        flex: 0 0 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        background: #e8f3ef;
+        color: #176b52;
+    }
+
+    .report-heading h5 {
+        margin-bottom: 2px;
+    }
+
+    .report-heading p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+    }
+
+    .dashboard-table tbody tr {
+        transition: background .2s ease;
+    }
+
+    .dashboard-table tbody tr:hover {
+        background: #fafcfb;
+    }
+
+    .member-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 180px;
+    }
+
+    .member-avatar {
+        width: 34px;
+        height: 34px;
+        flex: 0 0 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        background: #e8f3ef;
+        color: #176b52;
+        transition: transform .2s ease;
+    }
+
+    .dashboard-table tbody tr:hover .member-avatar {
+        transform: translateY(-2px);
+    }
+
+    .role-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 9px;
+        border-radius: 7px;
+        background: #f1f5f3;
+        color: #59655f;
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .activity-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 42px;
+        padding: 5px 8px;
+        border-radius: 7px;
+        background: #f7f9f8;
+        color: #4e5b56;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .activity-count i {
+        color: #176b52;
+    }
+
+    .report-empty-state {
+        padding: 48px 20px;
+        text-align: center;
+        color: var(--muted);
+    }
+
+    .empty-icon {
+        width: 50px;
+        height: 50px;
+        margin: 0 auto 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: #f1f5f3;
+        color: #6c7974;
+        font-size: 20px;
+    }
+
+    @media (max-width: 767.98px) {
+
+        .report-page-intro {
+            align-items: flex-start;
+        }
+
+        .report-heading p {
+            display: none;
+        }
+
+    }
+
+</style>
+
+{% endblock %}

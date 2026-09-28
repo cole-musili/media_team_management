@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+
+{% block title %}Equipment Categories | Church Media{% endblock %}
+
+{% block page_title %}Equipment Categories{% endblock %}
+
+{% block page_subtitle %}
+Organize the media equipment inventory
+{% endblock %}
+
+{% block content %}
+
+{% with user_role=request.user.profile.role|default:"" %}
+
+<div class="category-page-header mb-4">
+
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="page-kicker">
+                <i class="bi bi-tags"></i>
+                Inventory Structure
+            </span>
+        </div>
+
+        <h2 class="h5 fw-bold mb-1">
+            Equipment Categories
+        </h2>
+
+        <p class="text-secondary mb-0">
+            Group equipment into useful inventory categories.
+        </p>
+    </div>
+
+    {% if user_role == "admin" or user_role == "coordinator" %}
+    <a
+        href="{% url 'equipment_category_create' %}"
+        class="btn btn-primary"
+    >
+        <i class="bi bi-plus-lg me-1"></i>
+        Add Category
+    </a>
+    {% endif %}
+
+</div>
+
+
+<div class="category-summary app-card mb-4">
+
+    <div class="app-card-body">
+
+        <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+
+            <div class="d-flex align-items-center gap-3">
+
+                <div class="category-summary-icon">
+                    <i class="bi bi-collection"></i>
+                </div>
+
+                <div>
+                    <div class="text-secondary small">
+                        Inventory Categories
+                    </div>
+
+                    <div class="fs-4 fw-bold">
+                        {{ categories|length }}
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="text-secondary small">
+                <i class="bi bi-info-circle me-1"></i>
+                Categories help keep cameras, audio, lighting and other assets organized.
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="row g-3">
+
+    {% for category in categories %}
+
+        <div class="col-md-6 col-xl-4">
+
+            <div class="app-card category-card h-100">
+
+                <div class="app-card-body">
+
+                    <div class="d-flex justify-content-between align-items-start gap-3">
+
+                        <div class="category-icon">
+                            <i class="bi bi-folder2-open"></i>
+                        </div>
+
+                        <span class="category-count-badge">
+                            {{ category.equipment.count }}
+                        </span>
+
+                    </div>
+
+                    <h3 class="h6 fw-bold mt-3 mb-1">
+                        {{ category.name }}
+                    </h3>
+
+                    <div class="text-secondary small">
+                        {{ category.equipment.count }}
+                        equipment item{{ category.equipment.count|pluralize }}
+                    </div>
+
+                    <div class="category-card-line mt-4"></div>
+
+                    <div class="category-card-footer mt-3">
+                        <span>
+                            <i class="bi bi-box-seam me-1"></i>
+                            Inventory group
+                        </span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    {% empty %}
+
+        <div class="col-12">
+
+            <div class="app-card">
+
+                <div class="category-empty">
+
+                    <div class="category-empty-icon">
+                        <i class="bi bi-folder2"></i>
+                    </div>
+
+                    <h5 class="fw-bold">
+                        No categories yet
+                    </h5>
+
+                    <p class="text-secondary mb-4">
+                        Create your first equipment category to start organizing the inventory.
+                    </p>
+
+                    {% if user_role == "admin" or user_role == "coordinator" %}
+                    <a
+                        href="{% url 'equipment_category_create' %}"
+                        class="btn btn-primary"
+                    >
+                        <i class="bi bi-plus-lg me-1"></i>
+                        Add Category
+                    </a>
+                    {% else %}
+                    <div class="small text-secondary">
+                        Categories will appear here once they have been configured.
+                    </div>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    {% endfor %}
+
+</div>
+
+
+<style>
+
+    .category-page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 18px;
+        flex-wrap: wrap;
+    }
+
+    .page-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 9px;
+        border-radius: 7px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+    }
+
+    .category-summary {
+        border: 1px solid rgba(23,107,82,.08);
+        transition: box-shadow .18s ease, transform .18s ease;
+    }
+
+    .category-summary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(16,42,35,.06);
+    }
+
+    .category-summary-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 19px;
+    }
+
+    .category-card {
+        overflow: hidden;
+        transition:
+            transform .2s ease,
+            box-shadow .2s ease,
+            border-color .2s ease;
+    }
+
+    .category-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 14px 32px rgba(16,42,35,.10);
+        border-color: rgba(23,107,82,.13);
+    }
+
+    .category-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 19px;
+        transition: transform .2s ease;
+    }
+
+    .category-card:hover .category-icon {
+        transform: scale(1.06);
+    }
+
+    .category-count-badge {
+        min-width: 30px;
+        height: 30px;
+        padding: 0 8px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #f1f5f3;
+        color: #176b52;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .category-card-line {
+        height: 1px;
+        background: #edf0ef;
+    }
+
+    .category-card-footer {
+        color: #687570;
+        font-size: 12px;
+    }
+
+    .category-card-footer i {
+        color: #176b52;
+    }
+
+    .category-empty {
+        text-align: center;
+        padding: 70px 20px;
+    }
+
+    .category-empty-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 18px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 27px;
+    }
+
+    .category-empty p {
+        max-width: 430px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    @media (max-width: 575.98px) {
+        .category-page-header .btn {
+            width: 100%;
+        }
+
+        .category-summary .app-card-body {
+            padding: 16px;
+        }
+    }
+
+</style>
+
+{% endwith %}
+
+{% endblock %}

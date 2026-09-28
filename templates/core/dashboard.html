@@ -1,0 +1,1076 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | Church Media{% endblock %}
+
+{% block page_title %}
+Dashboard
+{% endblock %}
+
+{% block page_subtitle %}
+Overview of the church media team's activities and resources.
+{% endblock %}
+
+
+{% block extra_css %}
+<style>
+    .dashboard-intro {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 24px;
+    }
+
+    .dashboard-eyebrow,
+    .section-kicker {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: var(--primary);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .65px;
+    }
+
+    .dashboard-welcome {
+        margin: 5px 0 4px;
+        font-size: 27px;
+        font-weight: 750;
+        letter-spacing: -.5px;
+    }
+
+    .dashboard-welcome-text {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+    .dashboard-date {
+        min-width: 170px;
+        padding: 13px 16px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--surface);
+        text-align: right;
+    }
+
+    .dashboard-date span {
+        display: block;
+        color: var(--muted);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+        font-weight: 700;
+    }
+
+    .dashboard-date strong {
+        display: block;
+        margin-top: 3px;
+        font-size: 13px;
+    }
+
+    .dashboard-stat-primary {
+        border-color: rgba(23, 107, 82, .18);
+    }
+
+    .dashboard-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        color: var(--muted);
+    }
+
+    .dashboard-empty i {
+        font-size: 25px;
+        color: var(--primary);
+        margin-bottom: 4px;
+    }
+
+    .dashboard-empty strong {
+        color: var(--text);
+        font-size: 13px;
+    }
+
+    .dashboard-empty span {
+        font-size: 12px;
+    }
+
+    .dashboard-empty-large {
+        min-height: 260px;
+    }
+
+    .dashboard-empty-large i {
+        font-size: 38px;
+    }
+
+    @media (max-width: 767.98px) {
+        .dashboard-intro {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .dashboard-date {
+            width: 100%;
+            text-align: left;
+        }
+
+        .dashboard-welcome {
+            font-size: 23px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-intro mb-4">
+    <div>
+        <div class="dashboard-eyebrow">
+            <i class="bi bi-speedometer2"></i>
+            {% if dashboard_role == "admin" %}
+                Administration overview
+            {% elif dashboard_role == "coordinator" %}
+                Media coordination overview
+            {% elif dashboard_role == "team_member" %}
+                Your media workspace
+            {% elif dashboard_role == "viewer" %}
+                Media operations overview
+            {% else %}
+                Church media workspace
+            {% endif %}
+        </div>
+
+        <h2 class="dashboard-welcome">
+            {% if request.user.get_full_name %}
+                Welcome back, {{ request.user.get_full_name }}
+            {% else %}
+                Welcome back, {{ request.user.username }}
+            {% endif %}
+        </h2>
+
+        <p class="dashboard-welcome-text">
+            {% if dashboard_role == "team_member" %}
+                Here is your schedule, attendance and the latest media activity.
+            {% elif dashboard_role == "viewer" %}
+                Review current events, equipment and media activity.
+            {% else %}
+                Monitor the church media team's activities, schedules and resources.
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="dashboard-date">
+        <span>Today</span>
+        <strong>{{ today|date:"l, d M Y" }}</strong>
+    </div>
+</div>
+
+
+{% if dashboard_role == "admin" or dashboard_role == "coordinator" %}
+
+<!-- MANAGEMENT STATISTICS -->
+<div class="row g-4 mb-4">
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="dashboard-stat dashboard-stat-primary h-100">
+            <div class="stat-icon">
+                <i class="bi bi-people"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Active Members</span>
+                <h2>{{ member_count }}</h2>
+                <a href="{% url 'member_list' %}">
+                    Manage members
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="dashboard-stat h-100">
+            <div class="stat-icon">
+                <i class="bi bi-calendar-event"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Upcoming Events</span>
+                <h2>{{ event_count }}</h2>
+                <a href="{% url 'event_list' %}">
+                    View events
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="dashboard-stat h-100">
+            <div class="stat-icon">
+                <i class="bi bi-camera-video"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Equipment</span>
+                <h2>{{ equipment_count }}</h2>
+                <a href="{% url 'equipment_list' %}">
+                    Manage equipment
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="dashboard-stat h-100">
+            <div class="stat-icon">
+                <i class="bi bi-images"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Media Files</span>
+                <h2>{{ media_count }}</h2>
+                <a href="{% url 'media_library' %}">
+                    Open library
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="row g-4">
+
+    <!-- Upcoming Events -->
+    <div class="col-xl-7">
+        <div class="dashboard-card h-100">
+
+            <div class="card-header-custom">
+                <div>
+                    <div class="section-kicker">
+                        <i class="bi bi-calendar3"></i>
+                        Schedule
+                    </div>
+                    <h5>Upcoming Events</h5>
+                    <p>Events requiring media preparation and coverage.</p>
+                </div>
+
+                <a href="{% url 'event_list' %}" class="btn btn-sm btn-outline-primary">
+                    View all
+                </a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table dashboard-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for event in upcoming_events %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'event_detail' event.pk %}"
+                                   class="fw-semibold text-decoration-none">
+                                    {{ event.name }}
+                                </a>
+
+                                {% if event.location %}
+                                    <div class="small text-muted mt-1">
+                                        <i class="bi bi-geo-alt me-1"></i>
+                                        {{ event.location }}
+                                    </div>
+                                {% endif %}
+                            </td>
+
+                            <td>{{ event.date|date:"d M Y" }}</td>
+                            <td>{{ event.start_time|time:"H:i" }}</td>
+
+                            <td>
+                                <span class="status-badge status-scheduled">
+                                    {{ event.get_status_display|default:"Scheduled" }}
+                                </span>
+                            </td>
+                        </tr>
+
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-5">
+                                <div class="dashboard-empty">
+                                    <i class="bi bi-calendar-x"></i>
+                                    <strong>No upcoming events</strong>
+                                    <span>There are no upcoming events at the moment.</span>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- Equipment Status -->
+    <div class="col-xl-5">
+        <div class="dashboard-card h-100">
+
+            <div class="card-header-custom">
+                <div>
+                    <div class="section-kicker">
+                        <i class="bi bi-camera-video"></i>
+                        Inventory
+                    </div>
+                    <h5>Equipment Status</h5>
+                    <p>Current equipment availability.</p>
+                </div>
+
+                <a href="{% url 'equipment_list' %}" class="btn btn-sm btn-outline-primary">
+                    Manage
+                </a>
+            </div>
+
+            <div class="equipment-status-list">
+
+                <div class="equipment-status-item">
+                    <div>
+                        <span class="status-dot available"></span>
+                        Available
+                    </div>
+                    <strong>{{ available_equipment }}</strong>
+                </div>
+
+                <div class="equipment-status-item">
+                    <div>
+                        <span class="status-dot in-use"></span>
+                        In Use
+                    </div>
+                    <strong>{{ equipment_in_use }}</strong>
+                </div>
+
+                <div class="equipment-status-item">
+                    <div>
+                        <span class="status-dot maintenance"></span>
+                        Maintenance
+                    </div>
+                    <strong>{{ equipment_maintenance }}</strong>
+                </div>
+
+                <div class="equipment-status-item">
+                    <div>
+                        <span class="status-dot damaged"></span>
+                        Damaged
+                    </div>
+                    <strong>{{ equipment_damaged }}</strong>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- Today's Duties -->
+    <div class="col-xl-7">
+        <div class="dashboard-card">
+
+            <div class="card-header-custom">
+                <div>
+                    <div class="section-kicker">
+                        <i class="bi bi-calendar2-week"></i>
+                        Duty roster
+                    </div>
+                    <h5>Today's Duties</h5>
+                    <p>{{ today|date:"l, d F Y" }}</p>
+                </div>
+
+                <a href="{% url 'roster_list' %}" class="btn btn-sm btn-outline-primary">
+                    Duty roster
+                </a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table dashboard-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Position</th>
+                            <th>Member</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for duty in todays_duties %}
+                        <tr>
+                            <td>{{ duty.event.name }}</td>
+                            <td>{{ duty.position.name }}</td>
+
+                            <td>
+                                <div class="member-name">
+                                    {{ duty.member.name }}
+                                </div>
+                            </td>
+
+                            <td>
+                                {% if duty.status == "confirmed" %}
+                                    <span class="status-badge status-confirmed">
+                                        Confirmed
+                                    </span>
+                                {% elif duty.status == "declined" %}
+                                    <span class="status-badge status-declined">
+                                        Declined
+                                    </span>
+                                {% else %}
+                                    <span class="status-badge status-pending">
+                                        {{ duty.get_status_display }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-5">
+                                <div class="dashboard-empty">
+                                    <i class="bi bi-calendar-check"></i>
+                                    <strong>No duties scheduled today</strong>
+                                    <span>Your current duty schedule is clear.</span>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- Attendance -->
+    <div class="col-xl-5">
+        <div class="dashboard-card">
+
+            <div class="card-header-custom">
+                <div>
+                    <div class="section-kicker">
+                        <i class="bi bi-person-check"></i>
+                        Attendance
+                    </div>
+                    <h5>Today's Attendance</h5>
+                    <p>Current attendance records.</p>
+                </div>
+
+                <a href="{% url 'attendance_list' %}" class="btn btn-sm btn-outline-primary">
+                    Attendance
+                </a>
+            </div>
+
+            <div class="attendance-summary">
+
+                <div class="attendance-box present">
+                    <span>Present</span>
+                    <strong>{{ attendance_present }}</strong>
+                </div>
+
+                <div class="attendance-box late">
+                    <span>Late</span>
+                    <strong>{{ attendance_late }}</strong>
+                </div>
+
+                <div class="attendance-box absent">
+                    <span>Absent</span>
+                    <strong>{{ attendance_absent }}</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Media Summary -->
+        <div class="dashboard-card mt-4">
+
+            <div class="card-header-custom">
+                <div>
+                    <div class="section-kicker">
+                        <i class="bi bi-images"></i>
+                        Media
+                    </div>
+                    <h5>Media Library</h5>
+                    <p>Stored media resources.</p>
+                </div>
+
+                <a href="{% url 'media_library' %}" class="btn btn-sm btn-outline-primary">
+                    Open
+                </a>
+            </div>
+
+            <div class="media-summary">
+
+                <div>
+                    <i class="bi bi-folder2-open"></i>
+                    <span>Albums</span>
+                    <strong>{{ album_count }}</strong>
+                </div>
+
+                <div>
+                    <i class="bi bi-file-earmark-image"></i>
+                    <span>Media Files</span>
+                    <strong>{{ media_count }}</strong>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+{% elif dashboard_role == "team_member" %}
+
+<!-- TEAM MEMBER DASHBOARD -->
+
+<div class="row g-4 mb-4">
+
+    <div class="col-md-6 col-xl-4">
+        <div class="dashboard-stat h-100">
+            <div class="stat-icon">
+                <i class="bi bi-calendar2-check"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">My Duties Today</span>
+                <h2>{{ todays_duties|length }}</h2>
+                <a href="{% url 'roster_list' %}">
+                    View my roster
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4">
+        <div class="dashboard-stat h-100">
+            <div class="stat-icon">
+                <i class="bi bi-calendar-event"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Upcoming Events</span>
+                <h2>{{ event_count }}</h2>
+                <a href="{% url 'event_list' %}">
+                    View events
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4">
+        <div class="dashboard-stat h-100">
+            <div class="stat-icon">
+                <i class="bi bi-images"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Media Files</span>
+                <h2>{{ media_count }}</h2>
+                <a href="{% url 'media_library' %}">
+                    Open library
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="row g-4">
+
+    <div class="col-xl-7">
+        <div class="dashboard-card h-100">
+
+            <div class="card-header-custom">
+                <div>
+                    <div class="section-kicker">
+                        <i class="bi bi-calendar2-week"></i>
+                        My schedule
+                    </div>
+                    <h5>Today's Duties</h5>
+                    <p>Your assignments for {{ today|date:"l, d F Y" }}.</p>
+                </div>
+
+                <a href="{% url 'roster_list' %}" class="btn btn-sm btn-outline-primary">
+                    View roster
+                </a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table dashboard-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Position</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for duty in todays_duties %}
+                        <tr>
+                            <td>
+                                <strong>{{ duty.event.name }}</strong>
+                                {% if duty.event.location %}
+                                    <div class="small text-muted mt-1">
+                                        <i class="bi bi-geo-alt me-1"></i>
+                                        {{ duty.event.location }}
+                                    </div>
+                                {% endif %}
+                            </td>
+
+                            <td>{{ duty.position.name }}</td>
+
+                            <td>
+                                {% if duty.status == "confirmed" %}
+                                    <span class="status-badge status-confirmed">
+                                        Confirmed
+                                    </span>
+                                {% elif duty.status == "declined" %}
+                                    <span class="status-badge status-declined">
+                                        Declined
+                                    </span>
+                                {% else %}
+                                    <span class="status-badge status-pending">
+                                        {{ duty.get_status_display }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                    {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center py-5">
+                                <div class="dashboard-empty">
+                                    <i class="bi bi-calendar-check"></i>
+                                    <strong>No duties today</strong>
+                                    <span>You have no assigned media duties for today.</span>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="col-xl-5">
+
+        <div class="dashboard-card">
+            <div class="card-header-custom">
+                <div>
+                    <div class="section-kicker">
+                        <i class="bi bi-person-check"></i>
+                        My attendance
+                    </div>
+                    <h5>Today's Attendance</h5>
+                    <p>Your attendance records for today.</p>
+                </div>
+
+                <a href="{% url 'attendance_list' %}" class="btn btn-sm btn-outline-primary">
+                    View
+                </a>
+            </div>
+
+            <div class="attendance-summary">
+                <div class="attendance-box present">
+                    <span>Present</span>
+                    <strong>{{ attendance_present }}</strong>
+                </div>
+
+                <div class="attendance-box late">
+                    <span>Late</span>
+                    <strong>{{ attendance_late }}</strong>
+                </div>
+
+                <div class="attendance-box absent">
+                    <span>Absent</span>
+                    <strong>{{ attendance_absent }}</strong>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="dashboard-card mt-4">
+            <div class="card-header-custom">
+                <div>
+                    <div class="section-kicker">
+                        <i class="bi bi-images"></i>
+                        Media
+                    </div>
+                    <h5>Media Library</h5>
+                    <p>Access the team's stored media.</p>
+                </div>
+
+                <a href="{% url 'media_library' %}" class="btn btn-sm btn-outline-primary">
+                    Open
+                </a>
+            </div>
+
+            <div class="media-summary">
+                <div>
+                    <i class="bi bi-folder2-open"></i>
+                    <span>Albums</span>
+                    <strong>{{ album_count }}</strong>
+                </div>
+
+                <div>
+                    <i class="bi bi-file-earmark-image"></i>
+                    <span>Media Files</span>
+                    <strong>{{ media_count }}</strong>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+{% elif dashboard_role == "viewer" %}
+
+<!-- VIEWER DASHBOARD -->
+
+<div class="row g-4 mb-4">
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="dashboard-stat h-100">
+            <div class="stat-icon">
+                <i class="bi bi-calendar-event"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Upcoming Events</span>
+                <h2>{{ event_count }}</h2>
+                <a href="{% url 'event_list' %}">
+                    View events
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="dashboard-stat h-100">
+            <div class="stat-icon">
+                <i class="bi bi-camera-video"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Equipment</span>
+                <h2>{{ equipment_count }}</h2>
+                <a href="{% url 'equipment_list' %}">
+                    View equipment
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="dashboard-stat h-100">
+            <div class="stat-icon">
+                <i class="bi bi-images"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Media Files</span>
+                <h2>{{ media_count }}</h2>
+                <a href="{% url 'media_library' %}">
+                    Open library
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="dashboard-stat h-100">
+            <div class="stat-icon">
+                <i class="bi bi-people"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Active Members</span>
+                <h2>{{ member_count }}</h2>
+                <a href="{% url 'member_list' %}">
+                    View members
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="row g-4">
+
+    <div class="col-xl-7">
+        <div class="dashboard-card h-100">
+
+            <div class="card-header-custom">
+                <div>
+                    <div class="section-kicker">
+                        <i class="bi bi-calendar3"></i>
+                        Schedule
+                    </div>
+                    <h5>Upcoming Events</h5>
+                    <p>Current and upcoming church media events.</p>
+                </div>
+
+                <a href="{% url 'event_list' %}" class="btn btn-sm btn-outline-primary">
+                    View all
+                </a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table dashboard-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for event in upcoming_events %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'event_detail' event.pk %}"
+                                   class="fw-semibold text-decoration-none">
+                                    {{ event.name }}
+                                </a>
+
+                                {% if event.location %}
+                                    <div class="small text-muted mt-1">
+                                        <i class="bi bi-geo-alt me-1"></i>
+                                        {{ event.location }}
+                                    </div>
+                                {% endif %}
+                            </td>
+
+                            <td>{{ event.date|date:"d M Y" }}</td>
+                            <td>{{ event.start_time|time:"H:i" }}</td>
+
+                            <td>
+                                <span class="status-badge status-scheduled">
+                                    {{ event.get_status_display|default:"Scheduled" }}
+                                </span>
+                            </td>
+                        </tr>
+
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-5">
+                                <div class="dashboard-empty">
+                                    <i class="bi bi-calendar-x"></i>
+                                    <strong>No upcoming events</strong>
+                                    <span>No upcoming events are currently available.</span>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="col-xl-5">
+        <div class="dashboard-card h-100">
+
+            <div class="card-header-custom">
+                <div>
+                    <div class="section-kicker">
+                        <i class="bi bi-camera-video"></i>
+                        Inventory
+                    </div>
+                    <h5>Equipment Status</h5>
+                    <p>Current equipment availability.</p>
+                </div>
+
+                <a href="{% url 'equipment_list' %}" class="btn btn-sm btn-outline-primary">
+                    View
+                </a>
+            </div>
+
+            <div class="equipment-status-list">
+                <div class="equipment-status-item">
+                    <div>
+                        <span class="status-dot available"></span>
+                        Available
+                    </div>
+                    <strong>{{ available_equipment }}</strong>
+                </div>
+
+                <div class="equipment-status-item">
+                    <div>
+                        <span class="status-dot in-use"></span>
+                        In Use
+                    </div>
+                    <strong>{{ equipment_in_use }}</strong>
+                </div>
+
+                <div class="equipment-status-item">
+                    <div>
+                        <span class="status-dot maintenance"></span>
+                        Maintenance
+                    </div>
+                    <strong>{{ equipment_maintenance }}</strong>
+                </div>
+
+                <div class="equipment-status-item">
+                    <div>
+                        <span class="status-dot damaged"></span>
+                        Damaged
+                    </div>
+                    <strong>{{ equipment_damaged }}</strong>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="col-xl-7">
+        <div class="dashboard-card">
+
+            <div class="card-header-custom">
+                <div>
+                    <div class="section-kicker">
+                        <i class="bi bi-calendar2-week"></i>
+                        Duty roster
+                    </div>
+                    <h5>Today's Duties</h5>
+                    <p>Current media team assignments.</p>
+                </div>
+
+                <a href="{% url 'roster_list' %}" class="btn btn-sm btn-outline-primary">
+                    View
+                </a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table dashboard-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Position</th>
+                            <th>Member</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for duty in todays_duties %}
+                        <tr>
+                            <td>{{ duty.event.name }}</td>
+                            <td>{{ duty.position.name }}</td>
+                            <td>{{ duty.member.name }}</td>
+                            <td>
+                                {% if duty.status == "confirmed" %}
+                                    <span class="status-badge status-confirmed">Confirmed</span>
+                                {% elif duty.status == "declined" %}
+                                    <span class="status-badge status-declined">Declined</span>
+                                {% else %}
+                                    <span class="status-badge status-pending">
+                                        {{ duty.get_status_display }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-5">
+                                <div class="dashboard-empty">
+                                    <i class="bi bi-calendar-check"></i>
+                                    <strong>No duties scheduled today</strong>
+                                    <span>No current assignments are available.</span>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="col-xl-5">
+        <div class="dashboard-card">
+
+            <div class="card-header-custom">
+                <div>
+                    <div class="section-kicker">
+                        <i class="bi bi-images"></i>
+                        Media
+                    </div>
+                    <h5>Media Library</h5>
+                    <p>Stored media resources.</p>
+                </div>
+
+                <a href="{% url 'media_library' %}" class="btn btn-sm btn-outline-primary">
+                    Open
+                </a>
+            </div>
+
+            <div class="media-summary">
+                <div>
+                    <i class="bi bi-folder2-open"></i>
+                    <span>Albums</span>
+                    <strong>{{ album_count }}</strong>
+                </div>
+
+                <div>
+                    <i class="bi bi-file-earmark-image"></i>
+                    <span>Media Files</span>
+                    <strong>{{ media_count }}</strong>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+{% else %}
+
+<div class="dashboard-card">
+    <div class="dashboard-empty dashboard-empty-large">
+        <i class="bi bi-person-lock"></i>
+        <strong>Your account needs a role</strong>
+        <span>
+            Your account is active, but no application role has been configured.
+            Please contact an administrator.
+        </span>
+    </div>
+</div>
+
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if editing %}Edit Assignment{% else %}Assign Member{% endif %} | Church Media
+{% endblock %}
+
+{% block page_title %}
+    {% if editing %}Edit Assignment{% else %}Assign Member{% endif %}
+{% endblock %}
+
+{% block page_subtitle %}
+    Assign a media team member to an event duty
+{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-xl-9 col-lg-10">
+
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger d-flex gap-3 align-items-start mb-4" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                    <div>
+                        <div class="fw-semibold mb-1">Assignment could not be saved</div>
+                        {% for error in form.non_field_errors %}
+                            <div class="small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="app-card assignment-form-card mb-4">
+                <div class="app-card-header assignment-form-header">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="assignment-header-icon">
+                            <i class="bi bi-calendar2-check"></i>
+                        </div>
+                        <div>
+                            <div class="section-kicker">Duty Roster</div>
+                            <h2 class="h5 fw-bold mb-1">
+                                {% if editing %}Edit Assignment{% else %}Create Assignment{% endif %}
+                            </h2>
+                            <p class="text-secondary small mb-0">
+                                Select the event, duty position, slot and team member for this assignment.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="app-card-body">
+                    <div class="row g-4">
+
+                        <div class="col-12">
+                            <label class="form-label" for="{{ form.event.id_for_label }}">
+                                <i class="bi bi-calendar-event me-1 text-primary"></i>
+                                Event
+                            </label>
+                            {{ form.event }}
+                            {% if form.event.errors %}
+                                <div class="text-danger small mt-1">{{ form.event.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-7">
+                            <label class="form-label" for="{{ form.position.id_for_label }}">
+                                <i class="bi bi-broadcast-pin me-1 text-primary"></i>
+                                Duty Position
+                            </label>
+                            {{ form.position }}
+                            {% if form.position.errors %}
+                                <div class="text-danger small mt-1">{{ form.position.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-5">
+                            <label class="form-label" for="{{ form.slot.id_for_label }}">
+                                <i class="bi bi-grid-1x2 me-1 text-primary"></i>
+                                Slot
+                            </label>
+                            {{ form.slot }}
+                            <div class="form-text">
+                                Examples: Camera 1, Camera 2, FOH, Main or Backup.
+                            </div>
+                            {% if form.slot.errors %}
+                                <div class="text-danger small mt-1">{{ form.slot.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-8">
+                            <label class="form-label" for="{{ form.member.id_for_label }}">
+                                <i class="bi bi-person me-1 text-primary"></i>
+                                Team Member
+                            </label>
+                            {{ form.member }}
+                            {% if form.member.errors %}
+                                <div class="text-danger small mt-1">{{ form.member.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label" for="{{ form.status.id_for_label }}">
+                                <i class="bi bi-flag me-1 text-primary"></i>
+                                Status
+                            </label>
+                            {{ form.status }}
+                            {% if form.status.errors %}
+                                <div class="text-danger small mt-1">{{ form.status.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label" for="{{ form.notes.id_for_label }}">
+                                <i class="bi bi-sticky me-1 text-primary"></i>
+                                Notes
+                            </label>
+                            {{ form.notes }}
+                            <div class="form-text">
+                                Add any useful instructions or information about this duty.
+                            </div>
+                            {% if form.notes.errors %}
+                                <div class="text-danger small mt-1">{{ form.notes.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="validation-panel mb-4">
+                <div class="validation-icon">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <div>
+                    <div class="fw-semibold mb-1">Assignment validation</div>
+                    <div class="small text-secondary">
+                        The system checks that the member is active, available for the event,
+                        has the required skills and is not already assigned to another duty
+                        for the same event.
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="{% url 'roster_list' %}" class="btn btn-light border">
+                    <i class="bi bi-arrow-left me-1"></i>
+                    Cancel
+                </a>
+
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="bi bi-check2 me-1"></i>
+                    {% if editing %}Save Assignment{% else %}Create Assignment{% endif %}
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<style>
+    .assignment-form-card {
+        overflow: hidden;
+    }
+
+    .assignment-form-header {
+        padding: 1.35rem 1.5rem;
+    }
+
+    .assignment-header-icon {
+        width: 46px;
+        height: 46px;
+        flex: 0 0 46px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 13px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 20px;
+    }
+
+    .section-kicker {
+        margin-bottom: 4px;
+        color: #176b52;
+        font-size: .72rem;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+
+    .assignment-form-card .form-label {
+        font-weight: 600;
+        margin-bottom: .5rem;
+    }
+
+    .assignment-form-card input,
+    .assignment-form-card select,
+    .assignment-form-card textarea {
+        border-radius: 10px;
+        transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+    }
+
+    .assignment-form-card input:focus,
+    .assignment-form-card select:focus,
+    .assignment-form-card textarea:focus {
+        border-color: #176b52;
+        box-shadow: 0 0 0 .2rem rgba(23, 107, 82, .11);
+    }
+
+    .assignment-form-card textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .validation-panel {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 1rem 1.1rem;
+        border: 1px solid #dfe9e5;
+        border-radius: 14px;
+        background: #f8fbfa;
+    }
+
+    .validation-icon {
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: #e8f3ef;
+        color: #176b52;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: .6rem;
+        padding-bottom: 1rem;
+    }
+
+    .form-actions .btn {
+        transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .form-actions .btn:hover {
+        transform: translateY(-1px);
+    }
+
+    @media (max-width: 575.98px) {
+        .assignment-form-header {
+            padding: 1.1rem;
+        }
+
+        .assignment-form-card .app-card-body {
+            padding: 1.1rem;
+        }
+
+        .validation-panel {
+            padding: .9rem;
+        }
+
+        .form-actions {
+            flex-direction: column-reverse;
+        }
+
+        .form-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+
+{% endblock %}

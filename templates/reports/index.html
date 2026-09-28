@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Reports Overview</h2>
+<div class="row g-3 mt-1">
+{% for label,value in ""|default:"" %}{% endfor %}
+<div class="col-md-4"><div class="card p-4"><div class="text-muted">Active Members</div><div class="stat">{{ members }}</div></div></div>
+<div class="col-md-4"><div class="card p-4"><div class="text-muted">Equipment</div><div class="stat">{{ equipment }}</div></div></div>
+<div class="col-md-4"><div class="card p-4"><div class="text-muted">Checkout Records</div><div class="stat">{{ checkouts }}</div></div></div>
+<div class="col-md-4"><div class="card p-4"><div class="text-muted">Maintenance Records</div><div class="stat">{{ maintenance }}</div></div></div>
+<div class="col-md-4"><div class="card p-4"><div class="text-muted">Attendance Records</div><div class="stat">{{ attendance }}</div></div></div>
+<div class="col-md-4"><div class="card p-4"><div class="text-muted">Duty Assignments</div><div class="stat">{{ duties }}</div></div></div>
+</div>
+{% endblock %}

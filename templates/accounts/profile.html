@@ -1,0 +1,632 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile | Church Media Management{% endblock %}
+
+{% block page_title %}My Profile{% endblock %}
+
+{% block page_subtitle %}
+Manage your account and media team information
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .profile-page {
+        animation: profileFadeIn .35s ease both;
+    }
+
+    .profile-hero {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        border: 1px solid var(--bs-border-color, #dee2e6);
+        border-radius: 20px;
+        background: var(--bs-body-bg, #fff);
+        box-shadow: 0 8px 30px rgba(15, 23, 42, .06);
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .profile-hero:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 38px rgba(15, 23, 42, .09);
+    }
+
+    .profile-identity {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        min-width: 0;
+    }
+
+    .profile-avatar-large {
+        width: 82px;
+        height: 82px;
+        border-radius: 20px;
+        overflow: hidden;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        background: linear-gradient(135deg, #198754, #0d6efd);
+        color: #fff;
+        font-size: 1.8rem;
+        font-weight: 700;
+        box-shadow: 0 8px 20px rgba(13, 110, 253, .16);
+    }
+
+    .profile-avatar-large img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-name {
+        font-size: 1.35rem;
+        font-weight: 750;
+        line-height: 1.2;
+    }
+
+    .profile-username {
+        color: var(--bs-secondary-color, #6c757d);
+        font-size: .88rem;
+        margin-top: .2rem;
+    }
+
+    .profile-role {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        margin-top: .65rem;
+        padding: .35rem .65rem;
+        border-radius: 999px;
+        background: rgba(25, 135, 84, .10);
+        color: #198754;
+        font-size: .78rem;
+        font-weight: 700;
+    }
+
+    .profile-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .6rem;
+    }
+
+    .profile-actions .btn {
+        min-height: 42px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .profile-actions .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(15, 23, 42, .08);
+    }
+
+    .profile-section {
+        border: 1px solid var(--bs-border-color, #dee2e6);
+        border-radius: 18px;
+        background: var(--bs-body-bg, #fff);
+        box-shadow: 0 7px 26px rgba(15, 23, 42, .05);
+        overflow: hidden;
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .profile-section:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 34px rgba(15, 23, 42, .08);
+    }
+
+    .profile-section-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1.2rem 1.3rem;
+        border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+    }
+
+    .profile-section-header h5 {
+        margin: 0;
+        font-weight: 700;
+    }
+
+    .profile-section-header p {
+        margin: .3rem 0 0;
+        color: var(--bs-secondary-color, #6c757d);
+        font-size: .84rem;
+    }
+
+    .profile-section-header > i {
+        width: 40px;
+        height: 40px;
+        display: grid;
+        place-items: center;
+        border-radius: 11px;
+        background: rgba(25, 135, 84, .10);
+        color: #198754;
+        flex-shrink: 0;
+    }
+
+    .profile-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .85rem;
+        padding: 1.25rem;
+    }
+
+    .profile-info {
+        min-width: 0;
+        padding: .9rem 1rem;
+        border: 1px solid var(--bs-border-color, #dee2e6);
+        border-radius: 13px;
+        background: var(--bs-tertiary-bg, #f8f9fa);
+        transition: border-color .2s ease, transform .2s ease;
+    }
+
+    .profile-info:hover {
+        transform: translateY(-1px);
+        border-color: rgba(25, 135, 84, .35);
+    }
+
+    .profile-info span,
+    .profile-label {
+        display: block;
+        color: var(--bs-secondary-color, #6c757d);
+        font-size: .72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        margin-bottom: .3rem;
+    }
+
+    .profile-info strong {
+        display: block;
+        font-size: .9rem;
+        word-break: break-word;
+    }
+
+    .member-role-box {
+        margin: 1.25rem;
+        padding: 1rem 1.1rem;
+        border-radius: 14px;
+        background: linear-gradient(135deg, rgba(25, 135, 84, .10), rgba(13, 110, 253, .07));
+        border: 1px solid rgba(25, 135, 84, .15);
+    }
+
+    .member-role-box span {
+        display: block;
+        color: var(--bs-secondary-color, #6c757d);
+        font-size: .72rem;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        font-weight: 700;
+        margin-bottom: .3rem;
+    }
+
+    .member-role-box strong {
+        font-size: 1rem;
+    }
+
+    .media-team-content {
+        padding: 0 1.25rem 1.25rem;
+    }
+
+    .skill-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .45rem;
+    }
+
+    .skill-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: .38rem .65rem;
+        border-radius: 999px;
+        background: rgba(13, 110, 253, .08);
+        color: #0d6efd;
+        font-size: .76rem;
+        font-weight: 600;
+        border: 1px solid rgba(13, 110, 253, .12);
+    }
+
+    .empty-profile-state {
+        padding: 2rem 1.25rem;
+        text-align: center;
+    }
+
+    .empty-profile-state > i {
+        width: 54px;
+        height: 54px;
+        display: grid;
+        place-items: center;
+        margin: 0 auto 1rem;
+        border-radius: 15px;
+        background: var(--bs-tertiary-bg, #f8f9fa);
+        color: var(--bs-secondary-color, #6c757d);
+        font-size: 1.4rem;
+    }
+
+    .empty-profile-state h6 {
+        font-weight: 700;
+    }
+
+    .empty-profile-state p {
+        max-width: 330px;
+        margin: .4rem auto 0;
+        color: var(--bs-secondary-color, #6c757d);
+        font-size: .84rem;
+        line-height: 1.55;
+    }
+
+    .security-action {
+        display: flex;
+        align-items: center;
+        gap: .8rem;
+        margin: 1.25rem;
+        padding: .95rem;
+        border: 1px solid var(--bs-border-color, #dee2e6);
+        border-radius: 13px;
+        color: inherit;
+        text-decoration: none;
+        transition: transform .2s ease, border-color .2s ease, background .2s ease;
+    }
+
+    .security-action:hover {
+        transform: translateX(3px);
+        border-color: rgba(25, 135, 84, .35);
+        background: rgba(25, 135, 84, .04);
+    }
+
+    .security-icon {
+        width: 40px;
+        height: 40px;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        border-radius: 11px;
+        background: rgba(25, 135, 84, .10);
+        color: #198754;
+    }
+
+    .security-action > span:nth-child(2) {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .security-action strong,
+    .security-action small {
+        display: block;
+    }
+
+    .security-action strong {
+        font-size: .88rem;
+    }
+
+    .security-action small {
+        margin-top: .15rem;
+        color: var(--bs-secondary-color, #6c757d);
+        font-size: .76rem;
+    }
+
+    .security-action > i:last-child {
+        color: var(--bs-secondary-color, #6c757d);
+    }
+
+    @keyframes profileFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 991.98px) {
+        .profile-hero {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .profile-actions {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .profile-hero {
+            padding: 1.1rem;
+            border-radius: 16px;
+        }
+
+        .profile-identity {
+            align-items: flex-start;
+        }
+
+        .profile-avatar-large {
+            width: 66px;
+            height: 66px;
+            border-radius: 16px;
+            font-size: 1.4rem;
+        }
+
+        .profile-name {
+            font-size: 1.1rem;
+        }
+
+        .profile-actions {
+            flex-direction: column;
+        }
+
+        .profile-actions .btn {
+            width: 100%;
+        }
+
+        .profile-info-grid {
+            grid-template-columns: 1fr;
+            padding: 1rem;
+        }
+
+        .profile-section-header {
+            padding: 1rem;
+        }
+
+        .media-team-content,
+        .member-role-box,
+        .security-action {
+            margin-left: 1rem;
+            margin-right: 1rem;
+        }
+
+        .member-role-box {
+            margin-top: 1rem;
+        }
+
+        .media-team-content {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .security-action {
+            margin-bottom: 1rem;
+        }
+    }
+</style>
+
+<div class="profile-page">
+
+    <div class="profile-hero">
+
+        <div class="profile-identity">
+
+            <div class="profile-avatar-large">
+                {% if member and member.profile_photo %}
+                    <img
+                        src="{{ member.profile_photo.url }}"
+                        alt="{{ request.user.username }}"
+                    >
+                {% else %}
+                    {{ request.user.first_name|first|default:request.user.username|first|upper }}
+                {% endif %}
+            </div>
+
+            <div>
+                <div class="profile-name">
+                    {% if request.user.get_full_name %}
+                        {{ request.user.get_full_name }}
+                    {% else %}
+                        {{ request.user.username }}
+                    {% endif %}
+                </div>
+
+                <div class="profile-username">
+                    @{{ request.user.username }}
+                </div>
+
+                <div class="profile-role">
+                    <i class="bi bi-shield-check"></i>
+                    {% if request.user.is_superuser %}
+                        Administrator
+                    {% else %}
+                        {{ profile.get_role_display }}
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+
+        <div class="profile-actions">
+            <a href="{% url 'profile_edit' %}" class="btn btn-success">
+                <i class="bi bi-pencil-square me-1"></i>
+                Edit Profile
+            </a>
+
+            <a href="{% url 'password_change' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-key me-1"></i>
+                Change Password
+            </a>
+        </div>
+
+    </div>
+
+    <div class="row g-4 mt-1">
+
+        <div class="col-lg-7">
+
+            <div class="profile-section">
+
+                <div class="profile-section-header">
+                    <div>
+                        <h5>Personal Information</h5>
+                        <p>Your account contact information</p>
+                    </div>
+                    <i class="bi bi-person"></i>
+                </div>
+
+                <div class="profile-info-grid">
+
+                    <div class="profile-info">
+                        <span>First Name</span>
+                        <strong>{{ request.user.first_name|default:"Not provided" }}</strong>
+                    </div>
+
+                    <div class="profile-info">
+                        <span>Last Name</span>
+                        <strong>{{ request.user.last_name|default:"Not provided" }}</strong>
+                    </div>
+
+                    <div class="profile-info">
+                        <span>Email</span>
+                        <strong>{{ request.user.email|default:"Not provided" }}</strong>
+                    </div>
+
+                    <div class="profile-info">
+                        <span>Phone</span>
+                        <strong>
+                            {% if member %}
+                                {{ member.phone|default:"Not provided" }}
+                            {% else %}
+                                Not linked
+                            {% endif %}
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="profile-section mt-4">
+
+                <div class="profile-section-header">
+                    <div>
+                        <h5>Account Information</h5>
+                        <p>Information about your system account</p>
+                    </div>
+                    <i class="bi bi-person-badge"></i>
+                </div>
+
+                <div class="profile-info-grid">
+
+                    <div class="profile-info">
+                        <span>Username</span>
+                        <strong>{{ request.user.username }}</strong>
+                    </div>
+
+                    <div class="profile-info">
+                        <span>Account Status</span>
+                        {% if request.user.is_active %}
+                            <strong class="text-success">Active</strong>
+                        {% else %}
+                            <strong class="text-danger">Inactive</strong>
+                        {% endif %}
+                    </div>
+
+                    <div class="profile-info">
+                        <span>Last Login</span>
+                        <strong>
+                            {{ request.user.last_login|date:"d M Y, H:i"|default:"Not available" }}
+                        </strong>
+                    </div>
+
+                    <div class="profile-info">
+                        <span>Account Created</span>
+                        <strong>{{ request.user.date_joined|date:"d M Y" }}</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-5">
+
+            <div class="profile-section">
+
+                <div class="profile-section-header">
+                    <div>
+                        <h5>Media Team</h5>
+                        <p>Your team responsibilities</p>
+                    </div>
+                    <i class="bi bi-camera-reels"></i>
+                </div>
+
+                {% if member %}
+
+                    <div class="member-role-box">
+                        <span>Team Position</span>
+                        <strong>{{ member.role }}</strong>
+                    </div>
+
+                    <div class="media-team-content">
+
+                        <div class="profile-label">Skills</div>
+
+                        <div class="skill-list">
+                            {% for skill in member.skills.all %}
+                                <span class="skill-chip">{{ skill.name }}</span>
+                            {% empty %}
+                                <span class="text-muted small">No skills assigned</span>
+                            {% endfor %}
+                        </div>
+
+                        <div class="profile-info mt-4">
+                            <span>Joined Media Team</span>
+                            <strong>
+                                {{ member.joined_date|date:"d M Y"|default:"Not provided" }}
+                            </strong>
+                        </div>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="empty-profile-state">
+                        <i class="bi bi-person-x"></i>
+                        <h6>No member profile linked</h6>
+                        <p>
+                            Your system account has not been linked to a media team member.
+                        </p>
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+            <div class="profile-section mt-4">
+
+                <div class="profile-section-header">
+                    <div>
+                        <h5>Security</h5>
+                        <p>Keep your account secure</p>
+                    </div>
+                    <i class="bi bi-shield-lock"></i>
+                </div>
+
+                <a href="{% url 'password_change' %}" class="security-action">
+
+                    <span class="security-icon">
+                        <i class="bi bi-key"></i>
+                    </span>
+
+                    <span>
+                        <strong>Change Password</strong>
+                        <small>Update your account password</small>
+                    </span>
+
+                    <i class="bi bi-chevron-right"></i>
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

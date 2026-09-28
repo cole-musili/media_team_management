@@ -1,0 +1,329 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if editing %}Edit Member{% else %}Add Member{% endif %} | Church Media
+{% endblock %}
+
+{% block page_title %}
+    {% if editing %}Edit Member{% else %}Add Member{% endif %}
+{% endblock %}
+
+{% block page_subtitle %}
+    {% if editing %}
+        Update this member's information and skills
+    {% else %}
+        Add a new member to the church media team
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <a href="{% if editing %}{% url 'member_detail' member.pk %}{% else %}{% url 'member_list' %}{% endif %}"
+       class="text-secondary">
+        Back to Members
+    </a>
+</div>
+
+
+<div class="row justify-content-center">
+
+    <div class="col-xl-9">
+
+        <form method="post" enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            <div class="app-card mb-4">
+
+                <div class="app-card-header">
+                    <h2 class="h6 mb-1 fw-bold">
+                        Personal Information
+                    </h2>
+
+                    <p class="text-secondary small mb-0">
+                        Basic information about the media team member.
+                    </p>
+                </div>
+
+                <div class="app-card-body">
+
+                    <div class="row g-4">
+
+                        <div class="col-md-8">
+
+                            <label class="form-label">
+                                Full Name
+                            </label>
+
+                            <input
+                                type="text"
+                                name="name"
+                                class="form-control"
+                                required
+                                value="{% if editing %}{{ member.name }}{% else %}{{ form_data.name|default:'' }}{% endif %}"
+                                placeholder="e.g. John Kamau"
+                            >
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                Phone
+                            </label>
+
+                            <input
+                                type="text"
+                                name="phone"
+                                class="form-control"
+                                value="{% if editing %}{{ member.phone }}{% else %}{{ form_data.phone|default:'' }}{% endif %}"
+                                placeholder="e.g. 0712 345 678"
+                            >
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Email
+                            </label>
+
+                            <input
+                                type="email"
+                                name="email"
+                                class="form-control"
+                                value="{% if editing %}{{ member.email }}{% else %}{{ form_data.email|default:'' }}{% endif %}"
+                                placeholder="member@example.com"
+                            >
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Date Joined
+                            </label>
+
+                            <input
+                                type="date"
+                                name="joined_date"
+                                class="form-control"
+                                value="{% if editing %}{{ member.joined_date|date:'Y-m-d' }}{% else %}{{ form_data.joined_date|default:'' }}{% endif %}"
+                            >
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="app-card mb-4">
+
+                <div class="app-card-header">
+
+                    <h2 class="h6 mb-1 fw-bold">
+                        Media Team Role
+                    </h2>
+
+                    <p class="text-secondary small mb-0">
+                        Define the member's primary responsibility.
+                    </p>
+
+                </div>
+
+
+                <div class="app-card-body">
+
+                    <label class="form-label">
+                        Primary Role
+                    </label>
+
+                    <input
+                        type="text"
+                        name="role"
+                        class="form-control"
+                        value="{% if editing %}{{ member.role }}{% else %}{{ form_data.role|default:'' }}{% endif %}"
+                        placeholder="e.g. Camera Operator"
+                    >
+
+                    <div class="form-text">
+                        Examples: Camera Operator, Sound Engineer,
+                        Photographer, Streaming, Graphics.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="app-card mb-4">
+
+                <div class="app-card-header">
+
+                    <h2 class="h6 mb-1 fw-bold">
+                        Skills
+                    </h2>
+
+                    <p class="text-secondary small mb-0">
+                        Select the skills this member has.
+                    </p>
+
+                </div>
+
+
+                <div class="app-card-body">
+
+                    <div class="row g-2">
+
+                        {% for skill in skills %}
+
+                            <div class="col-md-4 col-sm-6">
+
+                                <label class="border rounded p-3 d-flex align-items-center gap-2 h-100">
+
+                                    <input
+                                        type="checkbox"
+                                        class="form-check-input mt-0"
+                                        name="skills"
+                                        value="{{ skill.id }}"
+                                        {% if editing and skill in member.skills.all %}
+                                            checked
+                                        {% endif %}
+                                    >
+
+                                    <span>
+                                        {{ skill.name }}
+                                    </span>
+
+                                </label>
+
+                            </div>
+
+                        {% empty %}
+
+                            <div class="col-12">
+
+                                <div class="alert alert-light border mb-0">
+
+                                    No skills have been created yet.
+
+                                    You can create skills through
+                                    <a href="/admin/members/skill/">
+                                        Administration
+                                    </a>.
+
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="app-card mb-4">
+
+                <div class="app-card-header">
+
+                    <h2 class="h6 mb-1 fw-bold">
+                        Profile Photo
+                    </h2>
+
+                </div>
+
+                <div class="app-card-body">
+
+                    {% if editing and member.profile_photo %}
+
+                        <div class="mb-3">
+
+                            <img
+                                src="{{ member.profile_photo.url }}"
+                                alt="{{ member.name }}"
+                                width="90"
+                                height="90"
+                                class="rounded-circle object-fit-cover"
+                            >
+
+                        </div>
+
+                    {% endif %}
+
+                    <input
+                        type="file"
+                        name="profile_photo"
+                        class="form-control"
+                        accept="image/*"
+                    >
+
+                    <div class="form-text">
+                        Use a clear profile image. JPG, PNG and other
+                        browser-supported image formats are acceptable.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="app-card mb-4">
+
+                <div class="app-card-header">
+
+                    <h2 class="h6 mb-1 fw-bold">
+                        Additional Notes
+                    </h2>
+
+                </div>
+
+                <div class="app-card-body">
+
+                    <textarea
+                        name="notes"
+                        rows="5"
+                        class="form-control"
+                        placeholder="Additional information about this member..."
+                    >{% if editing %}{{ member.notes }}{% else %}{{ form_data.notes|default:'' }}{% endif %}</textarea>
+
+                </div>
+
+            </div>
+
+
+            <div class="d-flex justify-content-end gap-2">
+
+                <a
+                    href="{% if editing %}{% url 'member_detail' member.pk %}{% else %}{% url 'member_list' %}{% endif %}"
+                    class="btn btn-light border"
+                >
+                    Cancel
+                </a>
+
+                <button type="submit" class="btn btn-primary">
+                    {% if editing %}
+                        Save Changes
+                    {% else %}
+                        Add Member
+                    {% endif %}
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

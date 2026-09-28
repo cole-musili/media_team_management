@@ -1,0 +1,487 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance Report | Church Media{% endblock %}
+
+{% block page_title %}
+Attendance Report
+{% endblock %}
+
+{% block page_subtitle %}
+Attendance activity across the media team.
+{% endblock %}
+
+{% block content %}
+
+<div class="report-page-intro mb-4">
+
+    <div>
+        <div class="report-kicker">
+            <i class="bi bi-person-check"></i>
+            Attendance Analytics
+        </div>
+
+        <h2 class="h4 fw-bold mt-2 mb-1">
+            Attendance Report
+        </h2>
+
+        <p class="text-secondary mb-0">
+            Review attendance records and participation across the media team.
+        </p>
+    </div>
+
+</div>
+
+
+<!-- Summary -->
+
+<div class="row g-3 g-xl-4 mb-4">
+
+    <div class="col-sm-6 col-xl-3">
+
+        <div class="report-stat h-100">
+
+            <div class="report-stat-icon">
+                <i class="bi bi-clipboard-check"></i>
+            </div>
+
+            <div>
+                <span class="stat-label">
+                    Records
+                </span>
+
+                <strong>
+                    {{ total_records }}
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-sm-6 col-xl-3">
+
+        <div class="report-stat h-100">
+
+            <div class="report-stat-icon">
+                <i class="bi bi-person-check"></i>
+            </div>
+
+            <div>
+                <span class="stat-label">
+                    Present
+                </span>
+
+                <strong>
+                    {{ present_count }}
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-sm-6 col-xl-3">
+
+        <div class="report-stat h-100">
+
+            <div class="report-stat-icon">
+                <i class="bi bi-clock"></i>
+            </div>
+
+            <div>
+                <span class="stat-label">
+                    Late
+                </span>
+
+                <strong>
+                    {{ late_count }}
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-sm-6 col-xl-3">
+
+        <div class="report-stat h-100">
+
+            <div class="report-stat-icon">
+                <i class="bi bi-person-x"></i>
+            </div>
+
+            <div>
+                <span class="stat-label">
+                    Absent
+                </span>
+
+                <strong>
+                    {{ absent_count }}
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Member Attendance -->
+
+<div class="dashboard-card report-card">
+
+    <div class="card-header-custom">
+
+        <div class="report-heading">
+
+            <span class="report-heading-icon">
+                <i class="bi bi-people"></i>
+            </span>
+
+            <div>
+                <h5>
+                    Member Attendance
+                </h5>
+
+                <p>
+                    Attendance records by team member.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        <table class="table dashboard-table align-middle mb-0">
+
+            <thead>
+                <tr>
+                    <th>Member</th>
+                    <th>Total Records</th>
+                    <th>Present</th>
+                    <th>Late</th>
+                    <th>Absent</th>
+                </tr>
+            </thead>
+
+
+            <tbody>
+
+                {% for member in members %}
+
+                    <tr>
+
+                        <td>
+                            <div class="member-cell">
+
+                                <span class="member-avatar">
+                                    <i class="bi bi-person"></i>
+                                </span>
+
+                                <span class="fw-semibold">
+                                    {{ member.name }}
+                                </span>
+
+                            </div>
+                        </td>
+
+
+                        <td>
+                            <span class="record-count">
+                                {{ member.total_attendance }}
+                            </span>
+                        </td>
+
+
+                        <td>
+                            <span class="status-count status-present">
+                                <i class="bi bi-check-circle"></i>
+                                {{ member.present_count }}
+                            </span>
+                        </td>
+
+
+                        <td>
+                            <span class="status-count status-late">
+                                <i class="bi bi-clock"></i>
+                                {{ member.late_count }}
+                            </span>
+                        </td>
+
+
+                        <td>
+                            <span class="status-count status-absent">
+                                <i class="bi bi-x-circle"></i>
+                                {{ member.absent_count }}
+                            </span>
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+
+                        <td colspan="5">
+
+                            <div class="report-empty-state">
+
+                                <div class="empty-icon">
+                                    <i class="bi bi-clipboard-x"></i>
+                                </div>
+
+                                <div class="fw-semibold">
+                                    No attendance records available.
+                                </div>
+
+                                <div class="small text-secondary mt-1">
+                                    Attendance information will appear here once records are available.
+                                </div>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+
+    .report-page-intro {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .report-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 5px 9px;
+        border-radius: 7px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+    }
+
+    .report-stat {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 19px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--card-bg, #fff);
+        box-shadow: 0 3px 12px rgba(20, 45, 35, .04);
+        transition:
+            transform .2s ease,
+            box-shadow .2s ease,
+            border-color .2s ease;
+    }
+
+    .report-stat:hover {
+        transform: translateY(-3px);
+        border-color: rgba(23, 107, 82, .25);
+        box-shadow: 0 10px 24px rgba(20, 45, 35, .08);
+    }
+
+    .report-stat-icon {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 19px;
+    }
+
+    .report-stat .stat-label {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        margin-bottom: 3px;
+    }
+
+    .report-stat strong {
+        display: block;
+        font-size: 27px;
+        line-height: 1.1;
+    }
+
+    .report-card {
+        overflow: hidden;
+        transition: box-shadow .2s ease;
+    }
+
+    .report-card:hover {
+        box-shadow: 0 10px 26px rgba(20, 45, 35, .07);
+    }
+
+    .report-heading {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+    }
+
+    .report-heading-icon {
+        width: 36px;
+        height: 36px;
+        flex: 0 0 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        background: #e8f3ef;
+        color: #176b52;
+    }
+
+    .report-heading h5 {
+        margin-bottom: 2px;
+    }
+
+    .report-heading p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+    }
+
+    .dashboard-table tbody tr {
+        transition: background .2s ease;
+    }
+
+    .dashboard-table tbody tr:hover {
+        background: #fafcfb;
+    }
+
+    .member-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .member-avatar {
+        width: 34px;
+        height: 34px;
+        flex: 0 0 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        background: #eef4f1;
+        color: #176b52;
+    }
+
+    .record-count {
+        font-weight: 600;
+    }
+
+    .status-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        min-width: 42px;
+        padding: 5px 8px;
+        border-radius: 7px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .status-present {
+        background: #eaf7ef;
+        color: #197044;
+    }
+
+    .status-late {
+        background: #fff5df;
+        color: #946200;
+    }
+
+    .status-absent {
+        background: #fff0f0;
+        color: #b42318;
+    }
+
+    .report-empty-state {
+        padding: 48px 20px;
+        text-align: center;
+        color: var(--muted);
+    }
+
+    .empty-icon {
+        width: 50px;
+        height: 50px;
+        margin: 0 auto 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: #f1f5f3;
+        color: #6c7974;
+        font-size: 20px;
+    }
+
+    @media (max-width: 767.98px) {
+
+        .report-page-intro {
+            align-items: flex-start;
+        }
+
+        .report-stat {
+            padding: 16px;
+        }
+
+        .report-heading p {
+            display: none;
+        }
+
+    }
+
+    @media (max-width: 575.98px) {
+
+        .report-stat-icon {
+            width: 40px;
+            height: 40px;
+            flex-basis: 40px;
+        }
+
+        .report-stat strong {
+            font-size: 24px;
+        }
+
+        .member-cell {
+            min-width: 170px;
+        }
+
+    }
+
+</style>
+
+{% endblock %}

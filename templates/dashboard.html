@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h2 class="mb-1">Media Team Dashboard</h2>
+<p class="text-muted">Overview of the church media operation.</p>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="card p-3"><div class="text-muted">Active Members</div><div class="stat">{{ member_count }}</div></div></div>
+  <div class="col-md-3"><div class="card p-3"><div class="text-muted">Equipment</div><div class="stat">{{ equipment_count }}</div></div></div>
+  <div class="col-md-3"><div class="card p-3"><div class="text-muted">Available Equipment</div><div class="stat">{{ available_equipment }}</div></div></div>
+  <div class="col-md-3"><div class="card p-3"><div class="text-muted">Today's Attendance Records</div><div class="stat">{{ attendance_today }}</div></div></div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card p-4">
+      <h5>Upcoming Events</h5>
+      {% for event in upcoming_events %}
+      <div class="border-bottom py-3">
+        <a href="/events/{{ event.id }}/" class="fw-semibold text-decoration-none">{{ event.name }}</a>
+        <div class="text-muted small">{{ event.date }} · Call time {{ event.call_time|default:"Not set" }}</div>
+      </div>
+      {% empty %}<p class="text-muted">No upcoming events.</p>{% endfor %}
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card p-4">
+      <h5>Pending Duty Confirmations</h5>
+      {% for a in pending_assignments %}
+      <div class="border-bottom py-2">
+        <strong>{{ a.member.name }}</strong> — {{ a.position.name }}
+        <div class="small text-muted">{{ a.event.name }} · {{ a.event.date }}</div>
+      </div>
+      {% empty %}<p class="text-muted">No pending confirmations.</p>{% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="card p-4 mt-4">
+  <h5>Announcements</h5>
+  {% for item in announcements %}
+    <div class="mb-3"><strong>{{ item.title }}</strong> <span class="badge bg-secondary">{{ item.get_priority_display }}</span><div>{{ item.message }}</div></div>
+  {% empty %}<p class="text-muted">No announcements.</p>{% endfor %}
+</div>
+{% endblock %}

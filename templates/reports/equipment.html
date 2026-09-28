@@ -1,0 +1,512 @@
+{% extends "base.html" %}
+
+{% block title %}Equipment Report | Church Media{% endblock %}
+
+{% block page_title %}
+Equipment Report
+{% endblock %}
+
+{% block page_subtitle %}
+Inventory, usage and maintenance overview.
+{% endblock %}
+
+{% block content %}
+
+<div class="report-page-intro mb-4">
+
+    <div>
+        <div class="report-kicker">
+            <i class="bi bi-camera-video"></i>
+            Equipment Analytics
+        </div>
+
+        <h2 class="h4 fw-bold mt-2 mb-1">
+            Equipment Report
+        </h2>
+
+        <p class="text-secondary mb-0">
+            Review inventory levels, equipment availability, checkouts,
+            and maintenance activity.
+        </p>
+    </div>
+
+</div>
+
+
+<!-- Summary -->
+
+<div class="row g-3 g-xl-4 mb-4">
+
+    <div class="col-sm-6 col-xl-3">
+
+        <div class="report-stat h-100">
+
+            <div class="report-stat-icon">
+                <i class="bi bi-camera-video"></i>
+            </div>
+
+            <div>
+                <span class="stat-label">
+                    Total Equipment
+                </span>
+
+                <strong>
+                    {{ total }}
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-sm-6 col-xl-3">
+
+        <div class="report-stat h-100">
+
+            <div class="report-stat-icon">
+                <i class="bi bi-check-circle"></i>
+            </div>
+
+            <div>
+                <span class="stat-label">
+                    Available
+                </span>
+
+                <strong>
+                    {{ available }}
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-sm-6 col-xl-3">
+
+        <div class="report-stat h-100">
+
+            <div class="report-stat-icon">
+                <i class="bi bi-tools"></i>
+            </div>
+
+            <div>
+                <span class="stat-label">
+                    Maintenance
+                </span>
+
+                <strong>
+                    {{ maintenance }}
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-sm-6 col-xl-3">
+
+        <div class="report-stat h-100">
+
+            <div class="report-stat-icon">
+                <i class="bi bi-box-arrow-up"></i>
+            </div>
+
+            <div>
+                <span class="stat-label">
+                    Checkouts
+                </span>
+
+                <strong>
+                    {{ checkout_count }}
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Equipment Inventory -->
+
+<div class="dashboard-card report-card">
+
+    <div class="card-header-custom">
+
+        <div class="report-heading">
+
+            <span class="report-heading-icon">
+                <i class="bi bi-box-seam"></i>
+            </span>
+
+            <div>
+                <h5>
+                    Equipment Inventory
+                </h5>
+
+                <p>
+                    Current equipment and usage history.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        <table class="table dashboard-table align-middle mb-0">
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Equipment</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Checkouts</th>
+                    <th>Maintenance</th>
+                </tr>
+            </thead>
+
+
+            <tbody>
+
+                {% for item in equipment %}
+
+                    <tr>
+
+                        <td>
+                            <span class="equipment-id">
+                                {{ item.equipment_id }}
+                            </span>
+                        </td>
+
+
+                        <td>
+                            <div class="equipment-name">
+                                <span class="equipment-icon">
+                                    <i class="bi bi-camera-video"></i>
+                                </span>
+
+                                <span class="fw-semibold">
+                                    {{ item.name }}
+                                </span>
+                            </div>
+                        </td>
+
+
+                        <td>
+                            <span class="category-badge">
+                                {{ item.category.name }}
+                            </span>
+                        </td>
+
+
+                        <td>
+                            <span class="equipment-status">
+                                <span class="status-dot"></span>
+                                {{ item.get_status_display }}
+                            </span>
+                        </td>
+
+
+                        <td>
+                            <span class="metric-count">
+                                <i class="bi bi-box-arrow-up-right"></i>
+                                {{ item.checkout_count }}
+                            </span>
+                        </td>
+
+
+                        <td>
+                            <span class="metric-count">
+                                <i class="bi bi-tools"></i>
+                                {{ item.maintenance_count }}
+                            </span>
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+
+                        <td colspan="6">
+
+                            <div class="report-empty-state">
+
+                                <div class="empty-icon">
+                                    <i class="bi bi-camera-video-off"></i>
+                                </div>
+
+                                <div class="fw-semibold">
+                                    No equipment records available.
+                                </div>
+
+                                <div class="small text-secondary mt-1">
+                                    Equipment inventory will appear here once records are available.
+                                </div>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+
+    .report-page-intro {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .report-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 5px 9px;
+        border-radius: 7px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+    }
+
+    .report-stat {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 19px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--card-bg, #fff);
+        box-shadow: 0 3px 12px rgba(20, 45, 35, .04);
+        transition:
+            transform .2s ease,
+            box-shadow .2s ease,
+            border-color .2s ease;
+    }
+
+    .report-stat:hover {
+        transform: translateY(-3px);
+        border-color: rgba(23, 107, 82, .25);
+        box-shadow: 0 10px 24px rgba(20, 45, 35, .08);
+    }
+
+    .report-stat-icon {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 19px;
+    }
+
+    .report-stat .stat-label {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        margin-bottom: 3px;
+    }
+
+    .report-stat strong {
+        display: block;
+        font-size: 27px;
+        line-height: 1.1;
+    }
+
+    .report-card {
+        overflow: hidden;
+        transition: box-shadow .2s ease;
+    }
+
+    .report-card:hover {
+        box-shadow: 0 10px 26px rgba(20, 45, 35, .07);
+    }
+
+    .report-heading {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+    }
+
+    .report-heading-icon {
+        width: 36px;
+        height: 36px;
+        flex: 0 0 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        background: #e8f3ef;
+        color: #176b52;
+    }
+
+    .report-heading h5 {
+        margin-bottom: 2px;
+    }
+
+    .report-heading p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+    }
+
+    .dashboard-table tbody tr {
+        transition: background .2s ease;
+    }
+
+    .dashboard-table tbody tr:hover {
+        background: #fafcfb;
+    }
+
+    .equipment-id {
+        display: inline-flex;
+        padding: 5px 8px;
+        border-radius: 6px;
+        background: #f1f5f3;
+        color: #56635e;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .02em;
+    }
+
+    .equipment-name {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 180px;
+    }
+
+    .equipment-icon {
+        width: 34px;
+        height: 34px;
+        flex: 0 0 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: #e8f3ef;
+        color: #176b52;
+    }
+
+    .category-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 8px;
+        border-radius: 6px;
+        background: #f5f6f7;
+        color: #59645f;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .equipment-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        color: #4d5a55;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #5a9a79;
+    }
+
+    .metric-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .metric-count i {
+        color: #176b52;
+    }
+
+    .report-empty-state {
+        padding: 48px 20px;
+        text-align: center;
+        color: var(--muted);
+    }
+
+    .empty-icon {
+        width: 50px;
+        height: 50px;
+        margin: 0 auto 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: #f1f5f3;
+        color: #6c7974;
+        font-size: 20px;
+    }
+
+    @media (max-width: 767.98px) {
+
+        .report-page-intro {
+            align-items: flex-start;
+        }
+
+        .report-stat {
+            padding: 16px;
+        }
+
+        .report-heading p {
+            display: none;
+        }
+
+    }
+
+    @media (max-width: 575.98px) {
+
+        .report-stat-icon {
+            width: 40px;
+            height: 40px;
+            flex-basis: 40px;
+        }
+
+        .report-stat strong {
+            font-size: 24px;
+        }
+
+    }
+
+</style>
+
+{% endblock %}

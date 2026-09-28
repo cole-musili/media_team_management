@@ -1,0 +1,420 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if editing %}Edit Equipment{% else %}Add Equipment{% endif %} | Church Media
+{% endblock %}
+
+{% block page_title %}
+    {% if editing %}Edit Equipment{% else %}Add Equipment{% endif %}
+{% endblock %}
+
+{% block page_subtitle %}
+    {% if editing %}
+        Update asset information, condition and operational details
+    {% else %}
+        Register a new media asset in the equipment inventory
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-xl-9">
+
+        <div class="equipment-form-intro mb-4">
+            <div class="d-flex align-items-start gap-3">
+                <div class="form-intro-icon">
+                    <i class="bi bi-box-seam"></i>
+                </div>
+                <div>
+                    <div class="small text-uppercase fw-bold text-success mb-1">
+                        Equipment Inventory
+                    </div>
+                    <h2 class="h5 fw-bold mb-1">
+                        {% if editing %}Update Equipment Record{% else %}Register Equipment{% endif %}
+                    </h2>
+                    <p class="text-secondary mb-0">
+                        Keep identification, condition and ownership information accurate
+                        so the media team can track every asset reliably.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger border-0 shadow-sm mb-4">
+                    <div class="d-flex gap-2">
+                        <i class="bi bi-exclamation-circle-fill mt-1"></i>
+                        <div>
+                            <div class="fw-semibold mb-1">Please review the form</div>
+                            {{ form.non_field_errors }}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="app-card mb-4 form-section-card">
+
+                <div class="app-card-header">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="section-icon">
+                            <i class="bi bi-card-text"></i>
+                        </div>
+                        <div>
+                            <div class="fw-semibold">Equipment Identity</div>
+                            <div class="text-secondary small">
+                                Basic identification information.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="app-card-body">
+
+                    <div class="row g-4">
+
+                        <div class="col-md-4">
+                            <label class="form-label" for="{{ form.equipment_id.id_for_label }}">
+                                Equipment ID
+                            </label>
+                            {{ form.equipment_id }}
+                            {% if form.equipment_id.errors %}
+                                <div class="invalid-feedback d-block">{{ form.equipment_id.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">
+                                Example: CAM-001
+                            </div>
+                        </div>
+
+                        <div class="col-md-8">
+                            <label class="form-label" for="{{ form.name.id_for_label }}">
+                                Equipment Name
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="invalid-feedback d-block">{{ form.name.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label" for="{{ form.category.id_for_label }}">
+                                Category
+                            </label>
+                            {{ form.category }}
+                            {% if form.category.errors %}
+                                <div class="invalid-feedback d-block">{{ form.category.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label" for="{{ form.brand.id_for_label }}">
+                                Brand
+                            </label>
+                            {{ form.brand }}
+                            {% if form.brand.errors %}
+                                <div class="invalid-feedback d-block">{{ form.brand.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label" for="{{ form.model.id_for_label }}">
+                                Model
+                            </label>
+                            {{ form.model }}
+                            {% if form.model.errors %}
+                                <div class="invalid-feedback d-block">{{ form.model.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.serial_number.id_for_label }}">
+                                Serial Number
+                            </label>
+                            {{ form.serial_number }}
+                            {% if form.serial_number.errors %}
+                                <div class="invalid-feedback d-block">{{ form.serial_number.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.location.id_for_label }}">
+                                Location
+                            </label>
+                            {{ form.location }}
+                            {% if form.location.errors %}
+                                <div class="invalid-feedback d-block">{{ form.location.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="app-card mb-4 form-section-card">
+
+                <div class="app-card-header">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="section-icon">
+                            <i class="bi bi-activity"></i>
+                        </div>
+                        <div>
+                            <div class="fw-semibold">Asset Status</div>
+                            <div class="text-secondary small">
+                                Current condition and operational state.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="app-card-body">
+
+                    <div class="row g-4">
+
+                        <div class="col-md-4">
+                            <label class="form-label" for="{{ form.condition.id_for_label }}">
+                                Condition
+                            </label>
+                            {{ form.condition }}
+                            {% if form.condition.errors %}
+                                <div class="invalid-feedback d-block">{{ form.condition.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label" for="{{ form.status.id_for_label }}">
+                                Status
+                            </label>
+                            {{ form.status }}
+                            {% if form.status.errors %}
+                                <div class="invalid-feedback d-block">{{ form.status.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label" for="{{ form.purchase_date.id_for_label }}">
+                                Purchase Date
+                            </label>
+                            {{ form.purchase_date }}
+                            {% if form.purchase_date.errors %}
+                                <div class="invalid-feedback d-block">{{ form.purchase_date.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label" for="{{ form.purchase_price.id_for_label }}">
+                                Purchase Price
+                            </label>
+                            {{ form.purchase_price }}
+                            {% if form.purchase_price.errors %}
+                                <div class="invalid-feedback d-block">{{ form.purchase_price.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-8">
+                            <label class="form-label" for="{{ form.photo.id_for_label }}">
+                                Equipment Photo
+                            </label>
+                            <div class="photo-upload-box">
+                                <i class="bi bi-camera mb-2"></i>
+                                {{ form.photo }}
+                                <div class="form-text">
+                                    Use a clear photo that helps identify the physical asset.
+                                </div>
+                            </div>
+                            {% if form.photo.errors %}
+                                <div class="invalid-feedback d-block">{{ form.photo.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="app-card mb-4 form-section-card">
+
+                <div class="app-card-header">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="section-icon">
+                            <i class="bi bi-file-text"></i>
+                        </div>
+                        <div>
+                            <div class="fw-semibold">Description</div>
+                            <div class="text-secondary small">
+                                Add useful notes about the equipment.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="app-card-body">
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <div class="invalid-feedback d-block">{{ form.description.errors }}</div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+
+            <div class="form-actions app-card">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+
+                    <div class="text-secondary small">
+                        <i class="bi bi-shield-check me-1"></i>
+                        Review the information before saving the equipment record.
+                    </div>
+
+                    <div class="d-flex gap-2">
+
+                        <a
+                            href="{% if editing %}{% url 'equipment_detail' item.pk %}{% else %}{% url 'equipment_list' %}{% endif %}"
+                            class="btn btn-light border"
+                        >
+                            <i class="bi bi-x-lg me-1"></i>
+                            Cancel
+                        </a>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            <i class="bi bi-check2 me-1"></i>
+                            {% if editing %}
+                                Save Changes
+                            {% else %}
+                                Add Equipment
+                            {% endif %}
+                        </button>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<style>
+    .equipment-form-intro {
+        padding: 20px;
+        border: 1px solid rgba(23,107,82,.10);
+        border-radius: 14px;
+        background: linear-gradient(135deg, rgba(232,243,239,.72), rgba(255,255,255,.98));
+    }
+
+    .form-intro-icon,
+    .section-icon {
+        width: 42px;
+        height: 42px;
+        flex: 0 0 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 18px;
+    }
+
+    .section-icon {
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
+        border-radius: 9px;
+        font-size: 16px;
+    }
+
+    .form-section-card {
+        transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .form-section-card:hover {
+        box-shadow: 0 10px 28px rgba(16,42,35,.07);
+    }
+
+    .form-section-card .app-card-header {
+        border-bottom: 1px solid #edf0ef;
+    }
+
+    .form-section-card input,
+    .form-section-card select,
+    .form-section-card textarea {
+        transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    .form-section-card input:focus,
+    .form-section-card select:focus,
+    .form-section-card textarea:focus {
+        border-color: #176b52;
+        box-shadow: 0 0 0 .2rem rgba(23,107,82,.10);
+    }
+
+    .photo-upload-box {
+        min-height: 112px;
+        padding: 16px;
+        border: 1px dashed #cbd8d3;
+        border-radius: 11px;
+        background: #f8faf9;
+        transition: border-color .18s ease, background .18s ease;
+    }
+
+    .photo-upload-box:hover {
+        border-color: #176b52;
+        background: #f3f8f5;
+    }
+
+    .photo-upload-box > i {
+        display: block;
+        color: #176b52;
+        font-size: 20px;
+    }
+
+    .form-actions {
+        padding: 16px 18px;
+        margin-bottom: 24px;
+        border: 1px solid #edf0ef;
+    }
+
+    .form-actions .btn {
+        min-width: 112px;
+    }
+
+    @media (max-width: 575.98px) {
+        .equipment-form-intro {
+            padding: 16px;
+        }
+
+        .form-actions {
+            padding: 14px;
+        }
+
+        .form-actions > div {
+            align-items: stretch !important;
+        }
+
+        .form-actions .d-flex.gap-2 {
+            width: 100%;
+        }
+
+        .form-actions .btn {
+            flex: 1;
+        }
+    }
+</style>
+
+{% endblock %}

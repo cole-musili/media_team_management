@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout Equipment | Church Media{% endblock %}
+
+{% block page_title %}Checkout Equipment{% endblock %}
+
+{% block page_subtitle %}
+Record who is taking this equipment and why
+{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-xl-8">
+
+        <div class="app-card mb-4">
+
+            <div class="app-card-body">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    {% if item.photo %}
+
+                        <img
+                            src="{{ item.photo.url }}"
+                            style="width:72px;height:72px;object-fit:cover;border-radius:10px;"
+                        >
+
+                    {% else %}
+
+                        <div class="equipment-form-icon">
+                            <i class="bi bi-box-seam"></i>
+                        </div>
+
+                    {% endif %}
+
+                    <div>
+
+                        <div class="equipment-id">
+                            {{ item.equipment_id }}
+                        </div>
+
+                        <h2 class="h5 fw-bold mb-1">
+                            {{ item.name }}
+                        </h2>
+
+                        <div class="text-secondary small">
+                            {{ item.get_condition_display }}
+                            |
+                            {{ item.location|default:"Location not set" }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <form
+            method="post"
+            enctype="multipart/form-data"
+        >
+
+            {% csrf_token %}
+
+
+            {% if form.non_field_errors %}
+
+                <div class="alert alert-danger">
+                    {{ form.non_field_errors }}
+                </div>
+
+            {% endif %}
+
+
+            <div class="app-card mb-4">
+
+                <div class="app-card-header">
+
+                    <div class="fw-semibold">
+                        Checkout Details
+                    </div>
+
+                    <div class="text-secondary small">
+                        Record the person responsible for the equipment.
+                    </div>
+
+                </div>
+
+
+                <div class="app-card-body">
+
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Responsible Member
+                            </label>
+
+                            {{ form.member }}
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Event
+                            </label>
+
+                            {{ form.event }}
+
+                        </div>
+
+
+                        <div class="col-12">
+
+                            <label class="form-label">
+                                Purpose
+                            </label>
+
+                            {{ form.purpose }}
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Expected Return
+                            </label>
+
+                            {{ form.expected_return }}
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Condition Before
+                            </label>
+
+                            {{ form.condition_before }}
+
+                        </div>
+
+
+                        <div class="col-12">
+
+                            <label class="form-label">
+                                Condition Photo
+                            </label>
+
+                            {{ form.photo_before }}
+
+                            <div class="form-text">
+                                Photograph the equipment before it leaves.
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-12">
+
+                            <label class="form-label">
+                                Notes
+                            </label>
+
+                            {{ form.notes }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="alert alert-warning border-0">
+
+                <div class="d-flex gap-3">
+
+                    <i class="bi bi-shield-check fs-5"></i>
+
+                    <div class="small">
+
+                        The checkout creates an accountability record
+                        linking this equipment to the responsible member.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="d-flex justify-content-end gap-2">
+
+                <a
+                    href="{% url 'equipment_detail' item.pk %}"
+                    class="btn btn-light border"
+                >
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    <i class="bi bi-box-arrow-up-right me-1"></i>
+                    Confirm Checkout
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<style>
+
+    .equipment-form-icon {
+        width: 72px;
+        height: 72px;
+
+        border-radius: 10px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background: #e8f3ef;
+        color: #176b52;
+
+        font-size: 28px;
+    }
+
+</style>
+
+{% endblock %}

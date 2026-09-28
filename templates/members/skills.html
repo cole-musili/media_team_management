@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+
+{% block title %}Skills | Church Media{% endblock %}
+
+{% block page_title %}Skills{% endblock %}
+
+{% block page_subtitle %}
+Manage the skills used across the media team
+{% endblock %}
+
+{% block content %}
+
+{% with user_role=request.user.profile.role|default:"" %}
+
+<style>
+    .skill-summary {
+        border: 1px solid rgba(25, 135, 84, .12);
+        background: linear-gradient(
+            135deg,
+            rgba(25, 135, 84, .08),
+            transparent
+        );
+        border-radius: .9rem;
+    }
+
+    .skill-stat-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 11px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(25, 135, 84, .10);
+        color: #198754;
+    }
+
+    .skill-name {
+        display: flex;
+        align-items: center;
+        gap: .7rem;
+    }
+
+    .skill-dot {
+        width: 34px;
+        height: 34px;
+        flex: 0 0 34px;
+        border-radius: 9px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(25, 135, 84, .09);
+        color: #198754;
+    }
+
+    .skill-row {
+        transition: background-color .18s ease;
+    }
+
+    .skill-row:hover {
+        background: rgba(25, 135, 84, .035);
+    }
+
+    .action-button {
+        transition: transform .18s ease;
+    }
+
+    .action-button:hover {
+        transform: translateY(-1px);
+    }
+
+    .empty-state {
+        padding: 3.5rem 1.5rem;
+    }
+
+    .empty-icon {
+        width: 58px;
+        height: 58px;
+        margin: 0 auto 1rem;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(25, 135, 84, .08);
+        color: #198754;
+        font-size: 1.5rem;
+    }
+</style>
+
+<!-- Header -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="skill-stat-icon">
+                <i class="bi bi-stars"></i>
+            </span>
+            <h2 class="h5 mb-0 fw-bold">Media Skills</h2>
+        </div>
+
+        <p class="text-secondary mb-0">
+            Define the skills that can be assigned to team members.
+        </p>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+
+        <a href="{% url 'member_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-people me-1"></i>
+            Members
+        </a>
+
+        {% if user_role == "admin" or user_role == "coordinator" %}
+        <a href="{% url 'skill_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>
+            Add Skill
+        </a>
+        {% endif %}
+
+    </div>
+
+</div>
+
+<!-- Summary -->
+<div class="app-card skill-summary mb-4">
+    <div class="app-card-body">
+        <div class="row align-items-center g-3">
+
+            <div class="col-auto">
+                <span class="skill-stat-icon">
+                    <i class="bi bi-list-check"></i>
+                </span>
+            </div>
+
+            <div class="col">
+                <div class="small text-secondary">Available Skills</div>
+                <div class="h4 fw-bold mb-0">
+                    {{ skills|length }}
+                </div>
+            </div>
+
+            <div class="col-12 col-md-auto text-md-end">
+                <div class="small text-secondary">
+                    Skills can be used when assigning members to media duties.
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Skills table -->
+<div class="app-card">
+
+    <div class="app-card-header d-flex justify-content-between align-items-center">
+        <div>
+            <div class="fw-semibold">Skill Directory</div>
+            <div class="text-secondary small">
+                Manage the skills available to the media team.
+            </div>
+        </div>
+
+        <span class="badge rounded-pill text-bg-light border">
+            {{ skills|length }} skill{{ skills|length|pluralize }}
+        </span>
+    </div>
+
+    <div class="table-responsive">
+
+        <table class="table align-middle mb-0">
+
+            <thead>
+                <tr>
+                    <th>Skill</th>
+                    <th>Description</th>
+                    {% if user_role == "admin" or user_role == "coordinator" %}
+                    <th class="text-end">Actions</th>
+                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for skill in skills %}
+
+                <tr class="skill-row">
+
+                    <td>
+                        <div class="skill-name">
+                            <span class="skill-dot">
+                                <i class="bi bi-award"></i>
+                            </span>
+
+                            <div>
+                                <div class="fw-semibold">
+                                    {{ skill.name }}
+                                </div>
+                                <div class="text-secondary small">
+                                    Media team skill
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td>
+                        {% if skill.description %}
+                            <span class="text-secondary">
+                                {{ skill.description }}
+                            </span>
+                        {% else %}
+                            <span class="text-secondary fst-italic">
+                                No description provided
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    {% if user_role == "admin" or user_role == "coordinator" %}
+                    <td class="text-end">
+                        <div class="d-inline-flex flex-wrap justify-content-end gap-2">
+
+                            <a
+                                href="{% url 'skill_edit' skill.pk %}"
+                                class="btn btn-sm btn-outline-secondary action-button"
+                            >
+                                <i class="bi bi-pencil-square me-1"></i>
+                                Edit
+                            </a>
+
+                            <form
+                                method="post"
+                                action="{% url 'skill_delete' skill.pk %}"
+                                class="d-inline"
+                                onsubmit="return confirm('Delete this skill?');"
+                            >
+                                {% csrf_token %}
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-sm btn-outline-danger action-button"
+                                >
+                                    <i class="bi bi-trash3 me-1"></i>
+                                    Delete
+                                </button>
+                            </form>
+
+                        </div>
+                    </td>
+                    {% endif %}
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="{% if user_role == 'admin' or user_role == 'coordinator' %}3{% else %}2{% endif %}">
+
+                        <div class="empty-state text-center">
+
+                            <div class="empty-icon">
+                                <i class="bi bi-stars"></i>
+                            </div>
+
+                            <div class="fw-semibold mb-1">
+                                No skills yet
+                            </div>
+
+                            <div class="text-secondary small mb-3">
+                                {% if user_role == "admin" or user_role == "coordinator" %}
+                                    Create the skills used by your media team.
+                                {% else %}
+                                    No media skills have been configured yet.
+                                {% endif %}
+                            </div>
+
+                            {% if user_role == "admin" or user_role == "coordinator" %}
+                            <a
+                                href="{% url 'skill_create' %}"
+                                class="btn btn-primary btn-sm"
+                            >
+                                <i class="bi bi-plus-lg me-1"></i>
+                                Add Skill
+                            </a>
+                            {% endif %}
+
+                        </div>
+
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endwith %}
+
+{% endblock %}

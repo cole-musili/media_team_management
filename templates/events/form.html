@@ -1,0 +1,369 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if editing %}Edit Event{% else %}Create Event{% endif %} | Church Media
+{% endblock %}
+
+{% block page_title %}
+    {% if editing %}Edit Event{% else %}Create Event{% endif %}
+{% endblock %}
+
+{% block page_subtitle %}
+    {% if editing %}
+        Update event information and scheduling details
+    {% else %}
+        Create a new church media event
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .form-section {
+        transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .form-section:hover {
+        transform: translateY(-1px);
+    }
+
+    .section-icon {
+        width: 42px;
+        height: 42px;
+        flex: 0 0 42px;
+        border-radius: 11px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(25, 135, 84, .09);
+        color: #198754;
+    }
+
+    .field-label {
+        font-weight: 600;
+    }
+
+    .field-hint {
+        font-size: .82rem;
+        color: var(--bs-secondary-color);
+    }
+
+    .form-control,
+    .form-select {
+        transition: border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: rgba(25, 135, 84, .55);
+        box-shadow: 0 0 0 .2rem rgba(25, 135, 84, .12);
+    }
+
+    .time-field {
+        position: relative;
+    }
+
+    .form-footer {
+        border-top: 1px solid var(--bs-border-color);
+        padding-top: 1.25rem;
+    }
+</style>
+
+<div class="row justify-content-center">
+
+    <div class="col-xl-9">
+
+        <form method="post">
+
+            {% csrf_token %}
+
+            <!-- Event information -->
+            <div class="app-card form-section mb-4">
+
+                <div class="app-card-header">
+                    <div class="d-flex align-items-center gap-3">
+
+                        <span class="section-icon">
+                            <i class="bi bi-calendar2-event"></i>
+                        </span>
+
+                        <div>
+                            <h2 class="h6 fw-bold mb-1">
+                                Event Information
+                            </h2>
+
+                            <p class="text-secondary small mb-0">
+                                Basic information about the event.
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="app-card-body">
+
+                    <div class="row g-4">
+
+                        <div class="col-md-8">
+                            <label for="event-name" class="form-label field-label">
+                                Event Name
+                            </label>
+
+                            <input
+                                id="event-name"
+                                type="text"
+                                name="name"
+                                class="form-control"
+                                required
+                                maxlength="200"
+                                placeholder="e.g. Sunday Morning Service"
+                                value="{% if editing %}{{ event.name }}{% else %}{{ form_data.name|default:'' }}{% endif %}"
+                            >
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="event-type" class="form-label field-label">
+                                Event Type
+                            </label>
+
+                            <select id="event-type" name="event_type" class="form-select">
+                                {% for value, label in event_types %}
+                                    <option
+                                        value="{{ value }}"
+                                        {% if editing and event.event_type == value %}
+                                            selected
+                                        {% elif not editing and form_data.event_type == value %}
+                                            selected
+                                        {% elif not editing and not form_data.event_type and value == "service" %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="event-date" class="form-label field-label">
+                                Date
+                            </label>
+
+                            <input
+                                id="event-date"
+                                type="date"
+                                name="date"
+                                class="form-control"
+                                required
+                                value="{% if editing %}{{ event.date|date:'Y-m-d' }}{% else %}{{ form_data.date|default:'' }}{% endif %}"
+                            >
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="start-time" class="form-label field-label">
+                                Start Time
+                            </label>
+
+                            <div class="time-field">
+                                <input
+                                    id="start-time"
+                                    type="time"
+                                    name="start_time"
+                                    class="form-control"
+                                    required
+                                    value="{% if editing %}{{ event.start_time|time:'H\:i' }}{% else %}{{ form_data.start_time|default:'' }}{% endif %}"
+                                >
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="end-time" class="form-label field-label">
+                                End Time
+                            </label>
+
+                            <input
+                                id="end-time"
+                                type="time"
+                                name="end_time"
+                                class="form-control"
+                                value="{% if editing %}{{ event.end_time|time:'H\:i' }}{% else %}{{ form_data.end_time|default:'' }}{% endif %}"
+                            >
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="call-time" class="form-label field-label">
+                                Media Team Call Time
+                            </label>
+
+                            <input
+                                id="call-time"
+                                type="time"
+                                name="call_time"
+                                class="form-control"
+                                value="{% if editing %}{{ event.call_time|time:'H\:i' }}{% else %}{{ form_data.call_time|default:'' }}{% endif %}"
+                            >
+
+                            <div class="field-hint mt-2">
+                                <i class="bi bi-info-circle me-1"></i>
+                                When the media team should arrive.
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="event-location" class="form-label field-label">
+                                Location
+                            </label>
+
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent">
+                                    <i class="bi bi-geo-alt"></i>
+                                </span>
+
+                                <input
+                                    id="event-location"
+                                    type="text"
+                                    name="location"
+                                    class="form-control"
+                                    maxlength="200"
+                                    placeholder="e.g. Main Sanctuary"
+                                    value="{% if editing %}{{ event.location }}{% else %}{{ form_data.location|default:'' }}{% endif %}"
+                                >
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Event status -->
+            <div class="app-card form-section mb-4">
+
+                <div class="app-card-header">
+                    <div class="d-flex align-items-center gap-3">
+
+                        <span class="section-icon">
+                            <i class="bi bi-activity"></i>
+                        </span>
+
+                        <div>
+                            <h2 class="h6 fw-bold mb-1">
+                                Event Status
+                            </h2>
+
+                            <p class="text-secondary small mb-0">
+                                Control where this event is in its lifecycle.
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="app-card-body">
+
+                    <label for="event-status" class="form-label field-label">
+                        Status
+                    </label>
+
+                    <select id="event-status" name="status" class="form-select">
+                        {% for value, label in event_statuses %}
+                            <option
+                                value="{{ value }}"
+                                {% if editing and event.status == value %}
+                                    selected
+                                {% elif not editing and form_data.status == value %}
+                                    selected
+                                {% elif not editing and not form_data.status and value == "scheduled" %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <div class="field-hint mt-2">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Use the status to keep the event lifecycle accurate for the media team.
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Description -->
+            <div class="app-card form-section mb-4">
+
+                <div class="app-card-header">
+                    <div class="d-flex align-items-center gap-3">
+
+                        <span class="section-icon">
+                            <i class="bi bi-file-text"></i>
+                        </span>
+
+                        <div>
+                            <h2 class="h6 fw-bold mb-1">
+                                Description
+                            </h2>
+
+                            <p class="text-secondary small mb-0">
+                                Add any information the media team needs to know.
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="app-card-body">
+
+                    <label for="event-description" class="form-label field-label">
+                        Event Notes
+                    </label>
+
+                    <textarea
+                        id="event-description"
+                        name="description"
+                        class="form-control"
+                        rows="7"
+                        placeholder="Event notes, special requirements, coverage information..."
+                    >{% if editing %}{{ event.description }}{% else %}{{ form_data.description|default:'' }}{% endif %}</textarea>
+
+                    <div class="field-hint mt-2">
+                        Include details such as special coverage requirements, production notes or other information useful to the media team.
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Actions -->
+            <div class="form-footer d-flex flex-wrap justify-content-between align-items-center gap-2">
+
+                <a
+                    href="{% if editing %}{% url 'event_detail' event.pk %}{% else %}{% url 'event_list' %}{% endif %}"
+                    class="btn btn-outline-secondary"
+                >
+                    <i class="bi bi-arrow-left me-1"></i>
+                    Cancel
+                </a>
+
+                <button type="submit" class="btn btn-primary">
+                    {% if editing %}
+                        <i class="bi bi-check2-circle me-1"></i>
+                        Save Changes
+                    {% else %}
+                        <i class="bi bi-calendar-plus me-1"></i>
+                        Create Event
+                    {% endif %}
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

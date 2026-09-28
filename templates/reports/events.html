@@ -1,0 +1,411 @@
+{% extends "base.html" %}
+
+{% block title %}Event Report | Church Media{% endblock %}
+
+{% block page_title %}
+Event Report
+{% endblock %}
+
+{% block page_subtitle %}
+Events, team assignments, attendance and media.
+{% endblock %}
+
+{% block content %}
+
+<div class="report-page-intro mb-4">
+
+    <div>
+        <div class="report-kicker">
+            <i class="bi bi-calendar-event"></i>
+            Event Analytics
+        </div>
+
+        <h2 class="h4 fw-bold mt-2 mb-1">
+            Event Report
+        </h2>
+
+        <p class="text-secondary mb-0">
+            Review event activity, team assignments, attendance,
+            equipment usage, and media records.
+        </p>
+    </div>
+
+</div>
+
+
+<div class="report-summary mb-4">
+
+    <div class="summary-icon">
+        <i class="bi bi-calendar2-check"></i>
+    </div>
+
+    <div>
+        <span class="summary-label">
+            Events Recorded
+        </span>
+
+        <strong>
+            {{ total_events }}
+        </strong>
+    </div>
+
+</div>
+
+
+<div class="dashboard-card report-card">
+
+    <div class="card-header-custom">
+
+        <div class="report-heading">
+
+            <span class="report-heading-icon">
+                <i class="bi bi-calendar-event"></i>
+            </span>
+
+            <div>
+                <h5>
+                    Events
+                </h5>
+
+                <p>
+                    {{ total_events }} events recorded.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        <table class="table dashboard-table align-middle mb-0">
+
+            <thead>
+
+                <tr>
+                    <th>Event</th>
+                    <th>Date</th>
+                    <th>Assignments</th>
+                    <th>Attendance</th>
+                    <th>Equipment</th>
+                    <th>Albums</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for event in events %}
+
+                    <tr>
+
+                        <td>
+
+                            <a
+                                href="{% url 'event_detail' event.pk %}"
+                                class="event-link fw-semibold"
+                            >
+                                <span class="event-icon">
+                                    <i class="bi bi-calendar2-event"></i>
+                                </span>
+
+                                {{ event.name }}
+                            </a>
+
+                        </td>
+
+
+                        <td>
+                            <span class="date-value">
+                                <i class="bi bi-calendar3"></i>
+                                {{ event.date|date:"d M Y" }}
+                            </span>
+                        </td>
+
+
+                        <td>
+                            <span class="metric-badge">
+                                <i class="bi bi-person-badge"></i>
+                                {{ event.assignment_count }}
+                            </span>
+                        </td>
+
+
+                        <td>
+                            <span class="metric-badge">
+                                <i class="bi bi-person-check"></i>
+                                {{ event.attendance_count }}
+                            </span>
+                        </td>
+
+
+                        <td>
+                            <span class="metric-badge">
+                                <i class="bi bi-camera-video"></i>
+                                {{ event.equipment_count }}
+                            </span>
+                        </td>
+
+
+                        <td>
+                            <span class="metric-badge">
+                                <i class="bi bi-images"></i>
+                                {{ event.album_count }}
+                            </span>
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+
+                        <td colspan="6">
+
+                            <div class="report-empty-state">
+
+                                <div class="empty-icon">
+                                    <i class="bi bi-calendar-x"></i>
+                                </div>
+
+                                <div class="fw-semibold">
+                                    No events recorded.
+                                </div>
+
+                                <div class="small text-secondary mt-1">
+                                    Event information will appear here once events are recorded.
+                                </div>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+
+    .report-page-intro {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .report-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 5px 9px;
+        border-radius: 7px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+    }
+
+    .report-summary {
+        display: inline-flex;
+        align-items: center;
+        gap: 13px;
+        min-width: 210px;
+        padding: 14px 17px;
+        border: 1px solid var(--border);
+        border-radius: 11px;
+        background: var(--card-bg, #fff);
+        box-shadow: 0 3px 12px rgba(20, 45, 35, .04);
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .report-summary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(20, 45, 35, .07);
+    }
+
+    .summary-icon {
+        width: 40px;
+        height: 40px;
+        flex: 0 0 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        background: #e8f3ef;
+        color: #176b52;
+    }
+
+    .summary-label {
+        display: block;
+        color: var(--muted);
+        font-size: 11px;
+        margin-bottom: 2px;
+    }
+
+    .report-summary strong {
+        display: block;
+        font-size: 22px;
+        line-height: 1.1;
+    }
+
+    .report-card {
+        overflow: hidden;
+        transition: box-shadow .2s ease;
+    }
+
+    .report-card:hover {
+        box-shadow: 0 10px 26px rgba(20, 45, 35, .07);
+    }
+
+    .report-heading {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+    }
+
+    .report-heading-icon {
+        width: 36px;
+        height: 36px;
+        flex: 0 0 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        background: #e8f3ef;
+        color: #176b52;
+    }
+
+    .report-heading h5 {
+        margin-bottom: 2px;
+    }
+
+    .report-heading p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+    }
+
+    .dashboard-table tbody tr {
+        transition: background .2s ease;
+    }
+
+    .dashboard-table tbody tr:hover {
+        background: #fafcfb;
+    }
+
+    .event-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        color: var(--text, #25312d);
+        text-decoration: none;
+        min-width: 180px;
+    }
+
+    .event-link:hover {
+        color: var(--primary, #176b52);
+    }
+
+    .event-icon {
+        width: 32px;
+        height: 32px;
+        flex: 0 0 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: #e8f3ef;
+        color: #176b52;
+        transition: transform .2s ease;
+    }
+
+    .event-link:hover .event-icon {
+        transform: translateY(-2px);
+    }
+
+    .date-value {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #59655f;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .date-value i {
+        color: #176b52;
+    }
+
+    .metric-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-width: 42px;
+        padding: 5px 8px;
+        border-radius: 7px;
+        background: #f1f5f3;
+        color: #4e5b56;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .metric-badge i {
+        color: #176b52;
+    }
+
+    .report-empty-state {
+        padding: 48px 20px;
+        text-align: center;
+        color: var(--muted);
+    }
+
+    .empty-icon {
+        width: 50px;
+        height: 50px;
+        margin: 0 auto 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: #f1f5f3;
+        color: #6c7974;
+        font-size: 20px;
+    }
+
+    @media (max-width: 767.98px) {
+
+        .report-page-intro {
+            align-items: flex-start;
+        }
+
+        .report-heading p {
+            display: none;
+        }
+
+        .report-summary {
+            width: 100%;
+        }
+
+    }
+
+</style>
+
+{% endblock %}

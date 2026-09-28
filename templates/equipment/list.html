@@ -1,0 +1,423 @@
+{% extends "base.html" %}
+
+{% block title %}Equipment | Church Media{% endblock %}
+
+{% block page_title %}Equipment{% endblock %}
+
+{% block page_subtitle %}
+Manage cameras, audio, lighting, streaming and other media assets
+{% endblock %}
+
+{% block content %}
+
+{% with user_role=request.user.profile.role|default:"" %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <div class="section-kicker">Equipment Operations</div>
+        <h2 class="h4 fw-bold mb-1">Equipment Inventory</h2>
+        <p class="text-secondary mb-0">Track equipment availability, condition and usage.</p>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'equipment_categories' %}" class="btn btn-light border">
+            <i class="bi bi-tags me-1"></i> Categories
+        </a>
+
+        {% if user_role == "admin" or user_role == "coordinator" %}
+        <a href="{% url 'equipment_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i> Add Equipment
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4 col-xl">
+        <div class="app-card equipment-stat h-100">
+            <div class="app-card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="text-secondary small">Total Equipment</div>
+                        <div class="fs-3 fw-bold">{{ total_equipment }}</div>
+                    </div>
+                    <div class="equipment-stat-icon total"><i class="bi bi-box-seam"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 col-xl">
+        <div class="app-card equipment-stat h-100">
+            <div class="app-card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="text-secondary small">Available</div>
+                        <div class="fs-3 fw-bold text-success">{{ available_count }}</div>
+                    </div>
+                    <div class="equipment-stat-icon available"><i class="bi bi-check-circle"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 col-xl">
+        <div class="app-card equipment-stat h-100">
+            <div class="app-card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="text-secondary small">In Use</div>
+                        <div class="fs-3 fw-bold text-primary">{{ in_use_count }}</div>
+                    </div>
+                    <div class="equipment-stat-icon in-use"><i class="bi bi-arrow-up-right-circle"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 col-xl">
+        <div class="app-card equipment-stat h-100">
+            <div class="app-card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="text-secondary small">Maintenance</div>
+                        <div class="fs-3 fw-bold text-warning">{{ maintenance_count }}</div>
+                    </div>
+                    <div class="equipment-stat-icon maintenance"><i class="bi bi-wrench-adjustable"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 col-xl">
+        <div class="app-card equipment-stat h-100">
+            <div class="app-card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="text-secondary small">Attention</div>
+                        <div class="fs-3 fw-bold text-danger">{{ damaged_count|add:missing_count }}</div>
+                    </div>
+                    <div class="equipment-stat-icon danger"><i class="bi bi-exclamation-triangle"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="app-card mb-4 filter-card">
+    <div class="app-card-body">
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <div class="filter-icon"><i class="bi bi-funnel"></i></div>
+            <div>
+                <div class="fw-semibold">Find Equipment</div>
+                <div class="small text-secondary">Search and filter the inventory.</div>
+            </div>
+        </div>
+
+        <form method="get">
+            <div class="row g-3 align-items-end">
+                <div class="col-lg-5">
+                    <label class="form-label">Search</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" name="search" class="form-control"
+                               placeholder="Equipment ID, name, brand, model..."
+                               value="{{ search }}">
+                    </div>
+                </div>
+
+                <div class="col-lg-3">
+                    <label class="form-label">Category</label>
+                    <select name="category" class="form-select">
+                        <option value="">All categories</option>
+                        {% for category in categories %}
+                        <option value="{{ category.pk }}"
+                            {% if selected_category == category.pk|stringformat:"s" %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-lg-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All statuses</option>
+                        {% for value, label in statuses %}
+                        <option value="{{ value }}"
+                            {% if selected_status == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-lg-1 d-grid">
+                    <button type="submit" class="btn btn-primary" title="Apply filters">
+                        <i class="bi bi-funnel"></i>
+                    </button>
+                </div>
+            </div>
+
+            {% if search or selected_category or selected_status %}
+            <div class="mt-3">
+                <a href="{% url 'equipment_list' %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-x-lg me-1"></i> Clear Filters
+                </a>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<div class="row g-4">
+    {% for item in equipment %}
+    <div class="col-md-6 col-xl-4">
+        <div class="app-card equipment-card h-100">
+
+            {% if item.photo %}
+            <div class="equipment-image-wrap">
+                <img src="{{ item.photo.url }}" alt="{{ item.name }}" class="equipment-image">
+            </div>
+            {% else %}
+            <div class="equipment-image-placeholder">
+                <i class="bi bi-camera-video"></i>
+            </div>
+            {% endif %}
+
+            <div class="app-card-body">
+                <div class="d-flex justify-content-between align-items-start gap-2">
+                    <div class="min-w-0">
+                        <div class="equipment-id">{{ item.equipment_id }}</div>
+                        <h3 class="h6 fw-bold mt-1 mb-1">{{ item.name }}</h3>
+                        <div class="text-secondary small">
+                            {% if item.brand %}{{ item.brand }}{% endif %}
+                            {% if item.brand and item.model %} · {% endif %}
+                            {% if item.model %}{{ item.model }}{% endif %}
+                        </div>
+                    </div>
+
+                    {% if item.status == "available" %}
+                    <span class="equipment-status available">Available</span>
+                    {% elif item.status == "in_use" %}
+                    <span class="equipment-status in-use">In Use</span>
+                    {% elif item.status == "maintenance" %}
+                    <span class="equipment-status maintenance">Maintenance</span>
+                    {% elif item.status == "damaged" %}
+                    <span class="equipment-status damaged">Damaged</span>
+                    {% elif item.status == "missing" %}
+                    <span class="equipment-status missing">Missing</span>
+                    {% else %}
+                    <span class="equipment-status reserved">Reserved</span>
+                    {% endif %}
+                </div>
+
+                <div class="equipment-meta mt-4">
+                    <div><i class="bi bi-tag"></i><span>{{ item.category.name }}</span></div>
+                    <div><i class="bi bi-shield-check"></i><span>{{ item.get_condition_display }}</span></div>
+                    <div><i class="bi bi-geo-alt"></i><span>{{ item.location|default:"Location not set" }}</span></div>
+                </div>
+
+                <a href="{% url 'equipment_detail' item.pk %}"
+                   class="btn btn-outline-secondary w-100 mt-4">
+                    View Equipment <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% empty %}
+    <div class="col-12">
+        <div class="app-card">
+            <div class="equipment-empty">
+                <div class="equipment-empty-icon"><i class="bi bi-box-seam"></i></div>
+                <h5>No equipment found</h5>
+                <p>
+                    {% if search or selected_category or selected_status %}
+                    No equipment matches the selected filters. Try clearing the filters and searching again.
+                    {% else %}
+                    There is no equipment in the inventory yet.
+                    {% endif %}
+                </p>
+
+                {% if user_role == "admin" or user_role == "coordinator" %}
+                <a href="{% url 'equipment_create' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-lg me-1"></i> Add Equipment
+                </a>
+                {% endif %}
+
+                {% if search or selected_category or selected_status %}
+                <a href="{% url 'equipment_list' %}" class="btn btn-outline-secondary ms-1">
+                    Clear Filters
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+    .section-kicker {
+        color: #176b52;
+        font-size: .72rem;
+        font-weight: 800;
+        letter-spacing: .09em;
+        text-transform: uppercase;
+        margin-bottom: .3rem;
+    }
+
+    .equipment-stat {
+        transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .equipment-stat:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 28px rgba(16, 42, 35, .08);
+    }
+
+    .equipment-stat-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+
+    .equipment-stat-icon.total { background: #e8f3ef; color: #176b52; }
+    .equipment-stat-icon.available { background: #e8f5ee; color: #187044; }
+    .equipment-stat-icon.in-use { background: #eaf1fb; color: #315f95; }
+    .equipment-stat-icon.maintenance { background: #fff4d6; color: #8a6514; }
+    .equipment-stat-icon.danger { background: #fcebea; color: #b83227; }
+
+    .filter-card {
+        border-left: 3px solid #176b52;
+    }
+
+    .filter-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 9px;
+        background: #e8f3ef;
+        color: #176b52;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .equipment-card {
+        overflow: hidden;
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .equipment-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 14px 32px rgba(16, 42, 35, .10);
+    }
+
+    .equipment-image-wrap {
+        height: 190px;
+        overflow: hidden;
+        background: #eef2f0;
+    }
+
+    .equipment-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform .35s ease;
+    }
+
+    .equipment-card:hover .equipment-image {
+        transform: scale(1.035);
+    }
+
+    .equipment-image-placeholder {
+        height: 190px;
+        background: #edf3f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #7a8984;
+        font-size: 42px;
+    }
+
+    .equipment-id {
+        color: #176b52;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .05em;
+    }
+
+    .equipment-status {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 5px 8px;
+        border-radius: 6px;
+        white-space: nowrap;
+    }
+
+    .equipment-status.available { color: #187044; background: #e8f5ee; }
+    .equipment-status.in-use { color: #315f95; background: #eaf1fb; }
+    .equipment-status.maintenance { color: #8a6514; background: #fff4d6; }
+    .equipment-status.damaged,
+    .equipment-status.missing { color: #b83227; background: #fcebea; }
+    .equipment-status.reserved { color: #687570; background: #edf1f0; }
+
+    .equipment-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        color: #687570;
+        font-size: 13px;
+    }
+
+    .equipment-meta i {
+        width: 18px;
+        color: #176b52;
+    }
+
+    .equipment-empty {
+        text-align: center;
+        padding: 70px 20px;
+    }
+
+    .equipment-empty-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 18px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 26px;
+    }
+
+    .equipment-empty p {
+        color: #687570;
+        max-width: 480px;
+        margin: 0 auto 20px;
+    }
+
+    @media (max-width: 575.98px) {
+        .equipment-status {
+            font-size: 10px;
+            padding: 4px 6px;
+        }
+
+        .equipment-image-wrap,
+        .equipment-image-placeholder {
+            height: 170px;
+        }
+    }
+</style>
+
+{% endwith %}
+
+{% endblock %}

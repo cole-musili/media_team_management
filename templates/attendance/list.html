@@ -1,0 +1,540 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance | Church Media{% endblock %}
+
+{% block page_title %}Attendance{% endblock %}
+
+{% block page_subtitle %}
+Track media team attendance across church events
+{% endblock %}
+
+{% block content %}
+
+<div class="attendance-page">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <div class="section-kicker">Team Operations</div>
+            <h2 class="h5 fw-bold mb-1">Attendance</h2>
+            <p class="text-secondary mb-0">
+                Monitor attendance and check-in activity for the media team.
+            </p>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="app-card attendance-stat h-100">
+                <div class="app-card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="text-secondary small">Present</div>
+                            <div class="fs-3 fw-bold text-success mt-1">{{ present_count }}</div>
+                        </div>
+                        <div class="attendance-icon present">
+                            <i class="bi bi-check2-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="app-card attendance-stat h-100">
+                <div class="app-card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="text-secondary small">Late</div>
+                            <div class="fs-3 fw-bold text-warning mt-1">{{ late_count }}</div>
+                        </div>
+                        <div class="attendance-icon late">
+                            <i class="bi bi-clock"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="app-card attendance-stat h-100">
+                <div class="app-card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="text-secondary small">Absent</div>
+                            <div class="fs-3 fw-bold text-danger mt-1">{{ absent_count }}</div>
+                        </div>
+                        <div class="attendance-icon absent">
+                            <i class="bi bi-person-x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="app-card attendance-stat h-100">
+                <div class="app-card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="text-secondary small">Excused</div>
+                            <div class="fs-3 fw-bold mt-1">{{ excused_count }}</div>
+                        </div>
+                        <div class="attendance-icon excused">
+                            <i class="bi bi-info-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="app-card mb-4 filter-card">
+        <div class="app-card-body">
+            <div class="filter-heading mb-3">
+                <div>
+                    <div class="fw-semibold">Filter Attendance</div>
+                    <div class="text-secondary small">
+                        Narrow records by member, event or attendance status.
+                    </div>
+                </div>
+                <i class="bi bi-funnel text-secondary"></i>
+            </div>
+
+            <form method="get">
+                <div class="row g-3 align-items-end">
+
+                    <div class="col-lg-5">
+                        <label class="form-label" for="attendance-search">
+                            Search
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input
+                                id="attendance-search"
+                                type="text"
+                                name="search"
+                                class="form-control"
+                                placeholder="Search member or event"
+                                value="{{ search }}"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <label class="form-label" for="attendance-event">
+                            Event
+                        </label>
+                        <select id="attendance-event" name="event" class="form-select">
+                            <option value="">All events</option>
+                            {% for event in events %}
+                                <option
+                                    value="{{ event.pk }}"
+                                    {% if selected_event == event.pk|stringformat:"s" %}selected{% endif %}
+                                >
+                                    {{ event.name }} — {{ event.date|date:"d M Y" }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-lg-2">
+                        <label class="form-label" for="attendance-status">
+                            Status
+                        </label>
+                        <select id="attendance-status" name="status" class="form-select">
+                            <option value="">All</option>
+                            <option value="present" {% if selected_status == "present" %}selected{% endif %}>
+                                Present
+                            </option>
+                            <option value="late" {% if selected_status == "late" %}selected{% endif %}>
+                                Late
+                            </option>
+                            <option value="absent" {% if selected_status == "absent" %}selected{% endif %}>
+                                Absent
+                            </option>
+                            <option value="excused" {% if selected_status == "excused" %}selected{% endif %}>
+                                Excused
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-1">
+                        <button type="submit" class="btn btn-primary w-100" title="Apply filters">
+                            <i class="bi bi-funnel"></i>
+                        </button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="app-card attendance-table-card">
+
+        <div class="app-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div>
+                <div class="fw-semibold">Attendance Records</div>
+                <div class="text-secondary small">
+                    {{ total_records }} record{{ total_records|pluralize }}
+                </div>
+            </div>
+
+            <div class="records-indicator">
+                <i class="bi bi-person-check me-1"></i>
+                Attendance log
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle attendance-table">
+                <thead>
+                    <tr>
+                        <th>Member</th>
+                        <th>Event</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Check In</th>
+                        <th>Check Out</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for row in rows %}
+                        <tr class="attendance-row">
+
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="member-mini-avatar">
+                                        {{ row.member.name|slice:":1"|upper }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">{{ row.member.name }}</div>
+                                        <div class="text-secondary small">
+                                            {{ row.member.role|default:"Media Team" }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <a
+                                    href="{% url 'event_attendance' row.event.pk %}"
+                                    class="event-link"
+                                >
+                                    <i class="bi bi-calendar-event me-1"></i>
+                                    {{ row.event.name }}
+                                </a>
+                            </td>
+
+                            <td>
+                                <span class="date-value">
+                                    {{ row.event.date|date:"d M Y" }}
+                                </span>
+                            </td>
+
+                            <td>
+                                {% if row.status == "present" %}
+                                    <span class="attendance-status present">
+                                        <span></span>
+                                        Present
+                                    </span>
+                                {% elif row.status == "late" %}
+                                    <span class="attendance-status late">
+                                        <span></span>
+                                        Late
+                                    </span>
+                                {% elif row.status == "absent" %}
+                                    <span class="attendance-status absent">
+                                        <span></span>
+                                        Absent
+                                    </span>
+                                {% else %}
+                                    <span class="attendance-status excused">
+                                        <span></span>
+                                        Excused
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if row.check_in %}
+                                    <span class="time-value">
+                                        <i class="bi bi-box-arrow-in-right me-1"></i>
+                                        {{ row.check_in|date:"H:i" }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-secondary">—</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if row.check_out %}
+                                    <span class="time-value">
+                                        <i class="bi bi-box-arrow-right me-1"></i>
+                                        {{ row.check_out|date:"H:i" }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-secondary">—</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="text-end">
+                                <a
+                                    href="{% url 'event_attendance' row.event.pk %}"
+                                    class="btn btn-sm btn-outline-secondary"
+                                >
+                                    <i class="bi bi-eye me-1"></i>
+                                    View
+                                </a>
+                            </td>
+
+                        </tr>
+
+                    {% empty %}
+                        <tr>
+                            <td colspan="7">
+                                <div class="attendance-empty">
+                                    <div class="empty-icon">
+                                        <i class="bi bi-person-check"></i>
+                                    </div>
+
+                                    <h5>No attendance records</h5>
+
+                                    <p>
+                                        Attendance records will appear here once
+                                        an event roster is initialized.
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+    .section-kicker {
+        color: #176b52;
+        font-size: .72rem;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+
+    .attendance-stat {
+        transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .attendance-stat:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 28px rgba(16, 42, 35, .08);
+    }
+
+    .attendance-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+
+    .attendance-icon.present {
+        background: #e8f5ee;
+        color: #187044;
+    }
+
+    .attendance-icon.late {
+        background: #fff4d6;
+        color: #8a6514;
+    }
+
+    .attendance-icon.absent {
+        background: #fcebea;
+        color: #b83227;
+    }
+
+    .attendance-icon.excused {
+        background: #edf1f0;
+        color: #687570;
+    }
+
+    .filter-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .filter-card .input-group-text {
+        background: #fff;
+        border-right: 0;
+        color: #687570;
+    }
+
+    .filter-card .input-group .form-control {
+        border-left: 0;
+    }
+
+    .filter-card input,
+    .filter-card select {
+        border-radius: 10px;
+    }
+
+    .filter-card input:focus,
+    .filter-card select:focus {
+        border-color: #176b52;
+        box-shadow: 0 0 0 .2rem rgba(23, 107, 82, .11);
+    }
+
+    .records-indicator {
+        color: #687570;
+        font-size: .75rem;
+        font-weight: 600;
+    }
+
+    .attendance-row {
+        transition: background-color .15s ease;
+    }
+
+    .attendance-row:hover {
+        background: #f8fbfa;
+    }
+
+    .attendance-table th {
+        white-space: nowrap;
+        font-size: .75rem;
+        text-transform: uppercase;
+        letter-spacing: .035em;
+        color: #687570;
+        font-weight: 700;
+    }
+
+    .attendance-table td {
+        white-space: nowrap;
+    }
+
+    .member-mini-avatar {
+        width: 36px;
+        height: 36px;
+        flex: 0 0 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e8f3ef;
+        color: #176b52;
+        font-weight: 700;
+        font-size: 12px;
+    }
+
+    .event-link {
+        color: #24322e;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color .15s ease;
+    }
+
+    .event-link:hover {
+        color: #176b52;
+    }
+
+    .date-value,
+    .time-value {
+        color: #46534f;
+        font-size: .875rem;
+    }
+
+    .attendance-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .attendance-status span {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+    }
+
+    .attendance-status.present {
+        color: #187044;
+    }
+
+    .attendance-status.present span {
+        background: #29945a;
+    }
+
+    .attendance-status.late {
+        color: #8a6514;
+    }
+
+    .attendance-status.late span {
+        background: #d69e2e;
+    }
+
+    .attendance-status.absent {
+        color: #b83227;
+    }
+
+    .attendance-status.absent span {
+        background: #c0392b;
+    }
+
+    .attendance-status.excused {
+        color: #687570;
+    }
+
+    .attendance-status.excused span {
+        background: #87938f;
+    }
+
+    .attendance-empty {
+        text-align: center;
+        padding: 70px 20px;
+    }
+
+    .attendance-empty .empty-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 18px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 26px;
+    }
+
+    .attendance-empty h5 {
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+    .attendance-empty p {
+        color: #687570;
+        max-width: 430px;
+        margin: 0 auto;
+    }
+
+    @media (max-width: 767.98px) {
+        .attendance-table {
+            min-width: 850px;
+        }
+    }
+</style>
+
+{% endblock %}

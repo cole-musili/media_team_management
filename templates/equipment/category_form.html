@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block title %}Add Equipment Category | Church Media{% endblock %}
+
+{% block page_title %}Add Equipment Category{% endblock %}
+
+{% block page_subtitle %}
+Create a category for organizing inventory
+{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-6">
+
+        <div class="category-form-intro mb-4">
+            <div class="d-flex align-items-start gap-3">
+
+                <div class="category-form-icon">
+                    <i class="bi bi-folder-plus"></i>
+                </div>
+
+                <div>
+                    <div class="small text-uppercase fw-bold text-success mb-1">
+                        Inventory Structure
+                    </div>
+
+                    <h2 class="h5 fw-bold mb-1">
+                        Create Equipment Category
+                    </h2>
+
+                    <p class="text-secondary mb-0">
+                        Add a category to keep the equipment inventory organized.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+
+        <div class="app-card category-form-card">
+
+            <div class="app-card-header">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <div class="section-icon">
+                        <i class="bi bi-tags"></i>
+                    </div>
+
+                    <div>
+                        <div class="fw-semibold">
+                            Category Information
+                        </div>
+
+                        <div class="text-secondary small">
+                            Enter a clear name for this equipment group.
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="app-card-body">
+
+                <form method="post">
+
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger border-0 mb-4">
+                            <div class="d-flex gap-2">
+                                <i class="bi bi-exclamation-circle-fill mt-1"></i>
+                                <div>
+                                    {{ form.non_field_errors }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+
+                    <label
+                        class="form-label"
+                        for="{{ form.name.id_for_label }}"
+                    >
+                        Category Name
+                    </label>
+
+                    {{ form.name }}
+
+                    {% if form.name.errors %}
+                        <div class="invalid-feedback d-block mt-2">
+                            {{ form.name.errors|striptags }}
+                        </div>
+                    {% endif %}
+
+                    <div class="form-text mt-2">
+                        Use a simple name such as Cameras, Audio, Lighting or Streaming.
+                    </div>
+
+
+                    <div class="category-form-note mt-4">
+
+                        <div class="d-flex gap-3">
+
+                            <div class="note-icon">
+                                <i class="bi bi-info-circle"></i>
+                            </div>
+
+                            <div class="small text-secondary">
+                                <div class="fw-semibold text-dark mb-1">
+                                    Keep category names consistent
+                                </div>
+                                Categories are used to group equipment across the inventory,
+                                making assets easier to find and manage.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="d-flex flex-wrap justify-content-end gap-2 mt-4">
+
+                        <a
+                            href="{% url 'equipment_categories' %}"
+                            class="btn btn-light border"
+                        >
+                            <i class="bi bi-x-lg me-1"></i>
+                            Cancel
+                        </a>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            <i class="bi bi-check2 me-1"></i>
+                            Create Category
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+    .category-form-intro {
+        padding: 20px;
+        border: 1px solid rgba(23,107,82,.10);
+        border-radius: 14px;
+        background: linear-gradient(135deg, rgba(232,243,239,.72), rgba(255,255,255,.98));
+        transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .category-form-intro:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(16,42,35,.06);
+    }
+
+    .category-form-icon,
+    .section-icon,
+    .note-icon {
+        width: 42px;
+        height: 42px;
+        flex: 0 0 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 18px;
+    }
+
+    .section-icon {
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
+        border-radius: 9px;
+        font-size: 16px;
+    }
+
+    .category-form-card {
+        transition: box-shadow .18s ease, transform .18s ease;
+    }
+
+    .category-form-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(16,42,35,.07);
+    }
+
+    .category-form-card input {
+        transition: border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .category-form-card input:focus {
+        border-color: #176b52;
+        box-shadow: 0 0 0 .2rem rgba(23,107,82,.10);
+    }
+
+    .category-form-note {
+        padding: 14px 15px;
+        border: 1px solid #e8eeeb;
+        border-radius: 10px;
+        background: #f8faf9;
+    }
+
+    .note-icon {
+        width: 34px;
+        height: 34px;
+        flex-basis: 34px;
+        border-radius: 8px;
+        font-size: 15px;
+    }
+
+    @media (max-width: 575.98px) {
+        .category-form-intro {
+            padding: 16px;
+        }
+
+        .category-form-card .app-card-body {
+            padding: 16px;
+        }
+
+        .category-form-card .d-flex.flex-wrap.justify-content-end {
+            width: 100%;
+        }
+
+        .category-form-card .d-flex.flex-wrap.justify-content-end .btn {
+            flex: 1;
+        }
+    }
+</style>
+
+{% endblock %}

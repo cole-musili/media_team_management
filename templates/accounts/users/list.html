@@ -1,0 +1,794 @@
+{% extends "base.html" %}
+
+{% block title %}Users | Church Media Management{% endblock %}
+
+{% block page_title %}
+Users
+{% endblock %}
+
+{% block page_subtitle %}
+Manage system accounts and media team access.
+{% endblock %}
+
+{% block content %}
+
+<div class="user-page-intro mb-4">
+
+    <div>
+        <div class="admin-kicker">
+            <i class="bi bi-people"></i>
+            Administration
+        </div>
+
+        <h2 class="h4 fw-bold mt-2 mb-1">
+            System Users
+        </h2>
+
+        <p class="text-secondary mb-0">
+            Manage accounts, roles and access to the Church Media Management system.
+        </p>
+    </div>
+
+    <a
+        href="{% url 'user_create' %}"
+        class="btn btn-primary"
+    >
+        <i class="bi bi-person-plus me-1"></i>
+        Add User
+    </a>
+
+</div>
+
+
+<div class="dashboard-card user-list-card">
+
+    <!-- Filters -->
+
+    <div class="filter-panel">
+
+        <form method="get">
+
+            <div class="filter-heading mb-3">
+
+                <div>
+                    <span class="filter-title">
+                        <i class="bi bi-funnel"></i>
+                        Find Users
+                    </span>
+
+                    <span class="filter-subtitle">
+                        Search and filter system accounts.
+                    </span>
+                </div>
+
+                {% if search or current_role or current_status %}
+                    <a
+                        href="{% url 'user_list' %}"
+                        class="btn btn-sm btn-outline-secondary"
+                    >
+                        <i class="bi bi-x-lg me-1"></i>
+                        Clear Filters
+                    </a>
+                {% endif %}
+
+            </div>
+
+
+            <div class="row g-2">
+
+                <div class="col-lg-5">
+
+                    <label
+                        class="visually-hidden"
+                        for="user-search"
+                    >
+                        Search users
+                    </label>
+
+                    <div class="filter-input">
+
+                        <i class="bi bi-search"></i>
+
+                        <input
+                            id="user-search"
+                            type="search"
+                            name="search"
+                            value="{{ search }}"
+                            class="form-control"
+                            placeholder="Search by name, username or email..."
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-lg-3">
+
+                    <label
+                        class="visually-hidden"
+                        for="user-role"
+                    >
+                        System role
+                    </label>
+
+                    <select
+                        id="user-role"
+                        name="role"
+                        class="form-select"
+                    >
+
+                        <option value="">
+                            All Roles
+                        </option>
+
+                        {% for value, label in role_choices %}
+
+                            <option
+                                value="{{ value }}"
+                                {% if current_role == value %}selected{% endif %}
+                            >
+                                {{ label }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <div class="col-lg-2">
+
+                    <label
+                        class="visually-hidden"
+                        for="user-status"
+                    >
+                        Account status
+                    </label>
+
+                    <select
+                        id="user-status"
+                        name="status"
+                        class="form-select"
+                    >
+
+                        <option value="">
+                            All Status
+                        </option>
+
+                        <option
+                            value="active"
+                            {% if current_status == "active" %}selected{% endif %}
+                        >
+                            Active
+                        </option>
+
+                        <option
+                            value="inactive"
+                            {% if current_status == "inactive" %}selected{% endif %}
+                        >
+                            Inactive
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="col-lg-2">
+
+                    <button
+                        type="submit"
+                        class="btn btn-outline-primary w-100"
+                    >
+                        <i class="bi bi-search me-1"></i>
+                        Filter
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- User table -->
+
+    <div class="table-responsive">
+
+        <table class="table dashboard-table user-table align-middle mb-0">
+
+            <thead>
+
+                <tr>
+                    <th>User</th>
+                    <th>Media Position</th>
+                    <th>System Role</th>
+                    <th>Status</th>
+                    <th>Last Login</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for account in users %}
+
+                    <tr>
+
+                        <td>
+
+                            <div class="user-identity">
+
+                                <div class="user-avatar user-avatar-table">
+
+                                    {% if account.media_member.profile_photo %}
+
+                                        <img
+                                            src="{{ account.media_member.profile_photo.url }}"
+                                            alt="{{ account.username }}"
+                                        >
+
+                                    {% else %}
+
+                                        {{ account.first_name|first|default:account.username|first|upper }}
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <div class="user-identity-text">
+
+                                    <div class="member-name">
+
+                                        {% if account.get_full_name %}
+                                            {{ account.get_full_name }}
+                                        {% else %}
+                                            {{ account.username }}
+                                        {% endif %}
+
+                                    </div>
+
+                                    <div class="username-text">
+                                        @{{ account.username }}
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <td>
+
+                            {% if account.media_member %}
+
+                                <span class="position-badge">
+                                    <i class="bi bi-camera-reels"></i>
+                                    {{ account.media_member.role }}
+                                </span>
+
+                            {% else %}
+
+                                <span class="not-linked">
+                                    <i class="bi bi-link-45deg"></i>
+                                    Not linked
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            {% if account.is_superuser %}
+
+                                <span class="role-badge role-admin">
+                                    <i class="bi bi-shield-check"></i>
+                                    Administrator
+                                </span>
+
+                            {% elif account.profile %}
+
+                                <span class="role-badge role-standard">
+                                    <i class="bi bi-person-badge"></i>
+                                    {{ account.profile.get_role_display }}
+                                </span>
+
+                            {% else %}
+
+                                <span class="role-badge role-unassigned">
+                                    <i class="bi bi-question-circle"></i>
+                                    Not assigned
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            {% if account.is_active %}
+
+                                <span class="account-status status-active">
+                                    <span class="status-dot"></span>
+                                    Active
+                                </span>
+
+                            {% else %}
+
+                                <span class="account-status status-inactive">
+                                    <span class="status-dot"></span>
+                                    Inactive
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            {% if account.last_login %}
+
+                                <span class="last-login">
+                                    <i class="bi bi-clock-history"></i>
+                                    {{ account.last_login|date:"d M Y, H:i" }}
+                                </span>
+
+                            {% else %}
+
+                                <span class="never-login">
+                                    Never
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td class="text-end">
+
+                            <div class="dropdown">
+
+                                <button
+                                    class="btn btn-sm btn-outline-secondary action-button"
+                                    type="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                    aria-label="User actions"
+                                >
+                                    <i class="bi bi-three-dots"></i>
+                                </button>
+
+
+                                <ul class="dropdown-menu dropdown-menu-end">
+
+                                    <li>
+                                        <a
+                                            class="dropdown-item"
+                                            href="{% url 'user_edit' account.pk %}"
+                                        >
+                                            <i class="bi bi-pencil me-2"></i>
+                                            Edit User
+                                        </a>
+                                    </li>
+
+
+                                    {% if account != request.user %}
+
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+
+
+                                        <li>
+
+                                            <form
+                                                method="post"
+                                                action="{% url 'user_toggle_status' account.pk %}"
+                                            >
+
+                                                {% csrf_token %}
+
+                                                <button
+                                                    type="submit"
+                                                    class="dropdown-item {% if account.is_active %}text-danger{% else %}text-success{% endif %}"
+                                                >
+
+                                                    {% if account.is_active %}
+
+                                                        <i class="bi bi-person-x me-2"></i>
+                                                        Deactivate
+
+                                                    {% else %}
+
+                                                        <i class="bi bi-person-check me-2"></i>
+                                                        Activate
+
+                                                    {% endif %}
+
+                                                </button>
+
+                                            </form>
+
+                                        </li>
+
+                                    {% endif %}
+
+                                </ul>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+
+                        <td colspan="6">
+
+                            <div class="user-empty-state">
+
+                                <div class="empty-icon">
+                                    <i class="bi bi-people"></i>
+                                </div>
+
+                                <div class="fw-semibold">
+                                    No users found.
+                                </div>
+
+                                <div class="small text-secondary mt-1">
+                                    Try adjusting your search or filters.
+                                </div>
+
+                                {% if search or current_role or current_status %}
+
+                                    <a
+                                        href="{% url 'user_list' %}"
+                                        class="btn btn-sm btn-outline-secondary mt-3"
+                                    >
+                                        Clear Filters
+                                    </a>
+
+                                {% endif %}
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+
+    .user-page-intro {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .admin-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 5px 9px;
+        border-radius: 7px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+    }
+
+    .user-list-card {
+        overflow: hidden;
+        transition: box-shadow .2s ease;
+    }
+
+    .user-list-card:hover {
+        box-shadow: 0 10px 26px rgba(20, 45, 35, .06);
+    }
+
+    .filter-panel {
+        padding: 19px 20px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(248, 250, 249, .65);
+    }
+
+    .filter-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+    }
+
+    .filter-title {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        color: #34413c;
+    }
+
+    .filter-title i {
+        color: #176b52;
+        margin-right: 5px;
+    }
+
+    .filter-subtitle {
+        display: block;
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 11px;
+    }
+
+    .filter-input {
+        position: relative;
+    }
+
+    .filter-input > i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        z-index: 2;
+        color: #78837f;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    .filter-input input {
+        padding-left: 35px;
+    }
+
+    .filter-panel input,
+    .filter-panel select {
+        min-height: 40px;
+        transition: border-color .2s ease, box-shadow .2s ease;
+    }
+
+    .filter-panel input:focus,
+    .filter-panel select:focus {
+        border-color: #3b8f72;
+        box-shadow: 0 0 0 .2rem rgba(23, 107, 82, .10);
+    }
+
+    .user-table tbody tr {
+        transition: background .2s ease;
+    }
+
+    .user-table tbody tr:hover {
+        background: #fafcfb;
+    }
+
+    .user-identity {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 210px;
+    }
+
+    .user-avatar-table {
+        width: 40px;
+        height: 40px;
+        flex: 0 0 40px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 13px;
+        font-weight: 700;
+        transition: transform .2s ease;
+    }
+
+    .user-table tbody tr:hover .user-avatar-table {
+        transform: translateY(-2px);
+    }
+
+    .user-avatar-table img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .user-identity-text {
+        min-width: 0;
+    }
+
+    .member-name {
+        color: var(--text, #25312d);
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .username-text {
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 11px;
+    }
+
+    .position-badge,
+    .role-badge,
+    .not-linked,
+    .account-status,
+    .last-login {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        white-space: nowrap;
+    }
+
+    .position-badge {
+        padding: 5px 8px;
+        border-radius: 7px;
+        background: #f1f5f3;
+        color: #53605b;
+        font-weight: 600;
+    }
+
+    .position-badge i {
+        color: #176b52;
+    }
+
+    .not-linked {
+        color: #7a8580;
+    }
+
+    .role-badge {
+        padding: 5px 8px;
+        border-radius: 7px;
+        font-weight: 600;
+    }
+
+    .role-admin {
+        background: #e8f3ef;
+        color: #176b52;
+    }
+
+    .role-standard {
+        background: #f1f5f3;
+        color: #56635e;
+    }
+
+    .role-unassigned {
+        background: #f5f6f7;
+        color: #7a8580;
+    }
+
+    .account-status {
+        font-weight: 600;
+    }
+
+    .status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+    }
+
+    .status-active {
+        color: #28704b;
+    }
+
+    .status-active .status-dot {
+        background: #4b9b6b;
+    }
+
+    .status-inactive {
+        color: #a34d4d;
+    }
+
+    .status-inactive .status-dot {
+        background: #c86a6a;
+    }
+
+    .last-login {
+        color: #5f6b66;
+    }
+
+    .last-login i {
+        color: #176b52;
+    }
+
+    .never-login {
+        color: #89928e;
+        font-size: 11px;
+    }
+
+    .action-button {
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border-radius: 8px;
+        transition: transform .2s ease, border-color .2s ease;
+    }
+
+    .action-button:hover {
+        transform: translateY(-1px);
+        border-color: #8db7a8;
+    }
+
+    .dropdown-item {
+        font-size: 13px;
+    }
+
+    .user-empty-state {
+        padding: 52px 20px;
+        text-align: center;
+        color: var(--muted);
+    }
+
+    .empty-icon {
+        width: 52px;
+        height: 52px;
+        margin: 0 auto 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 13px;
+        background: #f1f5f3;
+        color: #6c7974;
+        font-size: 21px;
+    }
+
+    @media (max-width: 767.98px) {
+
+        .user-page-intro {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .user-page-intro .btn {
+            width: 100%;
+        }
+
+        .filter-heading {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .filter-heading .btn {
+            width: 100%;
+        }
+
+        .filter-panel {
+            padding: 17px;
+        }
+
+    }
+
+</style>
+
+{% endblock %}

@@ -1,0 +1,1854 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{% block title %}Church Media Management{% endblock %}</title>
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Bootstrap Icons -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+    <style>
+        :root {
+            --primary: #176b52;
+            --primary-dark: #0f4d3b;
+            --primary-light: #e8f3ef;
+
+            --sidebar: #102a23;
+            --sidebar-hover: #193d33;
+            --sidebar-text: #cbd8d4;
+            --sidebar-muted: #849c94;
+
+            --background: #f6f8f7;
+            --surface: #ffffff;
+            --border: #e4e9e7;
+
+            --text: #17201d;
+            --muted: #687570;
+
+            --danger: #c0392b;
+            --warning: #b7791f;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--background);
+            color: var(--text);
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+            font-size: 14px;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        /* =========================================
+           APP LAYOUT
+        ========================================= */
+
+        .app-shell {
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* =========================================
+           SIDEBAR
+        ========================================= */
+
+        .sidebar {
+            width: 250px;
+            min-height: 100vh;
+            background: var(--sidebar);
+            color: white;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 1050;
+        }
+
+        .brand {
+            height: 72px;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+        }
+
+        .brand-mark {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 11px;
+            color: white;
+            font-size: 16px;
+        }
+
+        .brand-name {
+            color: white;
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: -.2px;
+        }
+
+        .brand-subtitle {
+            display: block;
+            color: var(--sidebar-muted);
+            font-size: 10px;
+            margin-top: 2px;
+            font-weight: 400;
+        }
+
+        .sidebar-content {
+            padding: 24px 14px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            color: var(--sidebar-muted);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0 12px;
+            margin: 0 0 8px;
+        }
+
+        .sidebar-nav {
+            margin-bottom: 24px;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            min-height: 42px;
+            padding: 0 12px;
+            margin-bottom: 3px;
+            border-radius: 7px;
+            color: var(--sidebar-text);
+            font-size: 14px;
+            font-weight: 500;
+            transition:
+                background .15s ease,
+                color .15s ease,
+                transform .15s ease;
+        }
+
+        .sidebar-link:hover {
+            background: var(--sidebar-hover);
+            color: white;
+            transform: translateX(2px);
+        }
+
+        .sidebar-link.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .sidebar-link-icon {
+            width: 28px;
+            color: inherit;
+            font-size: 15px;
+        }
+
+        .sidebar-footer {
+            padding: 16px 18px;
+            border-top: 1px solid rgba(255,255,255,.08);
+        }
+
+        /* =========================================
+           MAIN AREA
+        ========================================= */
+
+        .main-wrapper {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 72px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+        }
+
+        .page-heading {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .page-subheading {
+            margin: 3px 0 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .user-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .user-role {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .permission-note {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px 14px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: #f8faf9;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .permission-note i {
+            color: var(--primary);
+            margin-top: 2px;
+        }
+
+        .main-content {
+            padding: 32px;
+        }
+
+        /* =========================================
+           GENERAL CARDS
+        ========================================= */
+
+        .app-card,
+        .dashboard-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(16, 42, 35, .035);
+        }
+
+        .app-card-header,
+        .card-header-custom {
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .app-card-body {
+            padding: 20px;
+        }
+
+        .card-header-custom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .card-header-custom h5 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .card-header-custom p {
+            margin: 4px 0 0;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        /* =========================================
+           BUTTONS
+        ========================================= */
+
+        .btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover,
+        .btn-primary:focus {
+            background: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary);
+            border-color: #a9cfc2;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        /* =========================================
+           DASHBOARD STAT CARDS
+        ========================================= */
+
+        .dashboard-stat {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            box-shadow: 0 2px 8px rgba(16, 42, 35, .035);
+            transition:
+                transform .18s ease,
+                box-shadow .18s ease;
+        }
+
+        .dashboard-stat:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(16, 42, 35, .08);
+        }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            flex-shrink: 0;
+            border-radius: 9px;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+        }
+
+        .stat-content {
+            min-width: 0;
+        }
+
+        .stat-label {
+            display: block;
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+
+        .stat-content h2 {
+            margin: 0 0 7px;
+            font-size: 25px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .stat-content a {
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .stat-content a:hover {
+            color: var(--primary-dark);
+        }
+
+        /* =========================================
+           DASHBOARD TABLES
+        ========================================= */
+
+        .dashboard-table {
+            margin-bottom: 0;
+        }
+
+        .dashboard-table thead th {
+            background: #fafcfb;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            border-bottom: 1px solid var(--border);
+            padding: 12px 16px;
+            white-space: nowrap;
+        }
+
+        .dashboard-table tbody td {
+            padding: 13px 16px;
+            vertical-align: middle;
+            border-color: var(--border);
+        }
+
+        .dashboard-table tbody tr {
+            transition: background .15s ease;
+        }
+
+        .dashboard-table tbody tr:hover {
+            background: #fafcfb;
+        }
+
+        .member-name {
+            font-weight: 600;
+        }
+
+        /* =========================================
+           STATUS BADGES
+        ========================================= */
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-scheduled,
+        .status-confirmed {
+            background: #e8f5ee;
+            color: #187044;
+        }
+
+        .status-pending {
+            background: #fff5df;
+            color: #996a13;
+        }
+
+        .status-declined {
+            background: #fdebea;
+            color: #a33127;
+        }
+
+        .status-active {
+            background: #e8f5ee;
+            color: #187044;
+        }
+
+        .status-inactive {
+            background: #f1f3f3;
+            color: #697571;
+        }
+
+        /* =========================================
+           EQUIPMENT STATUS
+        ========================================= */
+
+        .equipment-status-list {
+            padding: 10px 20px 18px;
+        }
+
+        .equipment-status-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 13px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .equipment-status-item:last-child {
+            border-bottom: 0;
+        }
+
+        .equipment-status-item > div {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: var(--text);
+        }
+
+        .equipment-status-item strong {
+            font-size: 16px;
+        }
+
+        .status-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-dot.available {
+            background: #2e8b62;
+        }
+
+        .status-dot.in-use {
+            background: #3478b9;
+        }
+
+        .status-dot.maintenance {
+            background: #c28a28;
+        }
+
+        .status-dot.damaged {
+            background: #c0392b;
+        }
+
+        /* =========================================
+           ATTENDANCE
+        ========================================= */
+
+        .attendance-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 20px;
+        }
+
+        .attendance-box {
+            padding: 15px 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .attendance-box span {
+            display: block;
+            font-size: 11px;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+
+        .attendance-box strong {
+            display: block;
+            font-size: 22px;
+        }
+
+        .attendance-box.present {
+            background: #eaf6ef;
+        }
+
+        .attendance-box.late {
+            background: #fff6e3;
+        }
+
+        .attendance-box.absent {
+            background: #fdeceb;
+        }
+
+        /* =========================================
+           MEDIA SUMMARY
+        ========================================= */
+
+        .media-summary {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 20px;
+        }
+
+        .media-summary > div {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .media-summary i {
+            color: var(--primary);
+            font-size: 18px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .media-summary span {
+            display: block;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .media-summary strong {
+            display: block;
+            font-size: 20px;
+            margin-top: 2px;
+        }
+
+        /* =========================================
+           FORMS
+        ========================================= */
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .form-control,
+        .form-select {
+            border-color: #d9e0dd;
+            border-radius: 7px;
+            min-height: 40px;
+            font-size: 14px;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(23, 107, 82, .10);
+        }
+
+        /* =========================================
+           TABLES
+        ========================================= */
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background: #fafcfb;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            border-bottom: 1px solid var(--border);
+            padding: 13px 16px;
+            white-space: nowrap;
+        }
+
+        .table tbody td {
+            padding: 14px 16px;
+            vertical-align: middle;
+            border-color: var(--border);
+        }
+
+        .table tbody tr:hover {
+            background: #fafcfb;
+        }
+
+        /* =========================================
+           USER PROFILE / ACCOUNT MENU
+        ========================================= */
+
+        .user-profile-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-profile-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: inherit;
+            padding: 5px 8px;
+            border-radius: 10px;
+            transition: background .15s ease;
+        }
+
+        .user-profile-link:hover {
+            background: var(--primary-light);
+        }
+
+        .user-profile-details {
+            min-width: 0;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+            border-radius: 12px;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-menu-button {
+            width: 31px;
+            height: 31px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface);
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition:
+                border-color .15s ease,
+                color .15s ease,
+                background .15s ease;
+        }
+
+        .user-menu-button:hover,
+        .user-menu-button:focus {
+            border-color: #a9cfc2;
+            color: var(--primary);
+            background: var(--primary-light);
+            outline: none;
+        }
+
+        .user-dropdown {
+            min-width: 255px;
+            padding: 8px;
+            margin-top: 8px !important;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 12px 35px rgba(16, 42, 35, .12);
+        }
+
+        .user-dropdown-header {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 10px;
+        }
+
+        .dropdown-avatar {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+            border-radius: 11px;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .dropdown-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-dropdown-header strong {
+            display: block;
+            max-width: 165px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+
+        .user-dropdown-header span {
+            display: block;
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        .user-dropdown .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-radius: 8px;
+            padding: 9px 10px;
+            font-size: 13px;
+            color: var(--text);
+            transition:
+                background .15s ease,
+                color .15s ease,
+                transform .15s ease;
+        }
+
+        .user-dropdown .dropdown-item:hover {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            transform: translateX(2px);
+        }
+
+        .user-dropdown .dropdown-item i {
+            width: 18px;
+            color: var(--primary);
+            font-size: 15px;
+        }
+
+        .user-dropdown .dropdown-logout {
+            width: 100%;
+            border: 0;
+            background: transparent;
+            text-align: left;
+            color: var(--danger);
+        }
+
+        .user-dropdown .dropdown-logout:hover {
+            background: #fdebea;
+            color: var(--danger);
+        }
+
+        .user-dropdown .dropdown-logout i {
+            color: var(--danger);
+        }
+
+
+
+        /* =========================================================
+        USER MANAGEMENT
+        ========================================================= */
+
+        .user-avatar-table {
+            width: 38px;
+            height: 38px;
+            min-width: 38px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+
+        .user-avatar-table img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-skills-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .user-skill-option {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 11px 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition:
+                background .15s ease,
+                border-color .15s ease,
+                transform .15s ease;
+        }
+
+        .user-skill-option:hover {
+            background: var(--primary-light);
+            border-color: #a9cfc2;
+            transform: translateY(-1px);
+        }
+
+        .user-skill-option input {
+            accent-color: var(--primary);
+        }
+
+        .user-skill-option span {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .account-status-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 14px;
+            border-radius: 12px;
+            background: #f8f9fa;
+            border: 1px solid var(--border);
+        }
+
+        .account-status-box strong {
+            display: block;
+            font-size: 13px;
+        }
+
+        .account-status-box span {
+            display: block;
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        .account-status-box .form-check {
+            margin: 0;
+        }
+
+        .account-status-box .form-check-input {
+            width: 2.5em;
+            height: 1.35em;
+            cursor: pointer;
+        }
+
+        .role-info {
+            margin-top: 22px;
+            border-top: 1px solid var(--border);
+            padding-top: 18px;
+        }
+
+        .role-info-title {
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 12px;
+        }
+
+        .role-info-item {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .role-info-item:last-child {
+            border-bottom: 0;
+        }
+
+        .role-info-item strong {
+            display: block;
+            font-size: 13px;
+        }
+
+        .role-info-item span {
+            display: block;
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 2px;
+        }
+
+        @media (max-width: 575.98px) {
+
+            .user-skills-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+
+        /* =========================================
+           PROFILE PAGES
+        ========================================= */
+
+        .profile-hero {
+            padding: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+        }
+
+        .profile-identity {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .profile-avatar-large {
+            width: 76px;
+            height: 76px;
+            min-width: 76px;
+            border-radius: 22px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 700;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(23, 107, 82, .22);
+        }
+
+        .profile-avatar-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-name {
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .profile-username {
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        .profile-role {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 9px;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .profile-section {
+            padding: 24px;
+        }
+
+        .profile-section-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            padding-bottom: 18px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .profile-section-header h5 {
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .profile-section-header p {
+            margin: 5px 0 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .profile-section-header > i {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .profile-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .profile-info span,
+        .account-readonly-grid span,
+        .member-role-box span,
+        .profile-label {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .profile-info strong {
+            font-size: 14px;
+            word-break: break-word;
+        }
+
+        .member-role-box {
+            padding: 18px;
+            border-radius: 14px;
+            background: linear-gradient(
+                135deg,
+                rgba(23, 107, 82, .08),
+                rgba(23, 107, 82, .03)
+            );
+            border: 1px solid rgba(23, 107, 82, .12);
+        }
+
+        .member-role-box strong {
+            display: block;
+            margin-top: 6px;
+            font-size: 18px;
+        }
+
+        .skill-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .skill-chip {
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #f1f3f5;
+            color: #495057;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .security-action {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: inherit;
+            transition: all .2s ease;
+        }
+
+        .security-action:hover {
+            background: #f7f9f8;
+            transform: translateX(3px);
+        }
+
+        .security-action > span:nth-child(2) {
+            flex: 1;
+        }
+
+        .security-action strong {
+            display: block;
+            font-size: 14px;
+        }
+
+        .security-action small {
+            color: var(--muted);
+        }
+
+        .security-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 11px;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-profile-state {
+            text-align: center;
+            padding: 30px 15px;
+            color: var(--muted);
+        }
+
+        .empty-profile-state > i {
+            display: block;
+            font-size: 34px;
+            margin-bottom: 12px;
+        }
+
+        .empty-profile-state h6 {
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .empty-profile-state p {
+            font-size: 13px;
+            margin-bottom: 0;
+        }
+
+        .account-readonly-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .account-readonly-grid > div {
+            padding: 14px;
+            border-radius: 12px;
+            background: #f8f9fa;
+        }
+
+        .account-readonly-grid strong {
+            display: block;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        .profile-security-note {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 13px;
+            border-radius: 12px;
+            background: #f8f9fa;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .profile-security-note i {
+            color: var(--primary);
+            margin-top: 2px;
+        }
+
+        .password-card {
+            padding: 30px;
+        }
+
+        .password-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 28px;
+        }
+
+        .password-header h4 {
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .password-header p {
+            margin: 5px 0 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .password-icon {
+            width: 52px;
+            height: 52px;
+            min-width: 52px;
+            border-radius: 15px;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .password-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+
+        /* =========================================
+           MOBILE
+        ========================================= */
+
+        .mobile-header {
+            display: none;
+        }
+
+        @media (max-width: 991.98px) {
+
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform .2s ease;
+                box-shadow: 5px 0 25px rgba(0,0,0,.15);
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-wrapper {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .mobile-header {
+                display: flex;
+                height: 60px;
+                background: var(--sidebar);
+                color: white;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 18px;
+            }
+
+            .mobile-brand {
+                font-weight: 700;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .topbar {
+                display: none;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+
+            .main-content {
+                padding: 16px;
+            }
+
+            .user-profile-details {
+                display: none;
+            }
+
+            .user-profile-link {
+                padding: 2px;
+            }
+
+            .profile-hero {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .profile-actions {
+                width: 100%;
+            }
+
+            .profile-actions .btn {
+                flex: 1;
+            }
+
+            .profile-info-grid,
+            .account-readonly-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-section {
+                padding: 18px;
+            }
+
+            .profile-name {
+                font-size: 20px;
+            }
+
+            .password-card {
+                padding: 20px;
+            }
+
+            .password-actions {
+                flex-direction: column-reverse;
+            }
+
+            .password-actions .btn {
+                width: 100%;
+            }
+
+            .dashboard-stat {
+                padding: 16px;
+            }
+
+            .card-header-custom {
+                align-items: flex-start;
+            }
+
+            .attendance-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .media-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+{% with user_role=request.user.profile.role|default:"" %}
+
+<div class="app-shell">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand">
+
+            <div class="brand-mark">
+                <i class="bi bi-camera-video"></i>
+            </div>
+
+            <div>
+                <div class="brand-name">Church Media</div>
+                <span class="brand-subtitle">
+                    Management System
+                </span>
+            </div>
+
+        </div>
+
+
+        <div class="sidebar-content">
+
+            <div class="nav-section">
+                Workspace
+            </div>
+
+            <nav class="sidebar-nav">
+
+                <a
+                    href="{% url 'dashboard' %}"
+                    class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+                >
+                    <span class="sidebar-link-icon">
+                        <i class="bi bi-grid-1x2"></i>
+                    </span>
+                    Dashboard
+                </a>
+
+                <a
+                    href="{% url 'member_list' %}"
+                    class="sidebar-link {% if request.resolver_match.url_name == 'member_list' %}active{% endif %}"
+                >
+                    <span class="sidebar-link-icon">
+                        <i class="bi bi-people"></i>
+                    </span>
+                    Members
+                </a>
+
+                <a
+                    href="{% url 'event_list' %}"
+                    class="sidebar-link {% if request.resolver_match.url_name == 'event_list' %}active{% endif %}"
+                >
+                    <span class="sidebar-link-icon">
+                        <i class="bi bi-calendar-event"></i>
+                    </span>
+                    Events
+                </a>
+
+                <a
+                    href="{% url 'roster_list' %}"
+                    class="sidebar-link {% if request.resolver_match.url_name == 'roster_list' %}active{% endif %}"
+                >
+                    <span class="sidebar-link-icon">
+                        <i class="bi bi-calendar2-week"></i>
+                    </span>
+                    Duty Roster
+                </a>
+
+                <a
+                    href="{% url 'attendance_list' %}"
+                    class="sidebar-link {% if request.resolver_match.url_name == 'attendance_list' %}active{% endif %}"
+                >
+                    <span class="sidebar-link-icon">
+                        <i class="bi bi-person-check"></i>
+                    </span>
+                    Attendance
+                </a>
+
+                <a
+                    href="{% url 'equipment_list' %}"
+                    class="sidebar-link {% if request.resolver_match.url_name == 'equipment_list' %}active{% endif %}"
+                >
+                    <span class="sidebar-link-icon">
+                        <i class="bi bi-camera-video"></i>
+                    </span>
+                    Equipment
+                </a>
+
+                <a
+                    href="{% url 'media_library' %}"
+                    class="sidebar-link {% if request.resolver_match.url_name == 'media_library' %}active{% endif %}"
+                >
+                    <span class="sidebar-link-icon">
+                        <i class="bi bi-images"></i>
+                    </span>
+                    Media Library
+                </a>
+
+                {% if user_role == "admin" or user_role == "coordinator" or user_role == "viewer" %}
+                <a
+                    href="{% url 'reports_dashboard' %}"
+                    class="sidebar-link {% if request.resolver_match.url_name == 'reports_dashboard' %}active{% endif %}"
+                >
+                    <span class="sidebar-link-icon">
+                        <i class="bi bi-bar-chart"></i>
+                    </span>
+                    Reports
+                </a>
+                {% endif %}
+
+            </nav>
+
+
+            <div class="nav-section">
+                System
+            </div>
+
+            <nav class="sidebar-nav">
+
+                {% if user_role == "admin" %}
+                <a href="{% url 'user_list' %}"
+                  class="sidebar-link {% if request.resolver_match.url_name == 'user_list' %}active{% endif %}">
+                  <span class="sidebar-link-icon">
+                    <i class="bi bi-people"></i>
+                  </span>
+                  User Management
+                </a>
+                {% endif %}
+
+            </nav>
+
+        </div>
+
+
+        <div class="sidebar-footer">
+
+            <div class="text-secondary small">
+                Church Media Management
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <div class="main-wrapper">
+
+        <!-- MOBILE HEADER -->
+
+        <div class="mobile-header">
+
+            <div class="mobile-brand">
+                Church Media
+            </div>
+
+            <button
+                class="btn btn-sm btn-outline-light"
+                type="button"
+                onclick="toggleSidebar()"
+            >
+                <i class="bi bi-list"></i>
+                Menu
+            </button>
+
+        </div>
+
+
+        <!-- TOP BAR -->
+
+        <header class="topbar">
+
+            <div>
+
+                <h1 class="page-heading">
+                    {% block page_title %}
+                        Dashboard
+                    {% endblock %}
+                </h1>
+
+                <p class="page-subheading">
+
+                    {% block page_subtitle %}
+                        Manage your church media operations
+                    {% endblock %}
+
+                </p>
+
+            </div>
+
+
+            <div class="user-area">
+
+                {% if request.user.is_authenticated %}
+
+                    <div class="user-profile-wrap">
+
+                        <a href="{% url 'profile' %}" class="user-profile-link">
+
+                            <div class="text-end user-profile-details">
+
+                                <div class="user-name">
+
+                                    {% if request.user.get_full_name %}
+                                        {{ request.user.get_full_name }}
+                                    {% else %}
+                                        {{ request.user.username }}
+                                    {% endif %}
+
+                                </div>
+
+                                <div class="user-role">
+
+                                    {% if request.user.is_superuser %}
+                                        Administrator
+                                    {% elif request.user.profile %}
+                                        {{ request.user.profile.get_role_display }}
+                                    {% else %}
+                                        Team Member
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                            <div class="user-avatar">
+
+                                {% if request.user.media_member.profile_photo %}
+                                    <img
+                                        src="{{ request.user.media_member.profile_photo.url }}"
+                                        alt="Profile photo"
+                                    >
+                                {% else %}
+                                    {{ request.user.first_name|first|default:request.user.username|first|upper }}
+                                {% endif %}
+
+                            </div>
+
+                        </a>
+
+
+                        <div class="dropdown">
+
+                            <button
+                                class="user-menu-button"
+                                type="button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                                aria-label="Open account menu"
+                            >
+                                <i class="bi bi-chevron-down"></i>
+                            </button>
+
+                            <ul class="dropdown-menu dropdown-menu-end user-dropdown">
+
+                                <li class="user-dropdown-header">
+
+                                    <div class="dropdown-avatar">
+
+                                        {% if request.user.media_member.profile_photo %}
+                                            <img
+                                                src="{{ request.user.media_member.profile_photo.url }}"
+                                                alt="Profile photo"
+                                            >
+                                        {% else %}
+                                            {{ request.user.first_name|first|default:request.user.username|first|upper }}
+                                        {% endif %}
+
+                                    </div>
+
+                                    <div>
+                                        <strong>
+                                            {% if request.user.get_full_name %}
+                                                {{ request.user.get_full_name }}
+                                            {% else %}
+                                                {{ request.user.username }}
+                                            {% endif %}
+                                        </strong>
+
+                                        <span>
+                                            {% if request.user.is_superuser %}
+                                                Administrator
+                                            {% elif request.user.profile %}
+                                                {{ request.user.profile.get_role_display }}
+                                            {% else %}
+                                                Team Member
+                                            {% endif %}
+                                        </span>
+                                    </div>
+
+                                </li>
+
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+
+                                <li>
+                                    <a
+                                        class="dropdown-item"
+                                        href="{% url 'profile' %}"
+                                    >
+                                        <i class="bi bi-person"></i>
+                                        <span>My Profile</span>
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a
+                                        class="dropdown-item"
+                                        href="{% url 'profile_edit' %}"
+                                    >
+                                        <i class="bi bi-pencil-square"></i>
+                                        <span>Edit Profile</span>
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a
+                                        class="dropdown-item"
+                                        href="{% url 'password_change' %}"
+                                    >
+                                        <i class="bi bi-key"></i>
+                                        <span>Change Password</span>
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+
+                                <li>
+
+                                    <form
+                                        method="post"
+                                        action="{% url 'logout' %}"
+                                        class="m-0"
+                                    >
+
+                                        {% csrf_token %}
+
+                                        <button
+                                            type="submit"
+                                            class="dropdown-item dropdown-logout"
+                                        >
+                                            <i class="bi bi-box-arrow-right"></i>
+                                            <span>Logout</span>
+                                        </button>
+
+                                    </form>
+
+                                </li>
+
+                            </ul>
+
+                        </div>
+
+                    </div>
+
+                {% else %}
+
+                    <a
+                        href="{% url 'login' %}"
+                        class="btn btn-sm btn-outline-primary"
+                    >
+                        <i class="bi bi-box-arrow-in-right me-1"></i>
+                        Sign In
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </header>
+
+
+        <!-- CONTENT -->
+
+        <main class="main-content">
+
+            {% if messages %}
+
+                {% for message in messages %}
+
+                    <div
+                        class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show"
+                        role="alert"
+                    >
+
+                        {{ message }}
+
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                        ></button>
+
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+
+            {% block content %}{% endblock %}
+
+        </main>
+
+    </div>
+
+</div>
+
+
+<!-- Bootstrap JS -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<script>
+
+    function toggleSidebar() {
+
+        const sidebar = document.getElementById("sidebar");
+
+        sidebar.classList.toggle("show");
+
+    }
+
+
+    // Close mobile sidebar when clicking a navigation link
+
+    document.querySelectorAll(".sidebar-link").forEach(function(link) {
+
+        link.addEventListener("click", function() {
+
+            if (window.innerWidth <= 991) {
+
+                document
+                    .getElementById("sidebar")
+                    .classList.remove("show");
+
+            }
+
+        });
+
+    });
+
+</script>
+
+
+{% block extra_js %}{% endblock %}
+
+{% endwith %}
+</body>
+</html>

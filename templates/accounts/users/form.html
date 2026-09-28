@@ -1,0 +1,899 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ page_title }} | Church Media Management
+{% endblock %}
+
+{% block page_title %}
+    {{ page_title }}
+{% endblock %}
+
+{% block page_subtitle %}
+    {{ page_subtitle }}
+{% endblock %}
+
+{% block content %}
+
+<div class="user-form-intro mb-4">
+
+    <div>
+        <div class="form-kicker">
+            <i class="bi bi-person-gear"></i>
+            Administration
+        </div>
+
+        <h2 class="h4 fw-bold mt-2 mb-1">
+            {{ page_title }}
+        </h2>
+
+        <p class="text-secondary mb-0">
+            {{ page_subtitle }}
+        </p>
+    </div>
+
+    <a
+        href="{% url 'user_list' %}"
+        class="btn btn-outline-secondary btn-sm"
+    >
+        <i class="bi bi-arrow-left me-1"></i>
+        Back to Users
+    </a>
+
+</div>
+
+
+<form
+    method="post"
+    enctype="multipart/form-data"
+>
+
+    {% csrf_token %}
+
+
+    {% if form.non_field_errors %}
+
+        <div class="alert alert-danger validation-alert mb-4">
+
+            <div class="fw-semibold mb-1">
+                <i class="bi bi-exclamation-circle me-1"></i>
+                Please review the form
+            </div>
+
+            {{ form.non_field_errors }}
+
+        </div>
+
+    {% endif %}
+
+
+    <div class="row g-4">
+
+        <div class="col-xl-8">
+
+
+            <!-- Account Information -->
+
+            <div class="dashboard-card user-form-card">
+
+                <div class="form-card-header">
+
+                    <div class="form-card-heading">
+
+                        <span class="form-section-icon">
+                            <i class="bi bi-person-badge"></i>
+                        </span>
+
+                        <div>
+                            <h5>Account Information</h5>
+                            <p>
+                                Login credentials and personal information.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="app-card-body">
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+
+                            <label
+                                class="form-label"
+                                for="{{ form.username.id_for_label }}"
+                            >
+                                Username
+                            </label>
+
+                            {{ form.username }}
+
+                            {% for error in form.username.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label
+                                class="form-label"
+                                for="{{ form.email.id_for_label }}"
+                            >
+                                Email
+                            </label>
+
+                            {{ form.email }}
+
+                            {% for error in form.email.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label
+                                class="form-label"
+                                for="{{ form.first_name.id_for_label }}"
+                            >
+                                First Name
+                            </label>
+
+                            {{ form.first_name }}
+
+                            {% for error in form.first_name.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label
+                                class="form-label"
+                                for="{{ form.last_name.id_for_label }}"
+                            >
+                                Last Name
+                            </label>
+
+                            {{ form.last_name }}
+
+                            {% for error in form.last_name.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+
+                        </div>
+
+
+                        {% if not is_edit %}
+
+                            <div class="col-md-6">
+
+                                <label
+                                    class="form-label"
+                                    for="{{ form.password1.id_for_label }}"
+                                >
+                                    Password
+                                </label>
+
+                                {{ form.password1 }}
+
+                                {% for error in form.password1.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label
+                                    class="form-label"
+                                    for="{{ form.password2.id_for_label }}"
+                                >
+                                    Confirm Password
+                                </label>
+
+                                {{ form.password2 }}
+
+                                {% for error in form.password2.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Media Team Profile -->
+
+            <div class="dashboard-card user-form-card mt-4">
+
+                <div class="form-card-header">
+
+                    <div class="form-card-heading">
+
+                        <span class="form-section-icon">
+                            <i class="bi bi-camera-reels"></i>
+                        </span>
+
+                        <div>
+                            <h5>Media Team Profile</h5>
+                            <p>
+                                Information about the person's media responsibilities.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="app-card-body">
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+
+                            <label
+                                class="form-label"
+                                for="{{ form.phone.id_for_label }}"
+                            >
+                                Phone Number
+                            </label>
+
+                            {{ form.phone }}
+
+                            {% for error in form.phone.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label
+                                class="form-label"
+                                for="{{ form.member_role.id_for_label }}"
+                            >
+                                Media Team Position
+                            </label>
+
+                            {{ form.member_role }}
+
+                            {% for error in form.member_role.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+
+                        </div>
+
+
+                        <div class="col-12">
+
+                            <label
+                                class="form-label"
+                                for="{{ form.profile_photo.id_for_label }}"
+                            >
+                                Profile Photo
+                            </label>
+
+                            {{ form.profile_photo }}
+
+                            {% for error in form.profile_photo.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+
+                            <div class="form-hint">
+                                Add a clear profile image for easier identification across the system.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Skills -->
+
+            <div class="dashboard-card user-form-card mt-4">
+
+                <div class="form-card-header">
+
+                    <div class="form-card-heading">
+
+                        <span class="form-section-icon">
+                            <i class="bi bi-tools"></i>
+                        </span>
+
+                        <div>
+                            <h5>Skills</h5>
+                            <p>
+                                Select the skills this team member has.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="app-card-body">
+
+                    <div class="user-skills-grid">
+
+                        {% for checkbox in form.skills %}
+
+                            <label class="user-skill-option">
+
+                                {{ checkbox.tag }}
+
+                                <span>
+                                    {{ checkbox.choice_label }}
+                                </span>
+
+                            </label>
+
+                        {% empty %}
+
+                            <div class="empty-skills">
+                                <i class="bi bi-tools"></i>
+                                <span>
+                                    No skills have been created yet.
+                                </span>
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                    {% if form.skills.errors %}
+                        <div class="text-danger small mt-2">
+                            {{ form.skills.errors }}
+                        </div>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-xl-4">
+
+
+            <!-- System Access -->
+
+            <div class="dashboard-card user-form-card">
+
+                <div class="form-card-header">
+
+                    <div class="form-card-heading">
+
+                        <span class="form-section-icon">
+                            <i class="bi bi-shield-lock"></i>
+                        </span>
+
+                        <div>
+                            <h5>System Access</h5>
+                            <p>
+                                Control what this account can do.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="app-card-body">
+
+                    <div class="mb-4">
+
+                        <label
+                            class="form-label"
+                            for="{{ form.system_role.id_for_label }}"
+                        >
+                            System Role
+                        </label>
+
+                        {{ form.system_role }}
+
+                        {% for error in form.system_role.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+
+                        <div class="form-hint">
+                            The system role controls this user's access
+                            to Church Media Management.
+                        </div>
+
+                    </div>
+
+
+                    {% if is_edit %}
+
+                        <div class="account-status-box">
+
+                            <div>
+                                <strong>Account Status</strong>
+
+                                <span>
+                                    Allow this user to sign in
+                                </span>
+                            </div>
+
+                            <div class="form-check form-switch">
+                                {{ form.is_active }}
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <div class="role-info">
+
+                        <div class="role-info-title">
+                            Available Roles
+                        </div>
+
+
+                        <div class="role-info-item">
+                            <div class="role-role-icon">
+                                <i class="bi bi-shield-check"></i>
+                            </div>
+
+                            <div>
+                                <strong>Administrator</strong>
+                                <span>Full system management</span>
+                            </div>
+                        </div>
+
+
+                        <div class="role-info-item">
+                            <div class="role-role-icon">
+                                <i class="bi bi-diagram-3"></i>
+                            </div>
+
+                            <div>
+                                <strong>Media Coordinator</strong>
+                                <span>Operational management</span>
+                            </div>
+                        </div>
+
+
+                        <div class="role-info-item">
+                            <div class="role-role-icon">
+                                <i class="bi bi-person-workspace"></i>
+                            </div>
+
+                            <div>
+                                <strong>Team Member</strong>
+                                <span>Personal duties and equipment use</span>
+                            </div>
+                        </div>
+
+
+                        <div class="role-info-item">
+                            <div class="role-role-icon">
+                                <i class="bi bi-eye"></i>
+                            </div>
+
+                            <div>
+                                <strong>Viewer</strong>
+                                <span>Read-only access</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Actions -->
+
+            <div class="dashboard-card user-form-card mt-4">
+
+                <div class="app-card-body">
+
+                    <div class="action-note">
+                        <i class="bi bi-info-circle"></i>
+
+                        <span>
+                            {% if is_edit %}
+                                Review the account details before saving your changes.
+                            {% else %}
+                                Review the account details and access level before creating the account.
+                            {% endif %}
+                        </span>
+                    </div>
+
+
+                    <div class="form-actions">
+
+                        <a
+                            href="{% url 'user_list' %}"
+                            class="btn btn-outline-secondary"
+                        >
+                            Cancel
+                        </a>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+
+                            {% if is_edit %}
+
+                                <i class="bi bi-check2-circle me-1"></i>
+                                Save Changes
+
+                            {% else %}
+
+                                <i class="bi bi-person-plus me-1"></i>
+                                Create Account
+
+                            {% endif %}
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</form>
+
+{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+
+    .user-form-intro {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .form-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 5px 9px;
+        border-radius: 7px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+    }
+
+    .user-form-card {
+        overflow: hidden;
+        transition: box-shadow .2s ease, transform .2s ease;
+    }
+
+    .user-form-card:hover {
+        box-shadow: 0 10px 25px rgba(20, 45, 35, .06);
+    }
+
+    .form-card-header {
+        padding: 18px 20px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(248, 250, 249, .65);
+    }
+
+    .form-card-heading {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+    }
+
+    .form-card-heading h5 {
+        margin: 0 0 2px;
+    }
+
+    .form-card-heading p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+    }
+
+    .form-section-icon {
+        width: 37px;
+        height: 37px;
+        flex: 0 0 37px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        background: #e8f3ef;
+        color: #176b52;
+        font-size: 17px;
+    }
+
+    .app-card-body {
+        padding: 22px;
+    }
+
+    .form-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #34413c;
+    }
+
+    .form-hint {
+        margin-top: 5px;
+        color: #78837f;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .user-form-card input:not([type="checkbox"]):not([type="radio"]),
+    .user-form-card select,
+    .user-form-card textarea {
+        transition: border-color .2s ease, box-shadow .2s ease;
+    }
+
+    .user-form-card input:focus,
+    .user-form-card select:focus,
+    .user-form-card textarea:focus {
+        border-color: #3b8f72;
+        box-shadow: 0 0 0 .2rem rgba(23, 107, 82, .10);
+    }
+
+    .user-form-card input[type="file"] {
+        padding: .65rem .75rem;
+        background: #f8faf9;
+    }
+
+    .user-skills-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .user-skill-option {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        min-height: 45px;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        background: #fff;
+        cursor: pointer;
+        transition: border-color .2s ease, background .2s ease, transform .2s ease;
+    }
+
+    .user-skill-option:hover {
+        transform: translateY(-1px);
+        border-color: #9bc2b4;
+        background: #f8fbf9;
+    }
+
+    .user-skill-option input {
+        margin: 0;
+        accent-color: #176b52;
+    }
+
+    .user-skill-option span {
+        font-size: 13px;
+        color: #46534e;
+    }
+
+    .empty-skills {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 14px;
+        border-radius: 9px;
+        background: #f6f8f7;
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+    .account-status-box {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 14px;
+        margin-bottom: 20px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: #fafcfb;
+    }
+
+    .account-status-box strong,
+    .account-status-box span {
+        display: block;
+    }
+
+    .account-status-box strong {
+        font-size: 13px;
+        margin-bottom: 2px;
+    }
+
+    .account-status-box span {
+        color: var(--muted);
+        font-size: 11px;
+    }
+
+    .account-status-box .form-check {
+        margin: 0;
+    }
+
+    .role-info {
+        border-top: 1px solid var(--border);
+        padding-top: 18px;
+    }
+
+    .role-info-title {
+        margin-bottom: 11px;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: .05em;
+    }
+
+    .role-info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 11px 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .role-info-item:last-child {
+        border-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .role-role-icon {
+        width: 30px;
+        height: 30px;
+        flex: 0 0 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 7px;
+        background: #eef4f1;
+        color: #176b52;
+        font-size: 13px;
+    }
+
+    .role-info-item strong,
+    .role-info-item span {
+        display: block;
+    }
+
+    .role-info-item strong {
+        font-size: 12px;
+        color: #34413c;
+    }
+
+    .role-info-item span {
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.4;
+    }
+
+    .action-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
+        padding: 12px;
+        margin-bottom: 15px;
+        border: 1px solid #dcebe5;
+        border-radius: 9px;
+        background: #f6faf8;
+        color: #5f6c67;
+        font-size: 11px;
+        line-height: 1.5;
+    }
+
+    .action-note i {
+        color: #176b52;
+        margin-top: 1px;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .form-actions .btn {
+        flex: 1;
+    }
+
+    .validation-alert {
+        border-radius: 10px;
+    }
+
+    @media (max-width: 767.98px) {
+
+        .user-form-intro {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .user-form-intro .btn {
+            width: 100%;
+        }
+
+        .user-skills-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .app-card-body {
+            padding: 18px;
+        }
+
+    }
+
+    @media (max-width: 575.98px) {
+
+        .form-actions {
+            flex-direction: column-reverse;
+        }
+
+        .form-actions .btn {
+            width: 100%;
+        }
+
+    }
+
+</style>
+
+{% endblock %}
