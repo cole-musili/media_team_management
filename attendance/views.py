@@ -1,14 +1,22 @@
+import base64
+from io import BytesIO
+
+import qrcode
+
 from django.contrib import messages
-from django.db.models import Q
+from django.contrib.auth.decorators import login_required
+from django.db import transaction
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 
 from accounts.permissions import role_required
-from events.models import Event
 from members.models import Member
+from roster.models import DutyAssignment
 
-from .forms import AttendanceForm
-from .models import Attendance
+from .models import Attendance, AttendanceSession
+from events.models import Event
 
 
 # ============================================================
@@ -381,4 +389,255 @@ def attendance_add_member(request, event_id):
     return redirect(
         "event_attendance",
         event_id=event.pk,
+    )
+
+@login_required
+@role_required("admin", "coordinator")
+def attendance_session_start(request, event_id):
+
+    event = get_object_or_404(
+        Event,
+        pk=event_id,
+    )
+
+    if request.method != "POST":
+        return redirect("event_attendance", event_id=event.id)
+
+    with transaction.atomic():
+
+        AttendanceSession.objects.filter(
+            event=event,
+            is_active=True,
+        ).update(
+            is_active=False,
+            ended_at=timezone.now(),
+        )
+
+        session = AttendanceSession.objects.create(
+            event=event,
+        )
+
+    messages.success(
+        request,
+        f"QR attendance has been started for {event.name}.",
+    )
+
+    return redirect(
+        "attendance_scanner",
+        session_id=session.id,
+    )
+
+
+
+@login_required
+@role_required("admin", "coordinator")
+def attendance_scanner(request, session_id):
+
+    session = get_object_or_404(
+        AttendanceSession.objects.select_related("event"),
+        pk=session_id,
+    )
+
+    event = session.event
+
+    scan_url = request.build_absolute_uri(
+        reverse(
+            "attendance_scan",
+            kwargs={"token": session.token},
+        )
+    )
+
+    qr = qrcode.QRCode(
+        version=1,
+        box_size=10,
+        border=4,
+    )
+
+    qr.add_data(scan_url)
+    qr.make(fit=True)
+
+    image = qr.make_image()
+
+    buffer = BytesIO()
+    image.save(buffer, format="PNG")
+
+    qr_code = base64.b64encode(
+        buffer.getvalue()
+    ).decode()
+
+    assignments = DutyAssignment.objects.filter(
+        event=event,
+    ).select_related(
+        "member",
+        "position",
+    )
+
+    attendance = Attendance.objects.filter(
+        event=event,
+    ).select_related(
+        "member",
+    )
+
+    present_count = attendance.filter(
+        status__in=["present", "late"],
+    ).count()
+
+    total_count = assignments.exclude(
+        status__in=["declined", "replaced"],
+    ).values(
+        "member_id"
+    ).distinct().count()
+
+    return render(
+        request,
+        "attendance/scanner.html",
+        {
+            "session": session,
+            "event": event,
+            "qr_code": qr_code,
+            "attendance": attendance,
+            "assignments": assignments,
+            "present_count": present_count,
+            "total_count": total_count,
+        },
+    )
+
+
+@login_required
+def attendance_scan(request, token):
+
+    session = get_object_or_404(
+        AttendanceSession.objects.select_related("event"),
+        token=token,
+    )
+
+    if not session.is_active:
+        return render(
+            request,
+            "attendance/scan_result.html",
+            {
+                "success": False,
+                "title": "Attendance Closed",
+                "message": "This attendance session is no longer active.",
+            },
+        )
+
+    event = session.event
+
+    member = getattr(
+        request.user,
+        "media_member",
+        None,
+    )
+
+    if member is None:
+        return render(
+            request,
+            "attendance/scan_result.html",
+            {
+                "success": False,
+                "title": "Member Profile Required",
+                "message": (
+                    "Your account is not linked to a media team member."
+                ),
+            },
+        )
+
+    if not member.is_active:
+        return render(
+            request,
+            "attendance/scan_result.html",
+            {
+                "success": False,
+                "title": "Account Inactive",
+                "message": (
+                    "Your media team membership is currently inactive."
+                ),
+            },
+        )
+
+    assignment_exists = DutyAssignment.objects.filter(
+        event=event,
+        member=member,
+    ).exclude(
+        status__in=["declined", "replaced"],
+    ).exists()
+
+    if not assignment_exists:
+        return render(
+            request,
+            "attendance/scan_result.html",
+            {
+                "success": False,
+                "title": "Not Assigned",
+                "message": (
+                    "You are not assigned to this event. "
+                    "Please contact the Media Coordinator."
+                ),
+            },
+        )
+
+    attendance, created = Attendance.objects.get_or_create(
+        event=event,
+        member=member,
+        defaults={
+            "status": "present",
+            "check_in": timezone.now(),
+        },
+    )
+
+    if not created and attendance.check_in:
+        return render(
+            request,
+            "attendance/scan_result.html",
+            {
+                "success": True,
+                "already_checked_in": True,
+                "member": member,
+                "attendance": attendance,
+                "event": event,
+            },
+        )
+
+    return render(
+        request,
+        "attendance/scan_result.html",
+        {
+            "success": True,
+            "already_checked_in": False,
+            "member": member,
+            "attendance": attendance,
+            "event": event,
+        },
+    )
+
+
+@login_required
+@role_required("admin", "coordinator")
+def attendance_session_end(request, session_id):
+
+    session = get_object_or_404(
+        AttendanceSession,
+        pk=session_id,
+    )
+
+    if request.method == "POST":
+
+        session.is_active = False
+        session.ended_at = timezone.now()
+        session.save(
+            update_fields=[
+                "is_active",
+                "ended_at",
+            ]
+        )
+
+        messages.success(
+            request,
+            "Attendance session has been closed.",
+        )
+
+    return redirect(
+        "event_attendance",
+        event_id=session.event_id,
     )

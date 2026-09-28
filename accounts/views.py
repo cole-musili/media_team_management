@@ -5,6 +5,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from members.models import UserProfile
 
@@ -16,9 +17,12 @@ def login_view(request):
     if request.user.is_authenticated:
         return redirect("dashboard")
 
+    next_url = request.GET.get("next", "").strip()
+
     if request.method == "POST":
         username = request.POST.get("username", "").strip()
         password = request.POST.get("password", "")
+        next_url = request.POST.get("next", "").strip()
 
         user = authenticate(
             request,
@@ -35,6 +39,14 @@ def login_view(request):
                 return redirect("login")
 
             login(request, user)
+
+            if next_url and url_has_allowed_host_and_scheme(
+                url=next_url,
+                allowed_hosts={request.get_host()},
+                require_https=request.is_secure(),
+            ):
+                return redirect(next_url)
+
             return redirect("dashboard")
 
         messages.error(
@@ -42,13 +54,22 @@ def login_view(request):
             "Invalid username or password.",
         )
 
-    return render(request, "accounts/login.html")
+    return render(
+        request,
+        "accounts/login.html",
+        {
+            "next": next_url,
+        },
+    )
 
 
 def logout_view(request):
     if request.method == "POST":
         logout(request)
-        messages.success(request, "You have been logged out successfully.")
+        messages.success(
+            request,
+            "You have been logged out successfully.",
+        )
 
     return redirect("login")
 
@@ -89,7 +110,9 @@ def get_profile_for_user(user):
 
     if profile.member is None and member is not None:
         profile.member = member
-        profile.save(update_fields=["member"])
+        profile.save(
+            update_fields=["member"]
+        )
 
     return profile
 
@@ -203,13 +226,19 @@ def password_change_view(request):
     )
 
 
-
 @role_required("admin")
 def user_list(request):
     users = (
         User.objects
-        .select_related("profile", "profile__member")
-        .order_by("first_name", "last_name", "username")
+        .select_related(
+            "profile",
+            "profile__member",
+        )
+        .order_by(
+            "first_name",
+            "last_name",
+            "username",
+        )
     )
 
     search = request.GET.get("search", "").strip()
@@ -227,12 +256,19 @@ def user_list(request):
         )
 
     if role:
-        users = users.filter(profile__role=role)
+        users = users.filter(
+            profile__role=role
+        )
 
     if status == "active":
-        users = users.filter(is_active=True)
+        users = users.filter(
+            is_active=True
+        )
+
     elif status == "inactive":
-        users = users.filter(is_active=False)
+        users = users.filter(
+            is_active=False
+        )
 
     return render(
         request,
@@ -275,7 +311,9 @@ def user_create(request):
         {
             "form": form,
             "page_title": "Add User",
-            "page_subtitle": "Create a new system account and media team profile.",
+            "page_subtitle": (
+                "Create a new system account and media team profile."
+            ),
             "is_edit": False,
         },
     )
@@ -291,18 +329,31 @@ def user_edit(request, pk):
         pk=pk,
     )
 
-    profile = getattr(user, "profile", None)
+    profile = getattr(
+        user,
+        "profile",
+        None,
+    )
+
     member = (
         profile.member
         if profile
-        else getattr(user, "media_member", None)
+        else getattr(
+            user,
+            "media_member",
+            None,
+        )
     )
 
     if profile is None:
         profile = UserProfile.objects.create(
             user=user,
             member=member,
-            role="admin" if user.is_superuser else "team_member",
+            role=(
+                "admin"
+                if user.is_superuser
+                else "team_member"
+            ),
         )
 
     if request.method == "POST":
@@ -341,7 +392,9 @@ def user_edit(request, pk):
             "profile": profile,
             "member": member,
             "page_title": "Edit User",
-            "page_subtitle": "Update account, role and media team information.",
+            "page_subtitle": (
+                "Update account, role and media team information."
+            ),
             "is_edit": True,
         },
     )
@@ -349,7 +402,10 @@ def user_edit(request, pk):
 
 @role_required("admin")
 def user_toggle_status(request, pk):
-    user = get_object_or_404(User, pk=pk)
+    user = get_object_or_404(
+        User,
+        pk=pk,
+    )
 
     if request.method != "POST":
         return redirect("user_list")
@@ -371,15 +427,29 @@ def user_toggle_status(request, pk):
         return redirect("user_list")
 
     user.is_active = not user.is_active
-    user.save(update_fields=["is_active"])
 
-    member = getattr(user, "media_member", None)
+    user.save(
+        update_fields=["is_active"]
+    )
+
+    member = getattr(
+        user,
+        "media_member",
+        None,
+    )
 
     if member:
         member.is_active = user.is_active
-        member.save(update_fields=["is_active"])
 
-    status = "activated" if user.is_active else "deactivated"
+        member.save(
+            update_fields=["is_active"]
+        )
+
+    status = (
+        "activated"
+        if user.is_active
+        else "deactivated"
+    )
 
     messages.success(
         request,
