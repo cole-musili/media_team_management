@@ -83,25 +83,23 @@
             margin-bottom: 30px;
         }
 
-        .brand-icon {
-            width: 68px;
-            height: 68px;
+        .brand-logo {
+            width: 88px;
+            height: 88px;
             margin: 0 auto 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 18px;
-            background: linear-gradient(
-                135deg,
-                var(--primary),
-                var(--primary-dark)
-            );
-            color: #fff;
-            font-size: 30px;
-            box-shadow:
-                0 12px 25px rgba(25, 135, 84, 0.22);
+            border-radius: 20px;
+            overflow: hidden;
         }
 
+        .brand-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
         .brand h1 {
             font-size: 1.55rem;
             font-weight: 700;
@@ -254,8 +252,8 @@
 
         <div class="brand">
 
-            <div class="brand-icon">
-                <i class="bi bi-broadcast-pin"></i>
+            <div class="brand-logo">
+            <img src="{% static 'images/logo.png' %}" alt="Church Media Logo">
             </div>
 
             <h1>Church Media</h1>
