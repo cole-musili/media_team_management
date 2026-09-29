@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from django.http import HttpResponse
 from django.utils import timezone
 
 from attendance.models import Attendance
@@ -258,3 +259,65 @@ def dashboard(request):
     }
 
     return render(request, "core/dashboard.html", context)
+
+
+
+def service_worker(request):
+    javascript = """
+const CACHE_NAME = "church-media-v1";
+
+self.addEventListener("install", function (event) {
+    event.waitUntil(
+        caches
+            .open(CACHE_NAME)
+            .then(function (cache) {
+                return cache.add("/");
+            })
+            .then(function () {
+                return self.skipWaiting();
+            })
+    );
+});
+
+self.addEventListener("activate", function (event) {
+    event.waitUntil(
+        caches
+            .keys()
+            .then(function (cacheNames) {
+                return Promise.all(
+                    cacheNames
+                        .filter(function (name) {
+                            return name !== CACHE_NAME;
+                        })
+                        .map(function (name) {
+                            return caches.delete(name);
+                        })
+                );
+            })
+            .then(function () {
+                return self.clients.claim();
+            })
+    );
+});
+
+self.addEventListener("fetch", function (event) {
+    if (event.request.method !== "GET") {
+        return;
+    }
+
+    event.respondWith(
+        fetch(event.request)
+            .then(function (response) {
+                return response;
+            })
+            .catch(function () {
+                return caches.match(event.request);
+            })
+    );
+});
+"""
+
+    return HttpResponse(
+        javascript,
+        content_type="application/javascript",
+    )

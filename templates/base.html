@@ -5,6 +5,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <!-- PWA -->
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <meta name="theme-color" content="#0f4d3b">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Church Media">
+    <link rel="apple-touch-icon" href="{% static 'images/icon-192.png' %}">
+
     <title>{% block title %}Church Media Management{% endblock %}</title>
 
     <!-- Bootstrap -->
@@ -97,18 +106,8 @@
             border-bottom: 1px solid rgba(255,255,255,.08);
         }
 
-        .brand-mark {
-            width: 34px;
-            height: 34px;
-            border-radius: 8px;
-            background: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 11px;
-            color: white;
-            font-size: 16px;
-        }
+        .brand-mark { width: 40px; height: 40px; flex-shrink: 0; border-radius: 11px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.10); display:flex; align-items:center; justify-content:center; margin-right:12px; color:white; font-size:16px; overflow:hidden; }
+        .brand-logo { width:100%; height:100%; display:block; object-fit:contain; padding:4px; }
 
         .brand-name {
             color: white;
@@ -167,10 +166,8 @@
             transform: translateX(2px);
         }
 
-        .sidebar-link.active {
-            background: var(--primary);
-            color: white;
-        }
+        .sidebar-link.active { background:linear-gradient(90deg,var(--primary),#1b775c); color:white; box-shadow:0 7px 18px rgba(23,107,82,.16); }
+        .sidebar-link.active .sidebar-link-icon { color:#fff; }
 
         .sidebar-link-icon {
             width: 28px;
@@ -193,34 +190,15 @@
             min-height: 100vh;
         }
 
-        .topbar {
-            height: 72px;
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 32px;
-        }
+        .topbar { min-height:82px; background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(250,252,251,.98)); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:24px; padding:14px 32px; position:sticky; top:0; z-index:900; box-shadow:0 3px 18px rgba(16,42,35,.035); }
+        .page-context { min-width:0; }
+        .page-eyebrow { display:flex; align-items:center; gap:7px; color:var(--primary); font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.09em; margin-bottom:3px; }
+        .page-eyebrow i { font-size:11px; }
+        .page-heading { margin:0; font-size:22px; line-height:1.15; font-weight:750; letter-spacing:-.35px; color:var(--text); }
+        .page-subheading { margin:4px 0 0; color:var(--muted); font-size:12px; }
 
-        .page-heading {
-            margin: 0;
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text);
-        }
-
-        .page-subheading {
-            margin: 3px 0 0;
-            color: var(--muted);
-            font-size: 13px;
-        }
-
-        .user-area {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .user-area { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+        .topbar-user { display:flex; align-items:center; gap:9px; padding:4px 5px 4px 10px; border:1px solid var(--border); border-radius:14px; background:rgba(255,255,255,.8); }
 
         .user-avatar {
             width: 38px;
@@ -1274,16 +1252,61 @@
            MOBILE
         ========================================= */
 
-        .mobile-header {
-            display: none;
-        }
+        .mobile-header { display:none; }
+        .mobile-header-inner { width:100%; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+        .mobile-brand-wrap { display:flex; align-items:center; gap:10px; min-width:0; }
+        .mobile-brand-logo { width:34px; height:34px; border-radius:9px; object-fit:contain; padding:3px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10); }
+        .mobile-brand-text { min-width:0; }
+        .mobile-brand { font-weight:750; line-height:1.1; }
+        .mobile-brand-subtitle { display:block; color:rgba(255,255,255,.55); font-size:9px; margin-top:3px; }
+        .mobile-menu-button { border-radius:9px; padding:6px 10px; font-weight:600; }
+        .sidebar-overlay { display:none; }
+        .mobile-account { display:none; }
 
         @media (max-width: 991.98px) {
 
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform .2s ease;
-                box-shadow: 5px 0 25px rgba(0,0,0,.15);
+            .sidebar { width:286px; transform:translateX(-100%); transition:transform .24s ease; box-shadow:12px 0 35px rgba(0,0,0,.22); }
+            .sidebar-overlay { display:block; position:fixed; inset:0; background:rgba(4,18,14,.48); backdrop-filter:blur(2px); opacity:0; visibility:hidden; transition:opacity .24s ease,visibility .24s ease; z-index:1040; }
+            .sidebar-overlay.show { opacity:1; visibility:visible; }
+            .mobile-account { display:block; padding:12px 14px; border-top:1px solid rgba(255,255,255,.08); }
+            .mobile-account-user { display:flex; align-items:center; gap:10px; padding:9px; margin-bottom:7px; border-radius:10px; background:rgba(255,255,255,.045); color:#fff; }
+            .mobile-account-avatar { width:34px; height:34px; flex-shrink:0; border-radius:10px; overflow:hidden; display:flex; align-items:center; justify-content:center; background:var(--primary); font-weight:700; font-size:12px; }
+            .mobile-account-avatar img { width:100%; height:100%; object-fit:cover; }
+            .mobile-account-name { min-width:0; flex:1; }
+            .mobile-account-name strong { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; }
+            .mobile-account-name span { display:block; color:rgba(255,255,255,.55); font-size:10px; margin-top:2px; }
+            .mobile-install-app,
+            .mobile-logout {
+                width:100%;
+                border:0;
+                border-radius:9px;
+                padding:9px 10px;
+                display:flex;
+                align-items:center;
+                gap:9px;
+                font-size:12px;
+                text-align:left;
+            }
+
+            .mobile-install-app {
+                margin-bottom:5px;
+                background:rgba(23,107,82,.22);
+                color:#dff5ed;
+            }
+
+            .mobile-install-app:hover {
+                background:rgba(23,107,82,.38);
+                color:#fff;
+            }
+
+            .mobile-logout {
+                background:transparent;
+                color:#ffb4ac;
+            }
+
+            .mobile-logout:hover {
+                background:rgba(192,57,43,.16);
+                color:#fff;
             }
 
             .sidebar.show {
@@ -1313,9 +1336,8 @@
                 padding: 20px;
             }
 
-            .topbar {
-                display: none;
-            }
+            .topbar { display:none; }
+            .sidebar-footer { padding:11px 18px; }
         }
 
         @media (max-width: 575.98px) {
@@ -1404,7 +1426,7 @@
         <div class="brand">
 
             <div class="brand-mark">
-                <i class="bi bi-camera-video"></i>
+                <img src="{% static 'images/logo.png' %}" alt="Church Media Logo" class="brand-logo">
             </div>
 
             <div>
@@ -1531,16 +1553,40 @@
         </div>
 
 
-        <div class="sidebar-footer">
+        <div class="mobile-account">
+            {% if request.user.is_authenticated %}
+                <a href="{% url 'profile' %}" class="mobile-account-user">
+                    <div class="mobile-account-avatar">
+                        {% if request.user.media_member.profile_photo %}<img src="{{ request.user.media_member.profile_photo.url }}" alt="Profile photo">{% else %}{{ request.user.first_name|first|default:request.user.username|first|upper }}{% endif %}
+                    </div>
+                    <div class="mobile-account-name">
+                        <strong>{% if request.user.get_full_name %}{{ request.user.get_full_name }}{% else %}{{ request.user.username }}{% endif %}</strong>
+                        <span>{% if request.user.is_superuser %}Administrator{% elif request.user.profile %}{{ request.user.profile.get_role_display }}{% else %}Team Member{% endif %}</span>
+                    </div>
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+                <button
+                    type="button"
+                    class="mobile-install-app d-none"
+                    data-install-app
+                >
+                    <i class="bi bi-download"></i>
+                    <span>Install App</span>
+                </button>
 
-            <div class="text-secondary small">
-                Church Media Management
-            </div>
-
+                <form method="post" action="{% url 'logout' %}" class="m-0">
+                    {% csrf_token %}
+                    <button type="submit" class="mobile-logout">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>Logout</span>
+                    </button>
+                </form>
+            {% endif %}
         </div>
+        <div class="sidebar-footer"><div class="text-secondary small">Church Media Management</div></div>
 
     </aside>
-
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()" aria-hidden="true"></div>
 
     <!-- MAIN -->
 
@@ -1549,20 +1595,13 @@
         <!-- MOBILE HEADER -->
 
         <div class="mobile-header">
-
-            <div class="mobile-brand">
-                Church Media
+            <div class="mobile-header-inner">
+                <div class="mobile-brand-wrap">
+                    <img src="{% static 'images/logo.png' %}" alt="Church Media Logo" class="mobile-brand-logo">
+                    <div class="mobile-brand-text"><div class="mobile-brand">Church Media</div><span class="mobile-brand-subtitle">Management System</span></div>
+                </div>
+                <button class="btn btn-sm btn-outline-light mobile-menu-button" type="button" onclick="toggleSidebar()" aria-label="Open navigation menu"><i class="bi bi-list me-1"></i>Menu</button>
             </div>
-
-            <button
-                class="btn btn-sm btn-outline-light"
-                type="button"
-                onclick="toggleSidebar()"
-            >
-                <i class="bi bi-list"></i>
-                Menu
-            </button>
-
         </div>
 
 
@@ -1570,28 +1609,17 @@
 
         <header class="topbar">
 
-            <div>
-
-                <h1 class="page-heading">
-                    {% block page_title %}
-                        Dashboard
-                    {% endblock %}
-                </h1>
-
-                <p class="page-subheading">
-
-                    {% block page_subtitle %}
-                        Manage your church media operations
-                    {% endblock %}
-
-                </p>
-
+            <div class="page-context">
+                <div class="page-eyebrow"><i class="bi bi-grid-1x2-fill"></i>Church Media Management</div>
+                <h1 class="page-heading">{% block page_title %}Dashboard{% endblock %}</h1>
+                <p class="page-subheading">{% block page_subtitle %}Manage your church media operations{% endblock %}</p>
             </div>
 
 
             <div class="user-area">
 
                 {% if request.user.is_authenticated %}
+                    <div class="topbar-user">
 
                     <div class="user-profile-wrap">
 
@@ -1725,6 +1753,17 @@
                                 </li>
 
                                 <li>
+                                    <button
+                                        type="button"
+                                        class="dropdown-item d-none"
+                                        data-install-app
+                                    >
+                                        <i class="bi bi-download"></i>
+                                        <span>Install App</span>
+                                    </button>
+                                </li>
+
+                                <li>
                                     <hr class="dropdown-divider">
                                 </li>
 
@@ -1754,6 +1793,7 @@
 
                         </div>
 
+                    </div>
                     </div>
 
                 {% else %}
@@ -1818,37 +1858,43 @@
 <script>
 
     function toggleSidebar() {
-
         const sidebar = document.getElementById("sidebar");
-
-        sidebar.classList.toggle("show");
-
+        const overlay = document.getElementById("sidebarOverlay");
+        const isOpen = sidebar.classList.toggle("show");
+        if (overlay) overlay.classList.toggle("show", isOpen);
     }
 
-
-    // Close mobile sidebar when clicking a navigation link
+    function closeSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("sidebarOverlay");
+        sidebar.classList.remove("show");
+        if (overlay) overlay.classList.remove("show");
+    }
 
     document.querySelectorAll(".sidebar-link").forEach(function(link) {
-
         link.addEventListener("click", function() {
-
-            if (window.innerWidth <= 991) {
-
-                document
-                    .getElementById("sidebar")
-                    .classList.remove("show");
-
-            }
-
+            if (window.innerWidth <= 991) closeSidebar();
         });
+    });
 
+    window.addEventListener("resize", function() {
+        if (window.innerWidth > 991) closeSidebar();
     });
 
 </script>
 
+<!-- PWA -->
+<script src="{% static 'js/pwa.js' %}"></script>
 
 {% block extra_js %}{% endblock %}
 
 {% endwith %}
 </body>
 </html>
+base.html
+HTML
+pwa.js
+Code
+manifest.json
+Code
+1 more
