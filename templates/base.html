@@ -1467,6 +1467,14 @@
                     Members
                 </a>
 
+                <a href="{% url 'skill_list' %}"
+                    class="sidebar-link {% if request.resolver_match.url_name == 'skill_list' or request.resolver_match.url_name == 'skill_create' or request.resolver_match.url_name == 'skill_edit' %}active{% endif %}">
+                    <span class="sidebar-link-icon">
+                        <i class="bi bi-award"></i>
+                    </span>
+                    Skills
+                </a>
+
                 <a
                     href="{% url 'event_list' %}"
                     class="sidebar-link {% if request.resolver_match.url_name == 'event_list' %}active{% endif %}"
