@@ -261,6 +261,9 @@ def equipment_checkout(request, pk):
             equipment=item,
         )
 
+        # Set equipment before form validation
+        form.instance.equipment = item
+
         if form.is_valid():
 
             checkout = form.save(
