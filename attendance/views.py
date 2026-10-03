@@ -6,7 +6,7 @@ import qrcode
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -500,6 +500,85 @@ def attendance_scanner(request, session_id):
             "present_count": present_count,
             "total_count": total_count,
         },
+    )
+
+@login_required
+@role_required("admin", "coordinator")
+def attendance_scanner_live(request, session_id):
+
+    session = get_object_or_404(
+        AttendanceSession.objects.select_related("event"),
+        pk=session_id,
+    )
+
+    event = session.event
+
+    # Get all active assignments for this event.
+    assignments = DutyAssignment.objects.filter(
+        event=event,
+    ).exclude(
+        status__in=["declined", "replaced"],
+    )
+
+    # Total number of unique assigned members.
+    total_count = assignments.values(
+        "member_id"
+    ).distinct().count()
+
+    # Get attendance records.
+    attendance = (
+        Attendance.objects
+        .filter(event=event)
+        .select_related("member")
+        .order_by("-check_in", "member__name")
+    )
+
+    # Members who have checked in.
+    present_count = attendance.filter(
+        status__in=["present", "late"],
+        check_in__isnull=False,
+    ).count()
+
+    attendance_data = []
+
+    for record in attendance:
+
+        # Only show people who have actually checked in
+        # on the live scanner screen.
+        if not record.check_in:
+            continue
+
+        attendance_data.append(
+            {
+                "id": record.id,
+                "member": record.member.name,
+                "role": getattr(record.member, "role", "") or "",
+                "status": record.status,
+                "check_in": (
+                    timezone.localtime(record.check_in).strftime(
+                        "%H:%M"
+                    )
+                    if record.check_in
+                    else None
+                ),
+                "check_out": (
+                    timezone.localtime(record.check_out).strftime(
+                        "%H:%M"
+                    )
+                    if record.check_out
+                    else None
+                ),
+            }
+        )
+
+    return JsonResponse(
+        {
+            "success": True,
+            "session_active": session.is_active,
+            "present_count": present_count,
+            "total_count": total_count,
+            "attendance": attendance_data,
+        }
     )
 
 
