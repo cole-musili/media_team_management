@@ -30,11 +30,11 @@ Plan and manage media team assignments
             </h2>
             <p class="text-secondary mb-0">
                 {% if user_role == "team_member" %}
-                    Keep track of the duties assigned to you.
+                Keep track of the duties assigned to you.
                 {% elif user_role == "viewer" %}
-                    Review upcoming media responsibilities and assignment status.
+                Review upcoming media responsibilities and assignment status.
                 {% else %}
-                    Coordinate people, positions and responsibilities across upcoming events.
+                Coordinate people, positions and responsibilities across upcoming events.
                 {% endif %}
             </p>
         </div>
@@ -46,123 +46,10 @@ Plan and manage media team assignments
             </a>
 
             {% if user_role == "admin" or user_role == "coordinator" %}
-            
-            <td class="text-end" data-label="Actions">
-                <div class="dropdown">
-            
-                    <button class="btn btn-sm btn-light border roster-menu-btn" data-bs-toggle="dropdown" aria-expanded="false"
-                        title="Assignment actions">
-                        <i class="bi bi-three-dots"></i>
-                    </button>
-            
-                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-            
-                        <li>
-                            <a class="dropdown-item" href="{% url 'assignment_edit' a.pk %}">
-                                <i class="bi bi-pencil me-2"></i>
-                                Edit Assignment
-                            </a>
-                        </li>
-            
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-            
-                        {% if a.status == "pending" %}
-                        <li>
-                            <form method="post" action="{% url 'assignment_status' a.pk %}">
-                                {% csrf_token %}
-            
-                                <input type="hidden" name="status" value="confirmed">
-            
-                                <button class="dropdown-item" type="submit">
-                                    <i class="bi bi-check2 me-2"></i>
-                                    Confirm
-                                </button>
-                            </form>
-                        </li>
-            
-                        <li>
-                            <form method="post" action="{% url 'assignment_status' a.pk %}">
-                                {% csrf_token %}
-            
-                                <input type="hidden" name="status" value="declined">
-            
-                                <button class="dropdown-item" type="submit">
-                                    <i class="bi bi-x me-2"></i>
-                                    Decline
-                                </button>
-                            </form>
-                        </li>
-                        {% endif %}
-            
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-            
-                        <li>
-                            <form method="post" action="{% url 'assignment_delete' a.pk %}"
-                                onsubmit="return confirm('Remove this assignment?');">
-                                {% csrf_token %}
-            
-                                <button class="dropdown-item text-danger" type="submit">
-                                    <i class="bi bi-trash me-2"></i>
-                                    Remove
-                                </button>
-                            </form>
-                        </li>
-            
-                    </ul>
-                </div>
-            </td>
-            
-            {% elif user_role == "team_member" %}
-            
-            <td class="text-end" data-label="Actions">
-            
-                {% if a.status == "pending" %}
-            
-                <div class="d-flex justify-content-end gap-2">
-            
-                    <form method="post" action="{% url 'assignment_confirm' a.pk %}">
-                        {% csrf_token %}
-            
-                        <button type="submit" class="btn btn-sm btn-success" title="Confirm this duty">
-                            <i class="bi bi-check2 me-1"></i>
-                            Confirm
-                        </button>
-                    </form>
-            
-                    <form method="post" action="{% url 'assignment_decline' a.pk %}"
-                        onsubmit="return confirm('Are you sure you want to decline this duty?');">
-                        {% csrf_token %}
-            
-                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Decline this duty">
-                            <i class="bi bi-x me-1"></i>
-                            Decline
-                        </button>
-                    </form>
-            
-                </div>
-            
-                {% elif a.status == "confirmed" %}
-            
-                <span class="text-success small fw-semibold">
-                    <i class="bi bi-check-circle me-1"></i>
-                    Duty Confirmed
-                </span>
-            
-                {% elif a.status == "declined" %}
-            
-                <span class="text-danger small fw-semibold">
-                    <i class="bi bi-x-circle me-1"></i>
-                    Duty Declined
-                </span>
-            
-                {% endif %}
-            
-            </td>
-            
+            <a href="{% url 'assignment_create' %}" class="btn btn-primary roster-action-btn">
+                <i class="bi bi-plus-lg me-1"></i>
+                Assign Member
+            </a>
             {% endif %}
         </div>
     </div>
@@ -259,13 +146,8 @@ Plan and manage media team assignments
                             <span class="input-group-text">
                                 <i class="bi bi-search"></i>
                             </span>
-                            <input
-                                type="text"
-                                name="search"
-                                class="form-control"
-                                placeholder="Member, event, position or slot"
-                                value="{{ search }}"
-                            >
+                            <input type="text" name="search" class="form-control"
+                                placeholder="Member, event, position or slot" value="{{ search }}">
                         </div>
                     </div>
 
@@ -274,12 +156,10 @@ Plan and manage media team assignments
                         <select name="event" class="form-select">
                             <option value="">All upcoming events</option>
                             {% for event in events %}
-                                <option
-                                    value="{{ event.pk }}"
-                                    {% if selected_event == event.pk|stringformat:"s" %}selected{% endif %}
-                                >
-                                    {{ event.name }} — {{ event.date|date:"d M Y" }}
-                                </option>
+                            <option value="{{ event.pk }}" {% if selected_event==event.pk|stringformat:"s" %}selected{%
+                                endif %}>
+                                {{ event.name }} — {{ event.date|date:"d M Y" }}
+                            </option>
                             {% endfor %}
                         </select>
                     </div>
@@ -288,9 +168,12 @@ Plan and manage media team assignments
                         <label class="form-label">Status</label>
                         <select name="status" class="form-select">
                             <option value="">All</option>
-                            <option value="pending" {% if selected_status == "pending" %}selected{% endif %}>Pending</option>
-                            <option value="confirmed" {% if selected_status == "confirmed" %}selected{% endif %}>Confirmed</option>
-                            <option value="declined" {% if selected_status == "declined" %}selected{% endif %}>Declined</option>
+                            <option value="pending" {% if selected_status=="pending" %}selected{% endif %}>Pending
+                            </option>
+                            <option value="confirmed" {% if selected_status=="confirmed" %}selected{% endif %}>Confirmed
+                            </option>
+                            <option value="declined" {% if selected_status=="declined" %}selected{% endif %}>Declined
+                            </option>
                         </select>
                     </div>
 
@@ -314,9 +197,9 @@ Plan and manage media team assignments
                 </div>
                 <div class="text-secondary small">
                     {% if user_role == "team_member" %}
-                        Events and positions assigned to you
+                    Events and positions assigned to you
                     {% else %}
-                        Upcoming media duties
+                    Upcoming media duties
                     {% endif %}
                 </div>
             </div>
@@ -343,165 +226,197 @@ Plan and manage media team assignments
 
                 <tbody>
                     {% for a in assignments %}
-                        <tr class="roster-row">
-                            <td data-label="Event">
-                                <div class="event-cell">
-                                    <div class="event-marker">
-                                        <i class="bi bi-calendar-event"></i>
-                                    </div>
-                                    <div>
-                                        <div class="fw-semibold">{{ a.event.name }}</div>
-                                        <div class="text-secondary small">
-                                            <i class="bi bi-geo-alt me-1"></i>
-                                            {{ a.event.location|default:"Location not set" }}
-                                        </div>
-                                    </div>
+                    <tr class="roster-row">
+                        <td data-label="Event">
+                            <div class="event-cell">
+                                <div class="event-marker">
+                                    <i class="bi bi-calendar-event"></i>
                                 </div>
-                            </td>
-
-                            <td data-label="Date">
-                                <div class="date-cell">
-                                    <div class="fw-semibold">{{ a.event.date|date:"d M Y" }}</div>
+                                <div>
+                                    <div class="fw-semibold">{{ a.event.name }}</div>
                                     <div class="text-secondary small">
-                                        <i class="bi bi-clock me-1"></i>
-                                        {{ a.event.start_time|time:"H:i" }}
+                                        <i class="bi bi-geo-alt me-1"></i>
+                                        {{ a.event.location|default:"Location not set" }}
                                     </div>
                                 </div>
-                            </td>
+                            </div>
+                        </td>
 
-                            <td data-label="Position">
-                                <div class="fw-semibold">{{ a.position.name }}</div>
+                        <td data-label="Date">
+                            <div class="date-cell">
+                                <div class="fw-semibold">{{ a.event.date|date:"d M Y" }}</div>
                                 <div class="text-secondary small">
-                                    <i class="bi bi-layout-text-sidebar-reverse me-1"></i>
-                                    {{ a.slot }}
+                                    <i class="bi bi-clock me-1"></i>
+                                    {{ a.event.start_time|time:"H:i" }}
                                 </div>
-                            </td>
+                            </div>
+                        </td>
 
-                            {% if user_role != "team_member" %}
-                                <td data-label="Member">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="member-mini-avatar">
-                                            {{ a.member.name|slice:":1"|upper }}
-                                        </div>
-                                        <div>
-                                            <div class="fw-semibold">{{ a.member.name }}</div>
-                                            <div class="text-secondary small">
-                                                {{ a.member.role|default:"Media Team" }}
-                                            </div>
-                                        </div>
+                        <td data-label="Position">
+                            <div class="fw-semibold">{{ a.position.name }}</div>
+                            <div class="text-secondary small">
+                                <i class="bi bi-layout-text-sidebar-reverse me-1"></i>
+                                {{ a.slot }}
+                            </div>
+                        </td>
+
+                        {% if user_role != "team_member" %}
+                        <td data-label="Member">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="member-mini-avatar">
+                                    {{ a.member.name|slice:":1"|upper }}
+                                </div>
+                                <div>
+                                    <div class="fw-semibold">{{ a.member.name }}</div>
+                                    <div class="text-secondary small">
+                                        {{ a.member.role|default:"Media Team" }}
                                     </div>
-                                </td>
+                                </div>
+                            </div>
+                        </td>
+                        {% endif %}
+
+                        <td data-label="Status">
+                            {% if a.status == "confirmed" %}
+                            <span class="roster-status confirmed">
+                                <span></span>Confirmed
+                            </span>
+                            {% elif a.status == "pending" %}
+                            <span class="roster-status pending">
+                                <span></span>Pending
+                            </span>
+                            {% elif a.status == "declined" %}
+                            <span class="roster-status declined">
+                                <span></span>Declined
+                            </span>
+                            {% else %}
+                            <span class="roster-status replaced">
+                                <span></span>Replaced
+                            </span>
                             {% endif %}
+                        </td>
 
-                            <td data-label="Status">
-                                {% if a.status == "confirmed" %}
-                                    <span class="roster-status confirmed">
-                                        <span></span>Confirmed
-                                    </span>
-                                {% elif a.status == "pending" %}
-                                    <span class="roster-status pending">
-                                        <span></span>Pending
-                                    </span>
-                                {% elif a.status == "declined" %}
-                                    <span class="roster-status declined">
-                                        <span></span>Declined
-                                    </span>
-                                {% else %}
-                                    <span class="roster-status replaced">
-                                        <span></span>Replaced
-                                    </span>
-                                {% endif %}
-                            </td>
+                        {% if user_role == "admin" or user_role == "coordinator" %}
+                        <td class="text-end" data-label="Actions">
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light border roster-menu-btn" data-bs-toggle="dropdown"
+                                    aria-expanded="false" title="Assignment actions">
+                                    <i class="bi bi-three-dots"></i>
+                                </button>
 
-                            {% if user_role == "admin" or user_role == "coordinator" %}
-                                <td class="text-end" data-label="Actions">
-                                    <div class="dropdown">
-                                        <button
-                                            class="btn btn-sm btn-light border roster-menu-btn"
-                                            data-bs-toggle="dropdown"
-                                            aria-expanded="false"
-                                            title="Assignment actions"
-                                        >
-                                            <i class="bi bi-three-dots"></i>
-                                        </button>
-
-                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                                            <li>
-                                                <a class="dropdown-item" href="{% url 'assignment_edit' a.pk %}">
-                                                    <i class="bi bi-pencil me-2"></i>
-                                                    Edit Assignment
-                                                </a>
-                                            </li>
-
-                                            <li><hr class="dropdown-divider"></li>
-
-                                            <li>
-                                                <form method="post" action="{% url 'assignment_status' a.pk %}">
-                                                    {% csrf_token %}
-                                                    <input type="hidden" name="status" value="confirmed">
-                                                    <button class="dropdown-item" type="submit">
-                                                        <i class="bi bi-check2 me-2"></i>
-                                                        Confirm
-                                                    </button>
-                                                </form>
-                                            </li>
-
-                                            <li>
-                                                <form method="post" action="{% url 'assignment_status' a.pk %}">
-                                                    {% csrf_token %}
-                                                    <input type="hidden" name="status" value="declined">
-                                                    <button class="dropdown-item" type="submit">
-                                                        <i class="bi bi-x me-2"></i>
-                                                        Decline
-                                                    </button>
-                                                </form>
-                                            </li>
-
-                                            <li><hr class="dropdown-divider"></li>
-
-                                            <li>
-                                                <form
-                                                    method="post"
-                                                    action="{% url 'assignment_delete' a.pk %}"
-                                                    onsubmit="return confirm('Remove this assignment?');"
-                                                >
-                                                    {% csrf_token %}
-                                                    <button class="dropdown-item text-danger" type="submit">
-                                                        <i class="bi bi-trash me-2"></i>
-                                                        Remove
-                                                    </button>
-                                                </form>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </td>
-                            {% endif %}
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="{% if user_role == 'team_member' %}4{% elif user_role == 'admin' or user_role == 'coordinator' %}6{% else %}5{% endif %}">
-                                <div class="roster-empty">
-                                    <div class="empty-icon">
-                                        <i class="bi bi-calendar2-week"></i>
-                                    </div>
-
-                                    {% if user_role == "team_member" %}
-                                        <h5>No duties assigned yet</h5>
-                                        <p>Your upcoming media assignments will appear here when you are scheduled for an event.</p>
-                                    {% elif user_role == "viewer" %}
-                                        <h5>No upcoming assignments</h5>
-                                        <p>There are currently no assignments matching the selected filters.</p>
-                                    {% else %}
-                                        <h5>No upcoming assignments</h5>
-                                        <p>Start building the media team roster for your upcoming events.</p>
-                                        <a href="{% url 'assignment_create' %}" class="btn btn-primary">
-                                            <i class="bi bi-plus-lg me-1"></i>
-                                            Create Assignment
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'assignment_edit' a.pk %}">
+                                            <i class="bi bi-pencil me-2"></i>
+                                            Edit Assignment
                                         </a>
+                                    </li>
+
+                                    {% if a.status == "pending" %}
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li>
+                                        <form method="post" action="{% url 'assignment_status' a.pk %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="status" value="confirmed">
+                                            <button class="dropdown-item" type="submit">
+                                                <i class="bi bi-check2 me-2"></i>
+                                                Confirm
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li>
+                                        <form method="post" action="{% url 'assignment_status' a.pk %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="status" value="declined">
+                                            <button class="dropdown-item" type="submit">
+                                                <i class="bi bi-x me-2"></i>
+                                                Decline
+                                            </button>
+                                        </form>
+                                    </li>
                                     {% endif %}
+
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li>
+                                        <form method="post" action="{% url 'assignment_delete' a.pk %}"
+                                            onsubmit="return confirm('Remove this assignment?');">
+                                            {% csrf_token %}
+                                            <button class="dropdown-item text-danger" type="submit">
+                                                <i class="bi bi-trash me-2"></i>
+                                                Remove
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+
+                        {% elif user_role == "team_member" %}
+                        <td class="text-end" data-label="Actions">
+                            {% if a.status == "pending" %}
+                            <div class="d-flex justify-content-end gap-2">
+                                <form method="post" action="{% url 'assignment_confirm' a.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-success" title="Confirm this duty">
+                                        <i class="bi bi-check2 me-1"></i>
+                                        Confirm
+                                    </button>
+                                </form>
+                                <form method="post" action="{% url 'assignment_decline' a.pk %}"
+                                    onsubmit="return confirm('Are you sure you want to decline this duty?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                                        title="Decline this duty">
+                                        <i class="bi bi-x me-1"></i>
+                                        Decline
+                                    </button>
+                                </form>
+                            </div>
+                            {% elif a.status == "confirmed" %}
+                            <span class="text-success small fw-semibold">
+                                <i class="bi bi-check-circle me-1"></i>
+                                Duty Confirmed
+                            </span>
+                            {% elif a.status == "declined" %}
+                            <span class="text-danger small fw-semibold">
+                                <i class="bi bi-x-circle me-1"></i>
+                                Duty Declined
+                            </span>
+                            {% endif %}
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td
+                            colspan="{% if user_role == 'team_member' %}5{% elif user_role == 'admin' or user_role == 'coordinator' %}6{% else %}5{% endif %}">
+                            <div class="roster-empty">
+                                <div class="empty-icon">
+                                    <i class="bi bi-calendar2-week"></i>
                                 </div>
-                            </td>
-                        </tr>
+
+                                {% if user_role == "team_member" %}
+                                <h5>No duties assigned yet</h5>
+                                <p>Your upcoming media assignments will appear here when you are scheduled for an event.
+                                </p>
+                                {% elif user_role == "viewer" %}
+                                <h5>No upcoming assignments</h5>
+                                <p>There are currently no assignments matching the selected filters.</p>
+                                {% else %}
+                                <h5>No upcoming assignments</h5>
+                                <p>Start building the media team roster for your upcoming events.</p>
+                                <a href="{% url 'assignment_create' %}" class="btn btn-primary">
+                                    <i class="bi bi-plus-lg me-1"></i>
+                                    Create Assignment
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -516,8 +431,15 @@ Plan and manage media team assignments
     }
 
     @keyframes rosterFadeIn {
-        from { opacity: 0; transform: translateY(8px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .section-kicker {
@@ -587,10 +509,25 @@ Plan and manage media team assignments
         font-size: 18px;
     }
 
-    .stat-icon-primary { background: #e8f3ef; color: #176b52; }
-    .stat-icon-success { background: #e8f5ee; color: #187044; }
-    .stat-icon-warning { background: #fff4d6; color: #8a6514; }
-    .stat-icon-danger { background: #fcebea; color: #b83227; }
+    .stat-icon-primary {
+        background: #e8f3ef;
+        color: #176b52;
+    }
+
+    .stat-icon-success {
+        background: #e8f5ee;
+        color: #187044;
+    }
+
+    .stat-icon-warning {
+        background: #fff4d6;
+        color: #8a6514;
+    }
+
+    .stat-icon-danger {
+        background: #fcebea;
+        color: #b83227;
+    }
 
     .roster-filter-card {
         border: 1px solid rgba(24, 70, 57, .08);
@@ -729,23 +666,43 @@ Plan and manage media team assignments
         white-space: nowrap;
     }
 
-    .roster-status > span {
+    .roster-status>span {
         width: 7px;
         height: 7px;
         border-radius: 50%;
     }
 
-    .roster-status.confirmed { color: #187044; }
-    .roster-status.confirmed > span { background: #29945a; }
+    .roster-status.confirmed {
+        color: #187044;
+    }
 
-    .roster-status.pending { color: #8a6514; }
-    .roster-status.pending > span { background: #d69e2e; }
+    .roster-status.confirmed>span {
+        background: #29945a;
+    }
 
-    .roster-status.declined { color: #b83227; }
-    .roster-status.declined > span { background: #c0392b; }
+    .roster-status.pending {
+        color: #8a6514;
+    }
 
-    .roster-status.replaced { color: #687570; }
-    .roster-status.replaced > span { background: #87938f; }
+    .roster-status.pending>span {
+        background: #d69e2e;
+    }
+
+    .roster-status.declined {
+        color: #b83227;
+    }
+
+    .roster-status.declined>span {
+        background: #c0392b;
+    }
+
+    .roster-status.replaced {
+        color: #687570;
+    }
+
+    .roster-status.replaced>span {
+        background: #87938f;
+    }
 
     .roster-menu-btn {
         transition: transform .15s ease, box-shadow .15s ease;
