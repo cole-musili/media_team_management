@@ -556,6 +556,7 @@ def attendance_scan(request, token):
             },
         )
 
+    # Make sure the member is assigned to this event.
     assignment_exists = DutyAssignment.objects.filter(
         event=event,
         member=member,
@@ -577,7 +578,7 @@ def attendance_scan(request, token):
             },
         )
 
-    # Find the existing attendance record or create one.
+    # Find existing attendance record or create one.
     attendance, created = Attendance.objects.get_or_create(
         event=event,
         member=member,
@@ -587,50 +588,76 @@ def attendance_scan(request, token):
         },
     )
 
-    # If the member has already checked in, don't create another
-    # attendance record or overwrite the existing check-in time.
-    if (
-        not created
-        and attendance.status in ["present", "late"]
-        and attendance.check_in
-    ):
+    # =========================================================
+    # FIRST SCAN = CHECK IN
+    # =========================================================
+
+    if not attendance.check_in:
+
+        attendance.status = "present"
+        attendance.check_in = timezone.now()
+
+        attendance.save(
+            update_fields=[
+                "status",
+                "check_in",
+            ]
+        )
+
         return render(
             request,
             "attendance/scan_result.html",
             {
                 "success": True,
-                "already_checked_in": True,
+                "action": "check_in",
                 "member": member,
                 "attendance": attendance,
                 "event": event,
             },
         )
 
-    # The member is scanning the QR code for the first time.
-    # Make sure an existing "absent" record becomes "present".
-    attendance.status = "present"
+    # =========================================================
+    # SECOND SCAN = CHECK OUT
+    # =========================================================
 
-    if not attendance.check_in:
-        attendance.check_in = timezone.now()
+    if not attendance.check_out:
 
-    attendance.save(
-        update_fields=[
-            "status",
-            "check_in",
-        ]
-    )
+        attendance.check_out = timezone.now()
+
+        attendance.save(
+            update_fields=[
+                "check_out",
+            ]
+        )
+
+        return render(
+            request,
+            "attendance/scan_result.html",
+            {
+                "success": True,
+                "action": "check_out",
+                "member": member,
+                "attendance": attendance,
+                "event": event,
+            },
+        )
+
+    # =========================================================
+    # THIRD OR MORE SCANS = ALREADY CHECKED OUT
+    # =========================================================
 
     return render(
         request,
         "attendance/scan_result.html",
         {
             "success": True,
-            "already_checked_in": False,
+            "action": "already_checked_out",
             "member": member,
             "attendance": attendance,
             "event": event,
         },
     )
+
 
 @login_required
 @role_required("admin", "coordinator")
