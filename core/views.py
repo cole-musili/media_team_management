@@ -20,10 +20,19 @@ def dashboard(request):
     role = get_user_role(request.user)
 
     # ---------------------------------------------------------
-    # Common dashboard data
+    # Current logged-in user's media member
     # ---------------------------------------------------------
 
+    member = getattr(
+        request.user,
+        "media_member",
+        None,
+    )
+
+    # ---------------------------------------------------------
     # Upcoming events
+    # ---------------------------------------------------------
+
     upcoming_events = (
         Event.objects
         .filter(
@@ -38,7 +47,10 @@ def dashboard(request):
         )[:5]
     )
 
+    # ---------------------------------------------------------
     # Recent events
+    # ---------------------------------------------------------
+
     recent_events = (
         Event.objects
         .order_by(
@@ -47,19 +59,33 @@ def dashboard(request):
         )[:5]
     )
 
+    # ---------------------------------------------------------
     # Members
+    # ---------------------------------------------------------
+
     member_count = Member.objects.filter(
         is_active=True
     ).count()
 
+    # ---------------------------------------------------------
     # Events
-    event_count = Event.objects.filter(
-        date__gte=today
-    ).exclude(
-        status="cancelled"
-    ).count()
+    # ---------------------------------------------------------
 
+    event_count = (
+        Event.objects
+        .filter(
+            date__gte=today
+        )
+        .exclude(
+            status="cancelled"
+        )
+        .count()
+    )
+
+    # ---------------------------------------------------------
     # Equipment
+    # ---------------------------------------------------------
+
     equipment_count = Equipment.objects.count()
 
     available_equipment = Equipment.objects.filter(
@@ -78,16 +104,26 @@ def dashboard(request):
         status="damaged"
     ).count()
 
+    # ---------------------------------------------------------
     # Media
+    # ---------------------------------------------------------
+
     media_count = MediaItem.objects.count()
     album_count = Album.objects.count()
 
     # ---------------------------------------------------------
-    # Today's attendance
+    # TODAY'S ATTENDANCE
     # ---------------------------------------------------------
 
-    todays_attendance = Attendance.objects.filter(
-        event__date=today
+    todays_attendance = (
+        Attendance.objects
+        .filter(
+            event__date=today
+        )
+        .select_related(
+            "event",
+            "member",
+        )
     )
 
     attendance_today = todays_attendance.count()
@@ -107,6 +143,52 @@ def dashboard(request):
     attendance_excused = todays_attendance.filter(
         status="excused"
     ).count()
+
+    # ---------------------------------------------------------
+    # MY LATEST ATTENDANCE
+    #
+    # This is separate from today's attendance.
+    # It allows a team member to see their latest check-in
+    # even when the event is not today.
+    # ---------------------------------------------------------
+
+    my_attendance = Attendance.objects.none()
+
+    if member:
+        my_attendance = (
+            Attendance.objects
+            .filter(
+                member=member
+            )
+            .select_related(
+                "event",
+                "member",
+            )
+            .order_by(
+                "-event__date",
+                "-check_in",
+                "-id",
+            )[:5]
+        )
+
+    # ---------------------------------------------------------
+    # RECENT TEAM ATTENDANCE
+    #
+    # Used by admin/coordinator dashboard.
+    # ---------------------------------------------------------
+
+    recent_attendance = (
+        Attendance.objects
+        .select_related(
+            "event",
+            "member",
+        )
+        .order_by(
+            "-event__date",
+            "-check_in",
+            "-id",
+        )[:8]
+    )
 
     # ---------------------------------------------------------
     # Pending duty confirmations
@@ -134,53 +216,10 @@ def dashboard(request):
     )
 
     # ---------------------------------------------------------
-    # Today's duties
+    # My pending assignments
     # ---------------------------------------------------------
 
-    todays_duties = (
-        DutyAssignment.objects
-        .filter(
-            event__date=today
-        )
-        .exclude(
-            event__status="cancelled"
-        )
-        .select_related(
-            "event",
-            "position",
-            "member",
-        )
-        .order_by(
-            "event__start_time",
-            "position__name",
-        )
-    )
-
-    # ---------------------------------------------------------
-    # Announcements
-    # ---------------------------------------------------------
-
-    announcements = (
-        Announcement.objects
-        .filter(
-            published=True
-        )
-        .order_by(
-            "-created_at"
-        )[:5]
-    )
-
-    # ---------------------------------------------------------
-    # Team member specific data
-    # ---------------------------------------------------------
-
-    member = getattr(
-        request.user,
-        "media_member",
-        None,
-    )
-
-    my_pending_assignments = pending_assignments
+    my_pending_assignments = DutyAssignment.objects.none()
 
     if member:
         my_pending_assignments = (
@@ -206,6 +245,70 @@ def dashboard(request):
         )
 
     # ---------------------------------------------------------
+    # Today's duties
+    # ---------------------------------------------------------
+
+    todays_duties = (
+        DutyAssignment.objects
+        .filter(
+            event__date=today
+        )
+        .exclude(
+            event__status="cancelled"
+        )
+        .select_related(
+            "event",
+            "position",
+            "member",
+        )
+        .order_by(
+            "event__start_time",
+            "position__name",
+        )
+    )
+
+    # ---------------------------------------------------------
+    # My today's duties
+    # ---------------------------------------------------------
+
+    my_todays_duties = DutyAssignment.objects.none()
+
+    if member:
+        my_todays_duties = (
+            DutyAssignment.objects
+            .filter(
+                member=member,
+                event__date=today,
+            )
+            .exclude(
+                event__status="cancelled"
+            )
+            .select_related(
+                "event",
+                "position",
+                "member",
+            )
+            .order_by(
+                "event__start_time",
+                "position__name",
+            )
+        )
+
+    # ---------------------------------------------------------
+    # Announcements
+    # ---------------------------------------------------------
+
+    announcements = (
+        Announcement.objects
+        .filter(
+            published=True
+        )
+        .order_by(
+            "-created_at"
+        )[:5]
+    )
+
+    # ---------------------------------------------------------
     # Dashboard context
     # ---------------------------------------------------------
 
@@ -227,28 +330,40 @@ def dashboard(request):
         "media_count": media_count,
         "album_count": album_count,
 
-        # Attendance
+        # Today's attendance
         "attendance_today": attendance_today,
         "attendance_present": attendance_present,
         "attendance_late": attendance_late,
         "attendance_absent": attendance_absent,
         "attendance_excused": attendance_excused,
 
+        # Personal/latest attendance
+        "my_attendance": my_attendance,
+        "recent_attendance": recent_attendance,
+
         # Events
         "upcoming_events": upcoming_events,
         "recent_events": recent_events,
 
         # Roster
-        "todays_duties": todays_duties,
-        "pending_assignments": my_pending_assignments
-        if role == "team_member"
-        else pending_assignments,
+        "todays_duties": (
+            my_todays_duties
+            if role == "team_member"
+            else todays_duties
+        ),
+
+        "pending_assignments": (
+            my_pending_assignments
+            if role == "team_member"
+            else pending_assignments
+        ),
 
         # Announcements
         "announcements": announcements,
 
-        # User role
+        # User/member
         "dashboard_role": role,
+        "dashboard_member": member,
     }
 
     return render(
