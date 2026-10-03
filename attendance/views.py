@@ -577,6 +577,7 @@ def attendance_scan(request, token):
             },
         )
 
+    # Find the existing attendance record or create one.
     attendance, created = Attendance.objects.get_or_create(
         event=event,
         member=member,
@@ -586,7 +587,13 @@ def attendance_scan(request, token):
         },
     )
 
-    if not created and attendance.check_in:
+    # If the member has already checked in, don't create another
+    # attendance record or overwrite the existing check-in time.
+    if (
+        not created
+        and attendance.status in ["present", "late"]
+        and attendance.check_in
+    ):
         return render(
             request,
             "attendance/scan_result.html",
@@ -599,6 +606,20 @@ def attendance_scan(request, token):
             },
         )
 
+    # The member is scanning the QR code for the first time.
+    # Make sure an existing "absent" record becomes "present".
+    attendance.status = "present"
+
+    if not attendance.check_in:
+        attendance.check_in = timezone.now()
+
+    attendance.save(
+        update_fields=[
+            "status",
+            "check_in",
+        ]
+    )
+
     return render(
         request,
         "attendance/scan_result.html",
@@ -610,7 +631,6 @@ def attendance_scan(request, token):
             "event": event,
         },
     )
-
 
 @login_required
 @role_required("admin", "coordinator")
