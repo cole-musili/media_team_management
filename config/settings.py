@@ -35,7 +35,9 @@ ALLOWED_HOSTS = [
 ]
 
 # Automatically allow Render's hostname
-RENDER_EXTERNAL_HOSTNAME = os.getenv("RENDER_EXTERNAL_HOSTNAME")
+RENDER_EXTERNAL_HOSTNAME = os.getenv(
+    "RENDER_EXTERNAL_HOSTNAME"
+)
 
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
@@ -62,11 +64,10 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    
+    "django.contrib.staticfiles",
 
     # Cloudinary
     "cloudinary_storage",
-    "django.contrib.staticfiles",
     "cloudinary",
 
     # Project apps
@@ -193,12 +194,22 @@ STATICFILES_DIRS = [
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 
+# IMPORTANT:
+# django-cloudinary-storage 0.3.0 expects this setting
+# during the collectstatic command.
+STATICFILES_STORAGE = (
+    "whitenoise.storage.CompressedManifestStaticFilesStorage"
+)
+
+
 # =========================================================
 # MEDIA FILES / CLOUDINARY
 # =========================================================
 
 MEDIA_URL = "/media/"
+
 MEDIA_ROOT = BASE_DIR / "media"
+
 
 CLOUDINARY_CLOUD_NAME = os.getenv(
     "CLOUDINARY_CLOUD_NAME"
@@ -221,15 +232,28 @@ CLOUDINARY_STORAGE = {
 }
 
 
+# Django storage configuration
+#
+# default:
+#   Uploaded media -> Cloudinary
+#
+# staticfiles:
+#   CSS/JS/static images -> WhiteNoise
+#
 STORAGES = {
     "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        "BACKEND": (
+            "cloudinary_storage.storage.MediaCloudinaryStorage"
+        ),
     },
 
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": (
+            "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        ),
     },
 }
+
 
 # =========================================================
 # DEFAULT PRIMARY KEY
