@@ -9,6 +9,7 @@ from events.models import Event
 from media_library.models import Album, MediaItem
 from members.models import Member
 from roster.models import DutyAssignment
+from core.models import Announcement
 
 from accounts.permissions import get_user_role
 
@@ -19,247 +20,242 @@ def dashboard(request):
     role = get_user_role(request.user)
 
     # ---------------------------------------------------------
-    # Common data
+    # Common dashboard data
     # ---------------------------------------------------------
+
+    # Upcoming events
     upcoming_events = (
         Event.objects
-        .filter(date__gte=today)
-        .order_by("date", "start_time")[:5]
+        .filter(
+            date__gte=today
+        )
+        .exclude(
+            status="cancelled"
+        )
+        .order_by(
+            "date",
+            "start_time"
+        )[:5]
     )
 
+    # Recent events
     recent_events = (
         Event.objects
-        .order_by("-date", "-start_time")[:5]
+        .order_by(
+            "-date",
+            "-start_time"
+        )[:5]
     )
 
+    # Members
+    member_count = Member.objects.filter(
+        is_active=True
+    ).count()
+
+    # Events
+    event_count = Event.objects.filter(
+        date__gte=today
+    ).exclude(
+        status="cancelled"
+    ).count()
+
+    # Equipment
+    equipment_count = Equipment.objects.count()
+
+    available_equipment = Equipment.objects.filter(
+        status="available"
+    ).count()
+
+    equipment_in_use = Equipment.objects.filter(
+        status="in_use"
+    ).count()
+
+    equipment_maintenance = Equipment.objects.filter(
+        status="maintenance"
+    ).count()
+
+    equipment_damaged = Equipment.objects.filter(
+        status="damaged"
+    ).count()
+
+    # Media
     media_count = MediaItem.objects.count()
     album_count = Album.objects.count()
 
     # ---------------------------------------------------------
-    # Admin / Coordinator dashboard
+    # Today's attendance
     # ---------------------------------------------------------
-    if role in ("admin", "coordinator"):
-        member_count = Member.objects.filter(is_active=True).count()
 
-        event_count = Event.objects.filter(date__gte=today).count()
+    todays_attendance = Attendance.objects.filter(
+        event__date=today
+    )
 
-        equipment_count = Equipment.objects.count()
+    attendance_today = todays_attendance.count()
 
-        available_equipment = Equipment.objects.filter(
-            status="available"
-        ).count()
+    attendance_present = todays_attendance.filter(
+        status="present"
+    ).count()
 
-        equipment_in_use = Equipment.objects.filter(
-            status="in_use"
-        ).count()
+    attendance_late = todays_attendance.filter(
+        status="late"
+    ).count()
 
-        equipment_maintenance = Equipment.objects.filter(
-            status="maintenance"
-        ).count()
+    attendance_absent = todays_attendance.filter(
+        status="absent"
+    ).count()
 
-        equipment_damaged = Equipment.objects.filter(
-            status="damaged"
-        ).count()
+    attendance_excused = todays_attendance.filter(
+        status="excused"
+    ).count()
 
-        todays_duties = (
-            DutyAssignment.objects
-            .filter(event__date=today)
-            .select_related("event", "position", "member")
-            .order_by("event__start_time", "position__name")
+    # ---------------------------------------------------------
+    # Pending duty confirmations
+    # ---------------------------------------------------------
+
+    pending_assignments = (
+        DutyAssignment.objects
+        .filter(
+            status="pending",
+            event__date__gte=today,
         )
+        .exclude(
+            event__status="cancelled"
+        )
+        .select_related(
+            "event",
+            "position",
+            "member",
+        )
+        .order_by(
+            "event__date",
+            "event__start_time",
+            "position__name",
+        )[:5]
+    )
 
-        todays_attendance = Attendance.objects.filter(
+    # ---------------------------------------------------------
+    # Today's duties
+    # ---------------------------------------------------------
+
+    todays_duties = (
+        DutyAssignment.objects
+        .filter(
             event__date=today
         )
-
-        attendance_present = todays_attendance.filter(
-            status="present"
-        ).count()
-
-        attendance_late = todays_attendance.filter(
-            status="late"
-        ).count()
-
-        attendance_absent = todays_attendance.filter(
-            status="absent"
-        ).count()
-
-        context = {
-            "today": today,
-
-            "member_count": member_count,
-            "event_count": event_count,
-            "equipment_count": equipment_count,
-            "media_count": media_count,
-            "album_count": album_count,
-
-            "available_equipment": available_equipment,
-            "equipment_in_use": equipment_in_use,
-            "equipment_maintenance": equipment_maintenance,
-            "equipment_damaged": equipment_damaged,
-
-            "upcoming_events": upcoming_events,
-            "recent_events": recent_events,
-            "todays_duties": todays_duties,
-
-            "attendance_present": attendance_present,
-            "attendance_late": attendance_late,
-            "attendance_absent": attendance_absent,
-
-            "dashboard_role": role,
-        }
-
-        return render(request, "core/dashboard.html", context)
+        .exclude(
+            event__status="cancelled"
+        )
+        .select_related(
+            "event",
+            "position",
+            "member",
+        )
+        .order_by(
+            "event__start_time",
+            "position__name",
+        )
+    )
 
     # ---------------------------------------------------------
-    # Team Member dashboard
+    # Announcements
     # ---------------------------------------------------------
-    if role == "team_member":
-        member = getattr(request.user, "media_member", None)
 
-        if member:
-            todays_duties = (
-                DutyAssignment.objects
-                .filter(
-                    event__date=today,
-                    member=member,
-                )
-                .select_related("event", "position", "member")
-                .order_by("event__start_time", "position__name")
-            )
+    announcements = (
+        Announcement.objects
+        .filter(
+            published=True
+        )
+        .order_by(
+            "-created_at"
+        )[:5]
+    )
 
-            my_attendance = Attendance.objects.filter(
-                event__date=today,
+    # ---------------------------------------------------------
+    # Team member specific data
+    # ---------------------------------------------------------
+
+    member = getattr(
+        request.user,
+        "media_member",
+        None,
+    )
+
+    my_pending_assignments = pending_assignments
+
+    if member:
+        my_pending_assignments = (
+            DutyAssignment.objects
+            .filter(
                 member=member,
+                status="pending",
+                event__date__gte=today,
             )
-
-            attendance_present = my_attendance.filter(
-                status="present"
-            ).count()
-
-            attendance_late = my_attendance.filter(
-                status="late"
-            ).count()
-
-            attendance_absent = my_attendance.filter(
-                status="absent"
-            ).count()
-        else:
-            todays_duties = DutyAssignment.objects.none()
-            attendance_present = 0
-            attendance_late = 0
-            attendance_absent = 0
-
-        context = {
-            "today": today,
-
-            # Keep the same template keys available.
-            "member_count": None,
-            "event_count": Event.objects.filter(date__gte=today).count(),
-            "equipment_count": None,
-            "media_count": media_count,
-            "album_count": album_count,
-
-            "available_equipment": None,
-            "equipment_in_use": None,
-            "equipment_maintenance": None,
-            "equipment_damaged": None,
-
-            "upcoming_events": upcoming_events,
-            "recent_events": recent_events,
-            "todays_duties": todays_duties,
-
-            "attendance_present": attendance_present,
-            "attendance_late": attendance_late,
-            "attendance_absent": attendance_absent,
-
-            "dashboard_role": role,
-        }
-
-        return render(request, "core/dashboard.html", context)
+            .exclude(
+                event__status="cancelled"
+            )
+            .select_related(
+                "event",
+                "position",
+                "member",
+            )
+            .order_by(
+                "event__date",
+                "event__start_time",
+                "position__name",
+            )[:5]
+        )
 
     # ---------------------------------------------------------
-    # Viewer dashboard
+    # Dashboard context
     # ---------------------------------------------------------
-    if role == "viewer":
-        context = {
-            "today": today,
 
-            "member_count": Member.objects.filter(is_active=True).count(),
-            "event_count": Event.objects.filter(date__gte=today).count(),
-            "equipment_count": Equipment.objects.count(),
-            "media_count": media_count,
-            "album_count": album_count,
-
-            "available_equipment": Equipment.objects.filter(
-                status="available"
-            ).count(),
-            "equipment_in_use": Equipment.objects.filter(
-                status="in_use"
-            ).count(),
-            "equipment_maintenance": Equipment.objects.filter(
-                status="maintenance"
-            ).count(),
-            "equipment_damaged": Equipment.objects.filter(
-                status="damaged"
-            ).count(),
-
-            "upcoming_events": upcoming_events,
-            "recent_events": recent_events,
-
-            "todays_duties": DutyAssignment.objects.filter(
-                event__date=today
-            ).select_related(
-                "event", "position", "member"
-            ).order_by(
-                "event__start_time", "position__name"
-            ),
-
-            "attendance_present": Attendance.objects.filter(
-                event__date=today,
-                status="present",
-            ).count(),
-
-            "attendance_late": Attendance.objects.filter(
-                event__date=today,
-                status="late",
-            ).count(),
-
-            "attendance_absent": Attendance.objects.filter(
-                event__date=today,
-                status="absent",
-            ).count(),
-
-            "dashboard_role": role,
-        }
-
-        return render(request, "core/dashboard.html", context)
-
-    # ---------------------------------------------------------
-    # Users without a configured application role
-    # ---------------------------------------------------------
     context = {
         "today": today,
-        "member_count": None,
-        "event_count": Event.objects.filter(date__gte=today).count(),
-        "equipment_count": None,
+
+        # Main statistics
+        "member_count": member_count,
+        "event_count": event_count,
+        "equipment_count": equipment_count,
+        "available_equipment": available_equipment,
+
+        # Equipment breakdown
+        "equipment_in_use": equipment_in_use,
+        "equipment_maintenance": equipment_maintenance,
+        "equipment_damaged": equipment_damaged,
+
+        # Media
         "media_count": media_count,
         "album_count": album_count,
-        "available_equipment": None,
-        "equipment_in_use": None,
-        "equipment_maintenance": None,
-        "equipment_damaged": None,
+
+        # Attendance
+        "attendance_today": attendance_today,
+        "attendance_present": attendance_present,
+        "attendance_late": attendance_late,
+        "attendance_absent": attendance_absent,
+        "attendance_excused": attendance_excused,
+
+        # Events
         "upcoming_events": upcoming_events,
         "recent_events": recent_events,
-        "todays_duties": DutyAssignment.objects.none(),
-        "attendance_present": 0,
-        "attendance_late": 0,
-        "attendance_absent": 0,
-        "dashboard_role": None,
+
+        # Roster
+        "todays_duties": todays_duties,
+        "pending_assignments": my_pending_assignments
+        if role == "team_member"
+        else pending_assignments,
+
+        # Announcements
+        "announcements": announcements,
+
+        # User role
+        "dashboard_role": role,
     }
 
-    return render(request, "core/dashboard.html", context)
-
+    return render(
+        request,
+        "core/dashboard.html",
+        context,
+    )
 
 
 def service_worker(request):
