@@ -64,6 +64,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
+    # Cloudinary
+    "cloudinary",
+    "cloudinary_storage",
+
     # Project apps
     "core",
     "accounts",
@@ -201,6 +205,20 @@ MEDIA_URL = "/media/"
 
 MEDIA_ROOT = BASE_DIR / "media"
 
+
+# =========================================================
+# CLOUDINARY MEDIA STORAGE
+# =========================================================
+
+if os.getenv("CLOUDINARY_URL"):
+    STORAGES = {
+        "default": {
+            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
 
 # =========================================================
 # DEFAULT PRIMARY KEY
