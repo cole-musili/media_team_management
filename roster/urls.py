@@ -5,6 +5,8 @@ from .views import (
     assignment_delete,
     assignment_edit,
     assignment_status,
+    assignment_confirm,
+    assignment_decline,
     position_create,
     position_edit,
     position_list,
@@ -38,6 +40,19 @@ urlpatterns = [
         "assignment/<int:pk>/status/",
         assignment_status,
         name="assignment_status",
+    ),
+
+    # Team member confirmation
+    path(
+        "assignment/<int:pk>/confirm/",
+        assignment_confirm,
+        name="assignment_confirm",
+    ),
+
+    path(
+        "assignment/<int:pk>/decline/",
+        assignment_decline,
+        name="assignment_decline",
     ),
 
     path(

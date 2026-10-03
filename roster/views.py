@@ -212,6 +212,97 @@ def assignment_status(request, pk):
     return redirect("roster_list")
 
 
+@role_required("team_member")
+def assignment_confirm(request, pk):
+    assignment = get_object_or_404(
+        DutyAssignment.objects.select_related(
+            "member",
+            "event",
+            "position",
+        ),
+        pk=pk,
+    )
+
+    member = getattr(request.user, "media_member", None)
+
+    if not member or assignment.member_id != member.id:
+        messages.error(
+            request,
+            "You are not allowed to confirm this assignment.",
+        )
+        return redirect("roster_list")
+
+    if request.method == "POST":
+
+        if assignment.status != "pending":
+            messages.info(
+                request,
+                "This assignment is no longer pending.",
+            )
+            return redirect("roster_list")
+
+        assignment.status = "confirmed"
+        assignment.save(
+            update_fields=["status"]
+        )
+
+        messages.success(
+            request,
+            (
+                f"You confirmed your duty as "
+                f"{assignment.position.name} "
+                f"for {assignment.event.name}."
+            ),
+        )
+
+    return redirect("roster_list")
+
+
+@role_required("team_member")
+def assignment_decline(request, pk):
+    assignment = get_object_or_404(
+        DutyAssignment.objects.select_related(
+            "member",
+            "event",
+            "position",
+        ),
+        pk=pk,
+    )
+
+    member = getattr(request.user, "media_member", None)
+
+    if not member or assignment.member_id != member.id:
+        messages.error(
+            request,
+            "You are not allowed to decline this assignment.",
+        )
+        return redirect("roster_list")
+
+    if request.method == "POST":
+
+        if assignment.status != "pending":
+            messages.info(
+                request,
+                "This assignment is no longer pending.",
+            )
+            return redirect("roster_list")
+
+        assignment.status = "declined"
+        assignment.save(
+            update_fields=["status"]
+        )
+
+        messages.warning(
+            request,
+            (
+                f"You declined your duty as "
+                f"{assignment.position.name} "
+                f"for {assignment.event.name}."
+            ),
+        )
+
+    return redirect("roster_list")
+
 @role_required("admin", "coordinator")
 def assignment_delete(request, pk):
     assignment = get_object_or_404(

@@ -46,10 +46,123 @@ Plan and manage media team assignments
             </a>
 
             {% if user_role == "admin" or user_role == "coordinator" %}
-                <a href="{% url 'assignment_create' %}" class="btn btn-primary roster-action-btn">
-                    <i class="bi bi-plus-lg me-1"></i>
-                    Assign Member
-                </a>
+            
+            <td class="text-end" data-label="Actions">
+                <div class="dropdown">
+            
+                    <button class="btn btn-sm btn-light border roster-menu-btn" data-bs-toggle="dropdown" aria-expanded="false"
+                        title="Assignment actions">
+                        <i class="bi bi-three-dots"></i>
+                    </button>
+            
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+            
+                        <li>
+                            <a class="dropdown-item" href="{% url 'assignment_edit' a.pk %}">
+                                <i class="bi bi-pencil me-2"></i>
+                                Edit Assignment
+                            </a>
+                        </li>
+            
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+            
+                        {% if a.status == "pending" %}
+                        <li>
+                            <form method="post" action="{% url 'assignment_status' a.pk %}">
+                                {% csrf_token %}
+            
+                                <input type="hidden" name="status" value="confirmed">
+            
+                                <button class="dropdown-item" type="submit">
+                                    <i class="bi bi-check2 me-2"></i>
+                                    Confirm
+                                </button>
+                            </form>
+                        </li>
+            
+                        <li>
+                            <form method="post" action="{% url 'assignment_status' a.pk %}">
+                                {% csrf_token %}
+            
+                                <input type="hidden" name="status" value="declined">
+            
+                                <button class="dropdown-item" type="submit">
+                                    <i class="bi bi-x me-2"></i>
+                                    Decline
+                                </button>
+                            </form>
+                        </li>
+                        {% endif %}
+            
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+            
+                        <li>
+                            <form method="post" action="{% url 'assignment_delete' a.pk %}"
+                                onsubmit="return confirm('Remove this assignment?');">
+                                {% csrf_token %}
+            
+                                <button class="dropdown-item text-danger" type="submit">
+                                    <i class="bi bi-trash me-2"></i>
+                                    Remove
+                                </button>
+                            </form>
+                        </li>
+            
+                    </ul>
+                </div>
+            </td>
+            
+            {% elif user_role == "team_member" %}
+            
+            <td class="text-end" data-label="Actions">
+            
+                {% if a.status == "pending" %}
+            
+                <div class="d-flex justify-content-end gap-2">
+            
+                    <form method="post" action="{% url 'assignment_confirm' a.pk %}">
+                        {% csrf_token %}
+            
+                        <button type="submit" class="btn btn-sm btn-success" title="Confirm this duty">
+                            <i class="bi bi-check2 me-1"></i>
+                            Confirm
+                        </button>
+                    </form>
+            
+                    <form method="post" action="{% url 'assignment_decline' a.pk %}"
+                        onsubmit="return confirm('Are you sure you want to decline this duty?');">
+                        {% csrf_token %}
+            
+                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Decline this duty">
+                            <i class="bi bi-x me-1"></i>
+                            Decline
+                        </button>
+                    </form>
+            
+                </div>
+            
+                {% elif a.status == "confirmed" %}
+            
+                <span class="text-success small fw-semibold">
+                    <i class="bi bi-check-circle me-1"></i>
+                    Duty Confirmed
+                </span>
+            
+                {% elif a.status == "declined" %}
+            
+                <span class="text-danger small fw-semibold">
+                    <i class="bi bi-x-circle me-1"></i>
+                    Duty Declined
+                </span>
+            
+                {% endif %}
+            
+            </td>
+            
             {% endif %}
         </div>
     </div>
@@ -222,7 +335,9 @@ Plan and manage media team assignments
                         <th>Position</th>
                         {% if user_role != "team_member" %}<th>Member</th>{% endif %}
                         <th>Status</th>
-                        {% if user_role == "admin" or user_role == "coordinator" %}<th></th>{% endif %}
+                        {% if user_role == "admin" or user_role == "coordinator" or user_role == "team_member" %}
+                        <th>Actions</th>
+                        {% endif %}
                     </tr>
                 </thead>
 
